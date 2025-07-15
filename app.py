@@ -23,7 +23,7 @@ def download(filename):
 
 @app.route('/report', methods=['POST'])
 def report():
-    data = request.json
+    data = request.get_json()
     if not data:
         return "No data", 400
 
@@ -50,7 +50,7 @@ def report():
         return jsonify({"status": "success"}), 200
 
     except Exception as e:
-        return f"DB Error: {str(e)}", 500
+    return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
