@@ -6,8 +6,8 @@ import os
 app = Flask(__name__)
 
 db_config = {
-    "host": "mysql.railway.internal",
-    "port": 3306,
+    "host": "interchange.proxy.rlwy.net",
+    "port": 10000,
     "user": "root",
     "password": "HoqhkLPJdxgzSCjaUCnrYdQvwOeaFxXm",
     "database": "railway"
