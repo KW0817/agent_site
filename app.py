@@ -25,7 +25,7 @@ def download(filename):
 def report():
     data = request.get_json()
     if not data:
-        return "No data", 400
+        return jsonify({"status": "error", "message": "No JSON data received"}), 400
 
     try:
         conn = mysql.connector.connect(**db_config)
@@ -41,16 +41,16 @@ def report():
             data.get("name"),
             data.get("ip"),
             data.get("public_ip"),
-            data.get("os")
+            data.get("os_info")  
         )
         cursor.execute(sql, values)
         conn.commit()
         cursor.close()
         conn.close()
+        print("✅ 資料寫入成功")
         return jsonify({"status": "success"}), 200
 
     except Exception as e:
+        print("❌ 資料寫入失敗:", e)
         return jsonify({"status": "error", "message": str(e)}), 500
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 10000)))
