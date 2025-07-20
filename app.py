@@ -2,6 +2,7 @@ from flask import Flask, request, render_template, send_from_directory, jsonify
 import mysql.connector
 from datetime import datetime, timedelta
 import os
+from init_db import init_database
 
 app = Flask(__name__)
 
@@ -54,5 +55,7 @@ def report():
         print("❌ 資料寫入失敗:", e)
         return jsonify({"status": "error", "message": str(e)}), 500
 
+# Initialize database before starting the server
+init_database()
 app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 10000)))
 
