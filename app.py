@@ -13,6 +13,10 @@ db_config = {
     "database": "railway"
 }
 
+@app.route("/templates/1")
+def agent_detail():
+    return render_template("1.html")
+
 @app.route('/')
 def index():
     return render_template('index.html')
