@@ -2,6 +2,8 @@ from flask import Flask, request, jsonify
 import pymysql
 from datetime import datetime
 import pytz
+import os
+from init_db import init_database
 
 app = Flask(__name__)
 
@@ -36,4 +38,6 @@ def report():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == "__main__":
+    # Initialize database before starting the server
+    init_database()
     app.run(host="0.0.0.0", port=5000)
