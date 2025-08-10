@@ -1,32 +1,53 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <title>Agent 詳細頁面</title>
-    <style>
-        body {
-            background-color: #f5f5f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            font-family: Arial, sans-serif;
-        }
-        .message-box {
-            background-color: white;
-            padding: 30px 40px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-        h2 {
-            color: #333;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>漏攔截事件清單</title>
+  <style>
+    body{margin:0;padding:24px;font-family:Arial,sans-serif;background:#f7f7f7}
+    .wrap{max-width:1100px;margin:0 auto;background:#fff;border-radius:12px;padding:20px 24px;box-shadow:0 0 10px rgba(0,0,0,.06)}
+    table{width:100%;border-collapse:collapse;margin-top:14px}
+    th,td{border-bottom:1px solid #eee;padding:8px 6px;text-align:left;font-size:14px}
+    .filters{display:flex;gap:8px;align-items:center}
+    input{padding:6px 8px;border:1px solid #ddd;border-radius:8px}
+    a{color:#007bff;text-decoration:none}
+  </style>
 </head>
 <body>
-    <div class="message-box">
-        <h2>你已經來到 Agent 詳細頁面123</h2>
-    </div>
+<div class="wrap">
+  <h2>漏攔截事件清單</h2>
+  <div class="filters">
+    <form method="get">
+      <input name="vector" placeholder="向量" value="{{ vector or '' }}">
+      <input name="client" placeholder="客戶/節點" value="{{ client or '' }}">
+      <button type="submit">篩選</button>
+      <a href="/view" style="margin-left:8px;">清除</a>
+    </form>
+    <a href="/" style="margin-left:auto;">← 返回首頁</a>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>時間(UTC)</th><th>客戶</th><th>Public IP</th><th>Internal IP</th>
+        <th>向量</th><th>Payload Hash</th><th>長度</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>{{ r.ts }}</td>
+        <td>{{ r.client_id }}</td>
+        <td>{{ r.ip_public }}</td>
+        <td>{{ r.ip_internal }}</td>
+        <td><a href="/view?vector={{ r.vector|urlencode }}">{{ r.vector }}</a></td>
+        <td title="SHA256">{{ r.payload_sha256 }}</td>
+        <td>{{ r.payload_len }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="7">尚無資料</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 </body>
 </html>
