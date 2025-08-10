@@ -23,6 +23,7 @@ def index():
 
 @app.route('/download/<filename>')
 def download(filename):
+    downloads_dir = os.path.join(app.root_path, "downloads")
     return send_from_directory('downloads', filename, as_attachment=True)
 
 @app.route('/report', methods=['POST'])
