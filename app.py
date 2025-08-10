@@ -85,6 +85,8 @@ def view():
     client = (request.args.get("client") or "").strip()
     q = "SELECT id, ts, client_id, ip_public, ip_internal, vector, payload_sha256, payload_len FROM events WHERE 1=1"
     p = {}
+    if request.method == "POST":
+        return "OK", 200
     if vector:
         q += " AND vector = :vector"; p["vector"] = vector
     if client:
