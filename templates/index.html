@@ -1,44 +1,60 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <title>Agent 下載頁面</title>
-    <style>
-        body {
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-        }
-        .container {
-            text-align: center;
-            background: white;
-            padding: 30px 40px;
-            border-radius: 12px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            margin-bottom: 20px;
-        }
-        a {
-            text-decoration: none;
-            color: #007bff;
-            font-size: 18px;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Agent 下載與儀表板</title>
+  <style>
+    body{margin:0;height:100vh;display:flex;justify-content:center;align-items:center;font-family:Arial,sans-serif;background:#f0f0f0}
+    .container{width:880px;max-width:95%;background:#fff;padding:28px 32px;border-radius:12px;box-shadow:0 0 10px rgba(0,0,0,.1)}
+    h1{margin:0 0 10px}
+    a{color:#007bff;text-decoration:none}
+    a:hover{text-decoration:underline}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    th,td{border-bottom:1px solid #eee;padding:8px 6px;text-align:left}
+    .muted{color:#666;font-size:14px}
+    .btn{display:inline-block;padding:8px 12px;border-radius:8px;background:#efefef}
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>下載 Agent</h1>
-        <ul>
-            <li><a href="/download/agent.exe">點我下載 agent.exe</a></li>
-        </ul>
+<div class="container">
+  <h1>下載 Agent</h1>
+  <div class="grid">
+    <div>
+      <ul>
+        <li><a href="/downloads/agent.exe">點我下載 agent.exe</a></li>
+        <li class="muted">下載並執行後，若封包未被 IPS/IDS 攔截，會在右側統計與清單出現。</li>
+      </ul>
+      <p style="margin-top:12px"><a class="btn" href="/view">查看最近事件清單 →</a></p>
     </div>
+    <div>
+      <strong>近 24 小時統計（依向量）</strong>
+      <table id="stats">
+        <thead><tr><th>向量</th><th>漏攔截數</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<script>
+(async () => {
+  try{
+    const res = await fetch('/api/stats'); 
+    const data = await res.json();
+    const tbody = document.querySelector('#stats tbody');
+    tbody.innerHTML = '';
+    (data.rows || []).forEach(r=>{
+      const tr=document.createElement('tr');
+      tr.innerHTML = `<td><a href="/view?vector=${encodeURIComponent(r.vector)}">${r.vector||'UNKNOWN'}</a></td><td>${r.cnt}</td>`;
+      tbody.appendChild(tr);
+    });
+    if(!tbody.children.length){
+      tbody.innerHTML = `<tr><td colspan="2" class="muted">尚無資料</td></tr>`;
+    }
+  }catch(e){
+    document.querySelector('#stats tbody').innerHTML = `<tr><td colspan="2" class="muted">讀取失敗</td></tr>`;
+  }
+})();
+</script>
 </body>
 </html>
