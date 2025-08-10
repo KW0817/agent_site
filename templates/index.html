@@ -4,26 +4,69 @@
   <meta charset="UTF-8">
   <title>Agent 下載與儀表板</title>
   <style>
-    body{margin:0;height:100vh;display:flex;justify-content:center;align-items:center;font-family:Arial,sans-serif;background:#f0f0f0}
-    .container{width:880px;max-width:95%;background:#fff;padding:28px 32px;border-radius:12px;box-shadow:0 0 10px rgba(0,0,0,.1)}
-    h1{margin:0 0 10px}
-    a{color:#007bff;text-decoration:none}
-    a:hover{text-decoration:underline}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}
-    table{width:100%;border-collapse:collapse;margin-top:8px}
-    th,td{border-bottom:1px solid #eee;padding:8px 6px;text-align:left}
-    .muted{color:#666;font-size:14px}
-    .btn{display:inline-block;padding:8px 12px;border-radius:8px;background:#efefef}
-    /* 新增：中上方說明區塊 */
-    .intro{
-      margin:6px auto 16px;
-      text-align:center;
-      color:#444;
-      line-height:1.6;
-      background:#fafafa;
-      border:1px solid #eee;
-      padding:10px 14px;
-      border-radius:10px;
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+    }
+    .container {
+      width: 880px;
+      max-width: 95%;
+      background: #fff;
+      padding: 28px 32px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,.1);
+    }
+    h1 {
+      margin: 0 0 10px;
+    }
+    a {
+      color: #007bff;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 18px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      border-bottom: 1px solid #eee;
+      padding: 8px 6px;
+      text-align: left;
+    }
+    .muted {
+      color: #666;
+      font-size: 14px;
+    }
+    .btn {
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: #efefef;
+    }
+    /* 說明文字靠左 */
+    .intro {
+      margin: 6px auto 16px;
+      text-align: left;
+      color: #444;
+      line-height: 1.6;
+      background: #fafafa;
+      border: 1px solid #eee;
+      padding: 10px 14px;
+      border-radius: 10px;
     }
   </style>
 </head>
@@ -31,7 +74,7 @@
 <div class="container">
   <h1>下載 Agent</h1>
 
-  <!-- 中上方新增的簡介說明 -->
+  <!-- 中上方靠左的簡介說明 -->
   <div class="intro">
     本專題旨在開發一個網站平台，提供輕量化測試 agent，讓企業能模擬各種惡意攻擊行為，驗證其 IPS/IDS 防禦能力。透過惡意程式樣本分析與特徵提取，平台可生成詳細測試報告，協助企業即時發現防禦弱點並調整策略，避免防禦失效與資安風險。
   </div>
@@ -55,20 +98,20 @@
 </div>
 <script>
 (async () => {
-  try{
+  try {
     const res = await fetch('/api/stats'); 
     const data = await res.json();
     const tbody = document.querySelector('#stats tbody');
     tbody.innerHTML = '';
-    (data.rows || []).forEach(r=>{
-      const tr=document.createElement('tr');
-      tr.innerHTML = `<td><a href="/view?vector=${encodeURIComponent(r.vector)}">${r.vector||'UNKNOWN'}</a></td><td>${r.cnt}</td>`;
+    (data.rows || []).forEach(r => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td><a href="/view?vector=${encodeURIComponent(r.vector)}">${r.vector || 'UNKNOWN'}</a></td><td>${r.cnt}</td>`;
       tbody.appendChild(tr);
     });
-    if(!tbody.children.length){
+    if (!tbody.children.length) {
       tbody.innerHTML = `<tr><td colspan="2" class="muted">尚無資料</td></tr>`;
     }
-  }catch(e){
+  } catch (e) {
     document.querySelector('#stats tbody').innerHTML = `<tr><td colspan="2" class="muted">讀取失敗</td></tr>`;
   }
 })();
