@@ -1,2 +1,5 @@
 flask
 mysql-connector-python
+SQLAlchemy
+PyMySQL
+gunicorn
