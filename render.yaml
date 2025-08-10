@@ -2,7 +2,6 @@ services:
 - type: web
   name: agent-site
   env: python
-  rootDir: agent_site      # <— 關鍵：指向子資料夾
   plan: free
   buildCommand: pip install -r requirements.txt
   startCommand: gunicorn server:app --bind 0.0.0.0:$PORT --timeout 120
