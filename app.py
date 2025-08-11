@@ -35,18 +35,15 @@ with engine.begin() as conn:
     )
     """))
 
-# ==============
-# 靜態下載
-# ==============
-@app.route("/downloads/<path:filename>")
 def download_file(filename):
     downloads_dir = os.path.join(app.root_path, "downloads")
     return send_from_directory(downloads_dir, filename, as_attachment=True)
 
-# ==============
-# Agent 回報端點
-# ==============
-@app.route("/report", methods=["POST"])
+@app.route('/clear', methods=['POST'])
+def clear():
+    open("log.txt", "w").close()
+    return "Cleared", 200
+
 def report():
     # 解析 JSON
     try:
