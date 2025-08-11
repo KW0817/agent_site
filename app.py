@@ -39,11 +39,6 @@ def download_file(filename):
     downloads_dir = os.path.join(app.root_path, "downloads")
     return send_from_directory(downloads_dir, filename, as_attachment=True)
 
-@app.route('/clear', methods=['POST'])
-def clear():
-    open("log.txt", "w").close()
-    return "Cleared", 200
-
 def report():
     # 解析 JSON
     try:
