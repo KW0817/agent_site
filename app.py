@@ -1,5 +1,5 @@
 # app.py
-from flask import Flask, request, render_template, send_from_directory, jsonify
+from flask import Flask, request, render_template, send_from_directory, jsonify, redirect, url_for
 from datetime import datetime, timedelta
 from hashlib import sha256
 from sqlalchemy import create_engine, text
@@ -139,3 +139,28 @@ def health():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", "5050")))
+
+# 清除事件（全部或僅目前篩選）
+@app.route("/clear", methods=["POST"])
+def clear():
+    scope  = request.form.get("scope", "all")          # all / filtered
+    vector = (request.form.get("vector") or "").strip()
+    client = (request.form.get("client") or "").strip()
+
+    with engine.begin() as conn:
+        if scope == "filtered" and (vector or client):
+            q = "DELETE FROM events WHERE 1=1"
+            p = {}
+            if vector:
+                q += " AND vector = :vector"
+                p["vector"] = vector
+            if client:
+                q += " AND client_id = :client"
+                p["client"] = client
+            conn.execute(text(q), p)
+        else:
+            conn.execute(text("DELETE FROM events"))
+
+    # 清完後回到 view（保留目前的查詢參數）
+    return redirect(url_for("view", vector=vector if scope=="filtered" else None,
+                                   client=client if scope=="filtered" else None))
