@@ -2,130 +2,129 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <title>Agent 下載與儀表板</title>
+  <title>下載 Agent</title>
   <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-family: Arial, sans-serif;
-      background: #f0f0f0;
-    }
-    .container {
-      width: 880px;
-      max-width: 95%;
-      background: #fff;
-      padding: 28px 32px;
+    :root { --card-bg:#ffffff; --hero-bg:#f5f1ec; --brand:#e53935; }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Arial,sans-serif;background:#f3f4f6;color:#111}
+
+    /* 外層白色卡片（原本的容器） */
+    .card{
+      max-width: 980px;
+      margin: 24px auto;
+      background: var(--card-bg);
       border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,.1);
+      box-shadow: 0 0 10px rgba(0,0,0,.08);
+      padding: 0 0 24px; /* 上方 hero 改滿版，這裡不需要左右 padding */
     }
-    h1 {
-      margin: 0 0 10px;
+    .card-inner{ padding: 0 22px; }
+
+    /* === Full-bleed Hero（滿版介紹區） === */
+    .hero{
+      width: 100vw;                 /* 滿版寬 */
+      margin-left: 50%;             /* 讓元素中心對齊卡片中心 */
+      transform: translateX(-50%);  /* 把 margin-left 50% 抵銷，實現 full-bleed */
+      background: var(--hero-bg);
+      padding: 38px 0;              /* 只做上下 padding，左右用內部容器控距 */
     }
-    a {
-      color: #007bff;
-      text-decoration: none;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
-    .grid {
+    .hero .container{
+      max-width: 980px;             /* 與卡片等寬，視覺連續 */
+      margin: 0 auto;
+      padding: 0 22px;
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-top: 18px;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 28px;
+      align-items: center;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 8px;
+    .hero h3{ color: var(--brand); margin:0 0 12px; }
+    .hero p{
+      margin:0;
+      font-size:18px;
+      line-height:1.75;
+      font-weight:700;
     }
-    th, td {
-      border-bottom: 1px solid #eee;
-      padding: 8px 6px;
-      text-align: left;
+    .hero img{
+      width:100%;
+      display:block;
+      border-radius:10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.06);
     }
-    .muted {
-      color: #666;
-      font-size: 14px;
-    }
-    .btn {
-      display: inline-block;
-      padding: 8px 12px;
-      border-radius: 8px;
-      background: #efefef;
-    }
-    /* 說明文字靠左 */
-    .intro {
-      margin: 6px auto 16px;
-      text-align: left;
-      color: #444;
-      line-height: 1.6;
-      background: #fafafa;
-      border: 1px solid #eee;
-      padding: 10px 14px;
-      border-radius: 10px;
-    }
+
+    /* 下面原本內容樣式（輕微調整） */
+    h1{ padding:22px 22px 0; margin:0; }
+    a{ color:#1a73e8; text-decoration:none }
+    a:hover{ text-decoration:underline }
+    .muted{ color:#666; font-size:14px }
+
+    /* 右側統計表 */
+    .grid{ display:grid; grid-template-columns:1fr 1fr; gap:18px; padding:0 22px; margin-top:14px }
+    table{ width:100%; border-collapse:collapse; margin-top:8px; font-size:14px }
+    th,td{ border-bottom:1px solid #eee; padding:8px 6px; text-align:left }
+    .btn{ display:inline-block; padding:8px 12px; border:1px solid #e0e0e0; border-radius:8px; background:#fff }
   </style>
 </head>
 <body>
-<div class="container">
-  <h1>下載 Agent</h1>
+  <div class="card">
+    <h1>下載 Agent</h1>
 
-<!-- 頂部介紹區塊 -->
-<div style="background-color: #f5f1ec; padding: 40px; display: flex; align-items: center;">
-    <div style="flex: 1; padding-right: 30px;">
-        <h3 style="color: red; font-weight: bold;">專題簡介</h3>
-        <p style="font-size: 20px; font-weight: bold; line-height: 1.6;">
-            本專題旨在開發一個網站平台，提供輕量化測試 agent，讓企業能模擬各種惡意攻擊行為，驗證其 IPS/IDS 防禦能力。
-            透過惡意程式樣本分析與特徵提取，平台可生成詳細測試報告，協助企業即時發現防禦弱點並調整策略，
-            避免防禦失效與資安風險。
-        </p>
-    </div>
-    <div style="flex: 1;">
-<img src="{{ url_for('static', filename='images/banner.jpg') }}" alt="專題圖片" style="width:100%; border-radius:10px;">
-    </div>
-</div>
+    <!-- 滿版介紹區 -->
+    <section class="hero">
+      <div class="container">
+        <div>
+          <h3>專題簡介</h3>
+          <p>
+            本專題旨在開發一個網站平台，提供輕量化測試 agent，讓企業能模擬各種惡意攻擊行為，
+            驗證其 IPS/IDS 防禦能力。透過惡意程式樣本分析與特徵提取，平台可生成詳細測試報告，
+            協助企業即時發現防禦弱點並調整策略，避免防禦失效與資安風險。
+          </p>
+        </div>
+        <div>
+          <!-- 確保你已把圖片放在 static/images/banner.jpg -->
+          <img src="{{ url_for('static', filename='images/banner.jpg') }}" alt="專題圖片">
+        </div>
+      </div>
+    </section>
 
-
-  <div class="grid">
-    <div>
-      <ul>
-        <li><a href="/downloads/agent.exe">點我下載 agent.exe</a></li>
-        <li class="muted">下載並執行後，若封包未被 IPS/IDS 攔截，會在右側統計與清單出現。</li>
-      </ul>
-      <p style="margin-top:12px"><a class="btn" href="/view">查看最近事件清單 →</a></p>
-    </div>
-    <div>
-      <strong>近 24 小時統計</strong>
-      <table id="stats">
-        <thead><tr><th>向量</th><th>漏攔截數</th></tr></thead>
-        <tbody></tbody>
-      </table>
+    <!-- 原本內容（保持不變，可自行調整） -->
+    <div class="card-inner">
+      <div class="grid">
+        <div>
+          <ul>
+            <li><a href="/downloads/agent.exe">點我下載 agent.exe</a></li>
+            <li class="muted">下載後執行；若封包未被 IPS/IDS 攔截，會在右側統計與清單出現。</li>
+          </ul>
+          <p style="margin-top:12px"><a class="btn" href="/view">查看最近事件清單 →</a></p>
+        </div>
+        <div>
+          <strong>近 24 小時統計（依向量）</strong>
+          <table id="stats">
+            <thead><tr><th>向量</th><th>漏攔截數</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
-</div>
-<script>
-(async () => {
-  try {
-    const res = await fetch('/api/stats'); 
-    const data = await res.json();
-    const tbody = document.querySelector('#stats tbody');
-    tbody.innerHTML = '';
-    (data.rows || []).forEach(r => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td><a href="/view?vector=${encodeURIComponent(r.vector)}">${r.vector || 'UNKNOWN'}</a></td><td>${r.cnt}</td>`;
-      tbody.appendChild(tr);
-    });
-    if (!tbody.children.length) {
-      tbody.innerHTML = `<tr><td colspan="2" class="muted">尚無資料</td></tr>`;
+
+  <script>
+  (async () => {
+    try{
+      const res = await fetch('/api/stats');
+      const data = await res.json();
+      const tbody = document.querySelector('#stats tbody');
+      tbody.innerHTML = '';
+      (data.rows || []).forEach(r=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML = `<td><a href="/view?vector=${encodeURIComponent(r.vector)}">${r.vector||'UNKNOWN'}</a></td><td>${r.cnt}</td>`;
+        tbody.appendChild(tr);
+      });
+      if(!tbody.children.length){
+        tbody.innerHTML = `<tr><td colspan="2" class="muted">尚無資料</td></tr>`;
+      }
+    }catch(e){
+      document.querySelector('#stats tbody').innerHTML = `<tr><td colspan="2" class="muted">讀取失敗</td></tr>`;
     }
-  } catch (e) {
-    document.querySelector('#stats tbody').innerHTML = `<tr><td colspan="2" class="muted">讀取失敗</td></tr>`;
-  }
-})();
-</script>
+  })();
+  </script>
 </body>
 </html>
