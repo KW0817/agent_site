@@ -8,23 +8,42 @@
     .wrap{max-width:1100px;margin:0 auto;background:#fff;border-radius:12px;padding:20px 24px;box-shadow:0 0 10px rgba(0,0,0,.06)}
     table{width:100%;border-collapse:collapse;margin-top:14px}
     th,td{border-bottom:1px solid #eee;padding:8px 6px;text-align:left;font-size:14px}
-    .filters{display:flex;gap:8px;align-items:center}
+    .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .toolbar form{display:flex;gap:8px;align-items:center}
     input{padding:6px 8px;border:1px solid #ddd;border-radius:8px}
     a{color:#007bff;text-decoration:none}
+    .btn{padding:6px 12px;border:1px solid #e0e0e0;border-radius:8px;background:#fff;cursor:pointer}
+    .btn-danger{border-color:#e57373;background:#ffebee}
   </style>
 </head>
 <body>
 <div class="wrap">
   <h2>漏攔截事件清單</h2>
-  <div class="filters">
-    <form method="get">
+
+  <div class="toolbar">
+    <!-- 篩選（GET） -->
+    <form method="get" action="{{ url_for('view') }}">
       <input name="vector" placeholder="向量" value="{{ vector or '' }}">
       <input name="client" placeholder="客戶/節點" value="{{ client or '' }}">
-      <button type="submit">篩選</button>
-      <a href="/view" style="margin-left:8px;">清除</a>
+      <button type="submit" class="btn">篩選</button>
+      <a href="{{ url_for('view') }}" class="btn">清除篩選</a>
     </form>
-    <a href="/" style="margin-left:auto;">← 返回首頁</a>
+
+    <!-- 清除資料（POST） -->
+    <form method="post" action="{{ url_for('clear') }}"
+          onsubmit="return confirm('確定要清除{{ '目前篩選結果' if (vector or client) else '全部事件' }}嗎？');">
+      <!-- 告知後端範圍：有套用篩選時只清除當前結果，否則清全部 -->
+      <input type="hidden" name="scope" value="{{ 'filtered' if (vector or client) else 'all' }}">
+      <input type="hidden" name="vector" value="{{ vector or '' }}">
+      <input type="hidden" name="client" value="{{ client or '' }}">
+      <button type="submit" class="btn btn-danger">
+        清除{{ '目前篩選結果' if (vector or client) else '全部' }}
+      </button>
+    </form>
+
+    <a href="{{ url_for('index') }}" style="margin-left:auto;">← 返回首頁</a>
   </div>
+
   <table>
     <thead>
       <tr>
@@ -39,7 +58,7 @@
         <td>{{ r.client_id }}</td>
         <td>{{ r.ip_public }}</td>
         <td>{{ r.ip_internal }}</td>
-        <td><a href="/view?vector={{ r.vector|urlencode }}">{{ r.vector }}</a></td>
+        <td><a href="{{ url_for('view', vector=r.vector) }}">{{ r.vector }}</a></td>
         <td title="SHA256">{{ r.payload_sha256 }}</td>
         <td>{{ r.payload_len }}</td>
       </tr>
