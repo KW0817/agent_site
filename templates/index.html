@@ -1,130 +1,212 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>下載 Agent</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    :root { --card-bg:#ffffff; --hero-bg:#f5f1ec; --brand:#e53935; }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Arial,sans-serif;background:#f3f4f6;color:#111}
-
-    /* 外層白色卡片（原本的容器） */
-    .card{
-      max-width: 980px;
-      margin: 24px auto;
-      background: var(--card-bg);
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,.08);
-      padding: 0 0 24px; /* 上方 hero 改滿版，這裡不需要左右 padding */
+    :root{
+      --hero-h: 80vh;
+      --brand: #e53935;
+      --ink: #0f172a;
+      --muted:#6b7280;
+      --card:#ffffff;
+      --dot:#cbd5e1;
+      --dot-active:#0ea5e9;
     }
-    .card-inner{ padding: 0 22px; }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;font-family:Arial,system-ui,-apple-system,sans-serif;color:var(--ink);background:#f3f4f6;scroll-behavior:smooth}
 
-    /* === Full-bleed Hero（滿版介紹區） === */
-    .hero{
-      width: 100vw;                 /* 滿版寬 */
-      margin-left: 50%;             /* 讓元素中心對齊卡片中心 */
-      transform: translateX(-50%);  /* 把 margin-left 50% 抵銷，實現 full-bleed */
-      background: var(--hero-bg);
-      padding: 38px 0;              /* 只做上下 padding，左右用內部容器控距 */
+    /* ===== Full-bleed hero sections ===== */
+    section.hero{
+      width:100vw;
+      height:var(--hero-h);
+      position:relative;
+      display:flex;
+      align-items:center;
+      overflow:hidden;
+    }
+    .hero .bg{
+      position:absolute; inset:0;
+      background:#f5f1ec center/cover no-repeat;
+      filter:saturate(1) contrast(1);
+      transform:scale(1.02);
+    }
+    .hero .shade{
+      position:absolute; inset:0;
+      background:linear-gradient(90deg, rgba(0,0,0,.45) 0%, rgba(0,0,0,.25) 40%, rgba(0,0,0,0) 70%);
+      pointer-events:none;
     }
     .hero .container{
-      max-width: 980px;             /* 與卡片等寬，視覺連續 */
-      margin: 0 auto;
-      padding: 0 22px;
-      display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 28px;
-      align-items: center;
-    }
-    .hero h3{ color: var(--brand); margin:0 0 12px; }
-    .hero p{
-      margin:0;
-      font-size:18px;
-      line-height:1.75;
-      font-weight:700;
-    }
-    .hero img{
       width:100%;
-      display:block;
-      border-radius:10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,.06);
+      max-width:1100px;
+      margin:0 auto;
+      padding:0 24px;
+      position:relative;
+      z-index:1;
+      display:grid;
+      grid-template-columns:1.1fr 0.9fr;
+      gap:28px;
+      align-items:center;
     }
+    .hero h1,.hero h2{margin:0 0 12px;color:#fff}
+    .eyebrow{color:var(--brand);font-weight:700;margin-bottom:8px}
+    .hero p{margin:0;color:#f5f5f5;line-height:1.7;font-size:18px;font-weight:700}
+    .cta{
+      display:inline-block;margin-top:16px;padding:10px 14px;border-radius:10px;
+      background:#fff;border:1px solid #e5e7eb;color:#111;text-decoration:none
+    }
+    .cta[aria-disabled="true"]{opacity:.6;pointer-events:none}
 
-    /* 下面原本內容樣式（輕微調整） */
-    h1{ padding:22px 22px 0; margin:0; }
-    a{ color:#1a73e8; text-decoration:none }
-    a:hover{ text-decoration:underline }
-    .muted{ color:#666; font-size:14px }
+    /* 讓奇偶段左右互換，畫面更活 */
+    section.hero:nth-child(even) .container{grid-template-columns:0.9fr 1.1fr}
+    section.hero:nth-child(even) .shade{background:linear-gradient(270deg, rgba(0,0,0,.45) 0%, rgba(0,0,0,.25) 40%, rgba(0,0,0,0) 70%);}
 
-    /* 右側統計表 */
-    .grid{ display:grid; grid-template-columns:1fr 1fr; gap:18px; padding:0 22px; margin-top:14px }
-    table{ width:100%; border-collapse:collapse; margin-top:8px; font-size:14px }
-    th,td{ border-bottom:1px solid #eee; padding:8px 6px; text-align:left }
-    .btn{ display:inline-block; padding:8px 12px; border:1px solid #e0e0e0; border-radius:8px; background:#fff }
+    /* ===== 圓點導覽 ===== */
+    .dots{
+      position:fixed; right:18px; bottom:22px; display:flex; gap:10px; z-index:10;
+      background:rgba(255,255,255,.9); padding:8px 10px; border-radius:999px; box-shadow:0 4px 16px rgba(0,0,0,.12);
+    }
+    .dot{
+      width:10px; height:10px; border-radius:50%; background:var(--dot); cursor:pointer; border:0;
+    }
+    .dot.active{background:var(--dot-active)}
+
+    /* ===== 底部內容卡 ===== */
+    .card{
+      max-width:1100px; margin:28px auto; background:var(--card); border-radius:12px;
+      box-shadow:0 2px 12px rgba(0,0,0,.08); padding:22px;
+    }
+    .grid{display:grid; grid-template-columns:1fr 1fr; gap:18px}
+    table{width:100%; border-collapse:collapse; margin-top:8px; font-size:14px}
+    th,td{border-bottom:1px solid #eee; padding:8px 6px; text-align:left}
+    a{color:#1a73e8; text-decoration:none}
+    a:hover{text-decoration:underline}
+    .muted{color:var(--muted); font-size:14px}
+
+    @media (max-width: 900px){
+      .hero .container{grid-template-columns:1fr}
+      .hero .shade{background:linear-gradient(0deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,0) 60%)}
+      :root{ --hero-h: 70vh; }
+    }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>下載 Agent</h1>
 
-    <!-- 滿版介紹區 -->
-    <section class="hero">
-      <div class="container">
-        <div>
-          <h3>專題簡介</h3>
-          <p>
-            本專題旨在開發一個網站平台，提供輕量化測試 agent，讓企業能模擬各種惡意攻擊行為，
-            驗證其 IPS/IDS 防禦能力。透過惡意程式樣本分析與特徵提取，平台可生成詳細測試報告，
-            協助企業即時發現防禦弱點並調整策略，避免防禦失效與資安風險。
-          </p>
-        </div>
-        <div>
-          <!-- 確保你已把圖片放在 static/images/banner.jpg -->
-          <img src="{{ url_for('static', filename='images/banner.jpg') }}" alt="專題圖片">
-        </div>
+  <!-- Intro / Hero 1 -->
+  <section class="hero" id="intro">
+    <div class="bg" style="background-image:url('{{ url_for('static', filename='images/intro.jpg') }}'), linear-gradient(#f5f1ec,#f5f1ec)"></div>
+    <div class="shade"></div>
+    <div class="container">
+      <div>
+        <div class="eyebrow">專題簡介</div>
+        <h1>下載 Agent</h1>
+        <p>
+          本專題旨在開發一個網站平台，提供輕量化測試 agent，讓企業能模擬各種惡意攻擊行為，
+          驗證其 IPS/IDS 防禦能力。透過惡意程式樣本分析與特徵提取，平台可生成詳細測試報告，
+          協助企業即時發現防禦弱點並調整策略，避免防禦失效與資安風險。
+        </p>
       </div>
-    </section>
+      <div></div>
+    </div>
+  </section>
 
-    <!-- 原本內容（保持不變，可自行調整） -->
-    <div class="card-inner">
-      <div class="grid">
-        <div>
-          <ul>
-            <li><a href="/downloads/agent.exe">點我下載 agent.exe</a></li>
-            <li class="muted">下載後執行；若封包未被 IPS/IDS 攔截，會在右側統計與清單出現。</li>
-          </ul>
-          <p style="margin-top:12px"><a class="btn" href="/view">查看最近事件清單 →</a></p>
-        </div>
-        <div>
-          <strong>近 24 小時統計（依向量）</strong>
-          <table id="stats">
-            <thead><tr><th>向量</th><th>漏攔截數</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
+  <!-- Hero 2: Windows Agent -->
+  <section class="hero" id="agent-windows">
+    <div class="bg" style="background-image:url('{{ url_for('static', filename='images/agent-windows.jpg') }}'), linear-gradient(#0d1117,#0d1117)"></div>
+    <div class="shade"></div>
+    <div class="container">
+      <div>
+        <div class="eyebrow">Agent · Windows</div>
+        <h2>Windows 測試 Agent</h2>
+        <p>以 WinINet 與 HTTP 傳輸模擬惡意流量，驗證 IPS/IDS 攔截狀況與規則有效性。</p>
+        <a class="cta" href="/downloads/agent.exe">下載 agent.exe</a>
+        <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 →</a>
+      </div>
+      <div></div>
+    </div>
+  </section>
+
+  <!-- Hero 3: Linux Agent (示範，可改為你之後的檔名) -->
+  <section class="hero" id="agent-linux">
+    <div class="bg" style="background-image:url('{{ url_for('static', filename='images/agent-linux.jpg') }}'), linear-gradient(#0b3b2e,#0b3b2e)"></div>
+    <div class="shade"></div>
+    <div class="container">
+      <div>
+        <div class="eyebrow">Agent · Linux</div>
+        <h2>Linux 測試 Agent</h2>
+        <p>以 requests / raw socket 模擬多種協定，支援 Base64 / 分段等繞避策略。</p>
+        <a class="cta" aria-disabled="true" href="#">Coming soon</a>
+      </div>
+      <div></div>
+    </div>
+  </section>
+
+  <!-- Dashboard 卡片（保留原功能） -->
+  <div class="card" id="dashboard">
+    <div class="grid">
+      <div>
+        <ul>
+          <li><a href="/downloads/agent.exe">點我下載 agent.exe</a></li>
+          <li class="muted">下載並執行後，若封包未被 IPS/IDS 攔截，會在右側統計與清單出現。</li>
+        </ul>
+        <p style="margin-top:12px"><a href="/view">查看最近事件清單 →</a></p>
+      </div>
+      <div>
+        <strong>近 24 小時統計（依向量）</strong>
+        <table id="stats">
+          <thead><tr><th>向量</th><th>漏攔截數</th></tr></thead>
+          <tbody></tbody>
+        </table>
       </div>
     </div>
   </div>
 
+  <!-- dots nav -->
+  <div class="dots" id="dots">
+    <button class="dot" data-target="#intro" aria-label="Intro"></button>
+    <button class="dot" data-target="#agent-windows" aria-label="Windows"></button>
+    <button class="dot" data-target="#agent-linux" aria-label="Linux"></button>
+    <button class="dot" data-target="#dashboard" aria-label="Dashboard"></button>
+  </div>
+
   <script>
-  (async () => {
-    try{
-      const res = await fetch('/api/stats');
-      const data = await res.json();
-      const tbody = document.querySelector('#stats tbody');
-      tbody.innerHTML = '';
-      (data.rows || []).forEach(r=>{
-        const tr=document.createElement('tr');
-        tr.innerHTML = `<td><a href="/view?vector=${encodeURIComponent(r.vector)}">${r.vector||'UNKNOWN'}</a></td><td>${r.cnt}</td>`;
-        tbody.appendChild(tr);
+    // 圓點導覽：點擊捲動、滾動時高亮
+    const dots = Array.from(document.querySelectorAll('.dot'));
+    dots.forEach(d => d.addEventListener('click', () => {
+      const t = document.querySelector(d.dataset.target);
+      if(t) t.scrollIntoView({behavior:'smooth', block:'start'});
+    }));
+    const sections = ['#intro','#agent-windows','#agent-linux','#dashboard'].map(s=>document.querySelector(s));
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){
+          const idx = sections.indexOf(e.target);
+          dots.forEach((d,i)=>d.classList.toggle('active', i===idx));
+        }
       });
-      if(!tbody.children.length){
-        tbody.innerHTML = `<tr><td colspan="2" class="muted">尚無資料</td></tr>`;
+    }, {threshold:0.55});
+    sections.forEach(s=>io.observe(s));
+
+    // 右側統計
+    (async () => {
+      try{
+        const res = await fetch('/api/stats');
+        const data = await res.json();
+        const tbody = document.querySelector('#stats tbody');
+        tbody.innerHTML = '';
+        (data.rows || []).forEach(r=>{
+          const tr=document.createElement('tr');
+          tr.innerHTML = `<td><a href="/view?vector=${encodeURIComponent(r.vector)}">${r.vector||'UNKNOWN'}</a></td><td>${r.cnt}</td>`;
+          tbody.appendChild(tr);
+        });
+        if(!tbody.children.length){
+          tbody.innerHTML = `<tr><td colspan="2" class="muted">尚無資料</td></tr>`;
+        }
+      }catch(e){
+        document.querySelector('#stats tbody').innerHTML = `<tr><td colspan="2" class="muted">讀取失敗</td></tr>`;
       }
-    }catch(e){
-      document.querySelector('#stats tbody').innerHTML = `<tr><td colspan="2" class="muted">讀取失敗</td></tr>`;
-    }
-  })();
+    })();
   </script>
 </body>
 </html>
