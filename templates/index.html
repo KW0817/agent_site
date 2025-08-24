@@ -15,50 +15,109 @@
       --dot-active:#0ea5e9;
     }
     *{box-sizing:border-box}
-    html,body{margin:0;padding:0;font-family:Arial,system-ui,-apple-system,sans-serif;color:var(--ink);background:#f3f4f6;scroll-behavior:smooth}
+    html,body{
+      margin:0;padding:0;
+      font-family:Arial,system-ui,-apple-system,sans-serif;
+      color:var(--ink);background:#f3f4f6;scroll-behavior:smooth
+    }
 
     /* ===== Full-bleed hero sections ===== */
     section.hero{
-      width:100vw;height:var(--hero-h);position:relative;display:flex;align-items:center;overflow:hidden;
+      width:100vw;height:var(--hero-h);
+      position:relative;display:flex;align-items:center;overflow:hidden;
     }
-    .hero .bg{position:absolute;inset:0;background:#f5f1ec center/cover no-repeat;filter:saturate(1) contrast(1);transform:scale(1.02);}
-    .hero .shade{position:absolute;inset:0;background:linear-gradient(90deg, rgba(0,0,0,.45) 0%, rgba(0,0,0,.25) 40%, rgba(0,0,0,0) 70%);pointer-events:none;}
+    .hero .bg{
+      position:absolute;inset:0;
+      background:#f5f1ec center/cover no-repeat;
+      filter:saturate(1) contrast(1);
+      transform:scale(1.02);
+    }
+    .hero .shade{
+      position:absolute;inset:0;
+      /* 強化遮罩：線性 + 輻射，讓文字在任何背景上都清楚 */
+      background:
+        linear-gradient(90deg, rgba(0,0,0,.48) 0%, rgba(0,0,0,.28) 40%, rgba(0,0,0,0) 70%),
+        radial-gradient(60% 100% at 0% 50%, rgba(0,0,0,.35) 0%, rgba(0,0,0,0) 70%);
+      pointer-events:none;
+    }
     .hero .container{
-      width:100%;max-width:1100px;margin:0 auto;padding:0 24px;position:relative;z-index:1;
+      width:100%;max-width:1100px;margin:0 auto;padding:0 24px;
+      position:relative;z-index:1;
       display:grid;grid-template-columns:1.1fr 0.9fr;gap:28px;align-items:center;
     }
     .eyebrow{color:var(--brand);font-weight:700;margin-bottom:8px}
-    .hero h1{margin:0 0 12px;color:#fff;font-size:42px;text-shadow:0 2px 6px rgba(0,0,0,.6);}
-    .hero p{margin:0;color:#fff;font-size:20px;line-height:1.9;font-weight:500;text-shadow:0 1px 4px rgba(0,0,0,.7);}
-    .cta{display:inline-block;margin-top:16px;padding:10px 14px;border-radius:10px;background:#fff;border:1px solid #e5e7eb;color:#111;text-decoration:none}
+
+    /* 響應式字級與陰影 */
+    .hero h1{
+      margin:0 0 12px;color:#fff;
+      font-size:clamp(28px, 4.5vw, 46px);
+      text-shadow:0 2px 10px rgba(0,0,0,.55);
+    }
+    .hero p{
+      margin:0;color:#fff;
+      font-size:clamp(16px, 2.2vw, 20px);
+      line-height:1.9;font-weight:500;
+      text-shadow:0 1px 4px rgba(0,0,0,.6);
+    }
+    .cta{
+      display:inline-block;margin-top:16px;padding:10px 14px;border-radius:10px;
+      background:#fff;border:1px solid #e5e7eb;color:#111;text-decoration:none
+    }
     .cta[aria-disabled="true"]{opacity:.6;pointer-events:none}
 
-    /* Windows/Linux 區塊的標題：字體大且改成白色 */
+    /* Windows/Linux 標題：白色且加大 */
     section.hero h2{
       margin:0 0 12px;
-      font-size:28px;
+      font-size:clamp(22px, 3vw, 32px);
       font-weight:700;
-      color:#fff;      /* 改成白色 */
-      text-shadow:0 2px 5px rgba(0,0,0,.6);
+      color:#fff;
+      text-shadow:0 2px 6px rgba(0,0,0,.55);
     }
 
     /* 讓奇偶段左右互換 */
     section.hero:nth-child(even) .container{grid-template-columns:0.9fr 1.1fr}
-    section.hero:nth-child(even) .shade{background:linear-gradient(270deg, rgba(0,0,0,.45) 0%, rgba(0,0,0,.25) 40%, rgba(0,0,0,0) 70%);}
+    section.hero:nth-child(even) .shade{
+      background:
+        linear-gradient(270deg, rgba(0,0,0,.48) 0%, rgba(0,0,0,.28) 40%, rgba(0,0,0,0) 70%),
+        radial-gradient(60% 100% at 100% 50%, rgba(0,0,0,.35) 0%, rgba(0,0,0,0) 70%);
+    }
 
     /* ===== 圓點導覽 ===== */
-    .dots{position:fixed;right:18px;bottom:22px;display:flex;gap:10px;z-index:10;background:rgba(255,255,255,.9);padding:8px 10px;border-radius:999px;box-shadow:0 4px 16px rgba(0,0,0,.12);}
-    .dot{width:10px;height:10px;border-radius:50%;background:var(--dot);cursor:pointer;border:0;}
+    .dots{
+      position:fixed;right:18px;bottom:22px;display:flex;gap:10px;z-index:10;
+      background:rgba(255,255,255,.9);padding:8px 10px;border-radius:999px;box-shadow:0 4px 16px rgba(0,0,0,.12);
+    }
+    .dot{
+      width:10px;height:10px;border-radius:50%;background:var(--dot);cursor:pointer;border:0;
+    }
     .dot.active{background:var(--dot-active)}
 
+    /* 回到頂部按鈕 */
+    #toTop{
+      position:fixed;right:18px;bottom:72px;z-index:10;
+      width:36px;height:36px;border-radius:50%;border:0;cursor:pointer;
+      box-shadow:0 4px 16px rgba(0,0,0,.12);background:#fff;
+      display:flex;align-items:center;justify-content:center;
+      font-size:16px;
+    }
+
     /* ===== 底部內容卡 ===== */
-    .card{max-width:1100px;margin:28px auto;background:var(--card);border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.08);padding:22px;}
+    .card{
+      max-width:1100px;margin:28px auto;background:var(--card);
+      border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.08);padding:22px;
+    }
     .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
     table{width:100%;border-collapse:collapse;margin-top:8px;font-size:14px}
     th,td{border-bottom:1px solid #eee;padding:8px 6px;text-align:left}
     a{color:#1a73e8;text-decoration:none}
     a:hover{text-decoration:underline}
     .muted{color:var(--muted);font-size:14px}
+
+    /* 動畫敏感使用者 */
+    @media (prefers-reduced-motion: reduce){
+      html{scroll-behavior:auto}
+      .dot,.cta{transition:none !important}
+    }
 
     @media (max-width: 900px){
       .hero .container{grid-template-columns:1fr}
@@ -98,6 +157,13 @@
         <p>以 WinINet 與 HTTP 傳輸模擬惡意流量，驗證 IPS/IDS 攔截狀況與規則有效性。</p>
         <a class="cta" href="/downloads/agent.exe">下載 agent.exe</a>
         <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 →</a>
+        <!-- 可選：版本與 SHA256（先手填，之後可後端渲染） -->
+        <!--
+        <p class="muted" style="margin-top:10px;color:#e5e7eb;">
+          版本：<strong>v1.0.3</strong>　SHA256：<code style="background:rgba(0,0,0,.35);padding:2px 6px;border-radius:6px;color:#fff;">3f9a...b21c</code>
+          <button id="copySha" class="cta" style="margin-left:8px;padding:6px 10px;">複製</button>
+        </p>
+        -->
       </div>
       <div></div>
     </div>
@@ -120,6 +186,12 @@
 
   <!-- Dashboard 卡片 -->
   <div class="card" id="dashboard">
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:8px;">
+      <!-- 可選：CSV 匯出與複製當前連結
+      <a class="cta" href="/export.csv">匯出 CSV</a>
+      <button class="cta" id="copyLink">複製目前連結</button>
+      -->
+    </div>
     <div class="grid">
       <div>
         <ul>
@@ -138,8 +210,9 @@
     </div>
   </div>
 
-  <!-- dots nav -->
-  <div class="dots" id="dots">
+  <!-- dots nav + 回到頂部 -->
+  <button id="toTop" aria-label="回到頂部">↑</button>
+  <div class="dots" id="dots" role="navigation" aria-label="頁面區段導覽">
     <button class="dot" data-target="#intro" aria-label="Intro"></button>
     <button class="dot" data-target="#agent-windows" aria-label="Windows"></button>
     <button class="dot" data-target="#agent-linux" aria-label="Linux"></button>
@@ -147,22 +220,42 @@
   </div>
 
   <script>
-    // 圓點導覽：點擊捲動、滾動時高亮
+    // 圓點導覽：點擊捲動
     const dots = Array.from(document.querySelectorAll('.dot'));
     dots.forEach(d => d.addEventListener('click', () => {
       const t = document.querySelector(d.dataset.target);
       if(t) t.scrollIntoView({behavior:'smooth', block:'start'});
     }));
     const sections = ['#intro','#agent-windows','#agent-linux','#dashboard'].map(s=>document.querySelector(s));
+
+    // 高亮與 aria-current 更新
+    const setActive = (idx)=>{
+      dots.forEach((d,i)=>d.classList.toggle('active', i===idx));
+      dots.forEach((d,i)=>d.setAttribute('aria-current', i===idx ? 'true' : 'false'));
+    };
     const io = new IntersectionObserver((entries)=>{
       entries.forEach(e=>{
         if(e.isIntersecting){
           const idx = sections.indexOf(e.target);
-          dots.forEach((d,i)=>d.classList.toggle('active', i===idx));
+          setActive(idx);
         }
       });
     }, {threshold:0.55});
     sections.forEach(s=>io.observe(s));
+
+    // 鍵盤可用性：Enter/Space 觸發，左右切換
+    dots.forEach((d,i)=>{
+      d.setAttribute('role','button');
+      d.setAttribute('tabindex','0');
+      d.addEventListener('keydown',(e)=>{
+        if(e.key === 'Enter' || e.key === ' '){ d.click(); }
+        if(e.key === 'ArrowRight'){ dots[Math.min(i+1,dots.length-1)].click(); }
+        if(e.key === 'ArrowLeft'){ dots[Math.max(i-1,0)].click(); }
+      });
+    });
+
+    // 回到頂部
+    document.getElementById('toTop').onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
 
     // 右側統計
     (async () => {
@@ -183,6 +276,17 @@
         document.querySelector('#stats tbody').innerHTML = `<tr><td colspan="2" class="muted">讀取失敗</td></tr>`;
       }
     })();
+
+    // 可選：複製 SHA 或目前連結
+    // document.getElementById('copySha')?.addEventListener('click',()=>{
+    //   const sha = '3f9a...b21c';
+    //   navigator.clipboard.writeText(sha);
+    //   alert('已複製 SHA256');
+    // });
+    // document.getElementById('copyLink')?.addEventListener('click', ()=>{
+    //   navigator.clipboard.writeText(location.href);
+    //   alert('已複製目前連結');
+    // });
   </script>
 </body>
 </html>
