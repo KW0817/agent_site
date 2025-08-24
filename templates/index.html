@@ -34,7 +34,6 @@
     }
     .hero .shade{
       position:absolute;inset:0;
-      /* 強化遮罩：線性 + 輻射，讓文字在任何背景上都清楚 */
       background:
         linear-gradient(90deg, rgba(0,0,0,.48) 0%, rgba(0,0,0,.28) 40%, rgba(0,0,0,0) 70%),
         radial-gradient(60% 100% at 0% 50%, rgba(0,0,0,.35) 0%, rgba(0,0,0,0) 70%);
@@ -157,13 +156,6 @@
         <p>以 WinINet 與 HTTP 傳輸模擬惡意流量，驗證 IPS/IDS 攔截狀況與規則有效性。</p>
         <a class="cta" href="/downloads/agent.exe">下載 agent.exe</a>
         <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 →</a>
-        <!-- 可選：版本與 SHA256（先手填，之後可後端渲染） -->
-        <!--
-        <p class="muted" style="margin-top:10px;color:#e5e7eb;">
-          版本：<strong>v1.0.3</strong>　SHA256：<code style="background:rgba(0,0,0,.35);padding:2px 6px;border-radius:6px;color:#fff;">3f9a...b21c</code>
-          <button id="copySha" class="cta" style="margin-left:8px;padding:6px 10px;">複製</button>
-        </p>
-        -->
       </div>
       <div></div>
     </div>
@@ -178,7 +170,9 @@
         <div class="eyebrow">Agent · Linux</div>
         <h2>Linux 測試 Agent</h2>
         <p>以 requests / raw socket 模擬多種協定，支援 Base64 / 分段等繞避策略。</p>
-        <a class="cta" aria-disabled="true" href="#">Coming soon</a>
+        <!-- Linux 也開放下載與清單 -->
+        <a class="cta" href="/downloads/agent-linux">下載 Linux 版</a>
+        <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 →</a>
       </div>
       <div></div>
     </div>
@@ -276,17 +270,6 @@
         document.querySelector('#stats tbody').innerHTML = `<tr><td colspan="2" class="muted">讀取失敗</td></tr>`;
       }
     })();
-
-    // 可選：複製 SHA 或目前連結
-    // document.getElementById('copySha')?.addEventListener('click',()=>{
-    //   const sha = '3f9a...b21c';
-    //   navigator.clipboard.writeText(sha);
-    //   alert('已複製 SHA256');
-    // });
-    // document.getElementById('copyLink')?.addEventListener('click', ()=>{
-    //   navigator.clipboard.writeText(location.href);
-    //   alert('已複製目前連結');
-    // });
   </script>
 </body>
 </html>
