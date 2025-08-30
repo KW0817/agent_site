@@ -1,5 +1,6 @@
 # app.py
-from flask import Flask, request, render_template, send_from_directory, jsonify, redirect, url_for
+from flask import Flask, request, render_template, send_from_directory, jsonify, redirect, url_for, session
+from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 from hashlib import sha256
 from sqlalchemy import create_engine, text
@@ -7,6 +8,9 @@ import os, json
 
 # 一次就好：設定 static 目錄
 app = Flask(__name__, static_folder="static", static_url_path="/static")
+
+app = Flask(__name__)
+app.secret_key = os.getenv("SECRET_KEY", "change-me-please")
 
 # === 資料庫設定（預設 SQLite） ===
 DB_URL = os.getenv("DATABASE_URL", "sqlite:///events.db")
