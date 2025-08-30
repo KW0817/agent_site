@@ -6,16 +6,17 @@ from hashlib import sha256
 from sqlalchemy import create_engine, text
 import os, json
 
-# 一次就好：設定 static 目錄
+# ===== App init (只初始化一次，並設定 static) =====
 app = Flask(__name__, static_folder="static", static_url_path="/static")
+app.secret_key = os.getenv("SECRET_KEY", "change-me-please")  # 請改成環境變數
 
-app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "change-me-please")
-
-# === 資料庫設定（預設 SQLite） ===
+# ===== 資料庫設定（預設 SQLite；也可用 Render 的 DATABASE_URL） =====
 DB_URL = os.getenv("DATABASE_URL", "sqlite:///events.db")
 engine = create_engine(DB_URL, future=True)
+
+# 啟動時建立資料表
 with engine.begin() as conn:
+    # 事件表
     conn.execute(text("""
     CREATE TABLE IF NOT EXISTS events (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -31,14 +32,23 @@ with engine.begin() as conn:
         missed INTEGER NOT NULL
     )
     """))
+    # 使用者表
+    conn.execute(text("""
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        created_at DATETIME NOT NULL
+    )
+    """))
 
-# === 下載檔案 ===
+# ===== 下載檔案 =====
 @app.route("/downloads/<path:filename>")
 def download_file(filename):
     downloads_dir = os.path.join(app.root_path, "downloads")
     return send_from_directory(downloads_dir, filename, as_attachment=True)
 
-# === Agent 回報 ===
+# ===== Agent 回報 =====
 @app.route("/report", methods=["POST"])
 def report():
     try:
@@ -86,12 +96,12 @@ def report():
 
     return jsonify(ok=True, ts=now.isoformat()+"Z", payload_sha256=payload_hash)
 
-# === 首頁 ===
+# ===== 首頁 =====
 @app.route("/")
 def index():
     return render_template("index.html")
 
-# === 檢視頁（GET 顯示，POST 回 200 供特徵封包） ===
+# ===== 檢視頁（GET 顯示，POST 回 200 供特徵封包） =====
 @app.route("/view", methods=["GET", "POST"])
 def view():
     if request.method == "POST":
@@ -122,7 +132,7 @@ def view():
 
     return render_template("view.html", rows=rows, vector=vector, client=client)
 
-# === 近24小時統計 ===
+# ===== 近24小時統計 =====
 @app.route("/api/stats")
 def api_stats():
     since = datetime.utcnow() - timedelta(days=1)
@@ -136,15 +146,7 @@ def api_stats():
         """), {"since": since}).mappings().all()
     return jsonify(rows=[dict(r) for r in rows])
 
-# 健康檢查
-@app.route("/health")
-def health():
-    return jsonify(status="ok")
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.getenv("PORT", "5050")))
-
-# 清除事件（全部或僅目前篩選）
+# ===== 清除事件（全部或僅目前篩選） =====
 @app.route("/clear", methods=["POST"])
 def clear():
     scope  = request.form.get("scope", "all")          # all / filtered
@@ -168,3 +170,65 @@ def clear():
     # 清完後回到 view（保留目前的查詢參數）
     return redirect(url_for("view", vector=vector if scope=="filtered" else None,
                                    client=client if scope=="filtered" else None))
+
+# ===== 使用者：註冊 / 登入 / 登出 =====
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "GET":
+        return render_template("register.html", error=None)
+
+    username = (request.form.get("username") or "").strip()
+    password = (request.form.get("password") or "").strip()
+    if not username or not password:
+        return render_template("register.html", error="請輸入帳號與密碼")
+
+    pw_hash = generate_password_hash(password)
+    try:
+        with engine.begin() as conn:
+            conn.execute(text("""
+                INSERT INTO users (username, password_hash, created_at)
+                VALUES (:u, :p, :t)
+            """), {"u": username, "p": pw_hash, "t": datetime.utcnow()})
+    except Exception:
+        # UNIQUE 衝突或其他 DB 錯誤
+        return render_template("register.html", error="此帳號已被使用")
+
+    session["user"] = username
+    return redirect(url_for("index"))
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "GET":
+        return render_template("login.html", error=None)
+
+    username = (request.form.get("username") or "").strip()
+    password = (request.form.get("password") or "").strip()
+    if not username or not password:
+        return render_template("login.html", error="請輸入帳號與密碼")
+
+    with engine.begin() as conn:
+        row = conn.execute(text("""
+            SELECT id, username, password_hash
+            FROM users
+            WHERE username = :u
+        """), {"u": username}).mappings().first()
+
+    if not row or not check_password_hash(row["password_hash"], password):
+        return render_template("login.html", error="帳號或密碼錯誤")
+
+    session["user"] = row["username"]
+    return redirect(url_for("index"))
+
+@app.route("/logout", methods=["POST"])
+def logout():
+    session.pop("user", None)
+    return redirect(url_for("index"))
+
+# ===== 健康檢查 =====
+@app.route("/health")
+def health():
+    return jsonify(status="ok")
+
+# ===== 主程式 =====
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT", "5050")))
