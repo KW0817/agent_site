@@ -38,7 +38,7 @@
     header.nav a.btn-primary {
       background:#0ea5e9;border-color:#0ea5e9;color:#fff;
     }
-    .nav-spacer { height:56px; } /* 防止內容被 fixed header 蓋住 */
+    .nav-spacer { height:56px; }
 
     /* ===== Full-bleed hero sections ===== */
     section.hero{
@@ -65,7 +65,6 @@
     }
     .eyebrow{color:var(--brand);font-weight:700;margin-bottom:8px}
 
-    /* 響應式字級與陰影 */
     .hero h1{
       margin:0 0 12px;color:#fff;
       font-size:clamp(28px, 4.5vw, 46px);
@@ -83,7 +82,6 @@
     }
     .cta[aria-disabled="true"]{opacity:.6;pointer-events:none}
 
-    /* Windows/Linux 標題：白色且加大 */
     section.hero h2{
       margin:0 0 12px;
       font-size:clamp(22px, 3vw, 32px);
@@ -92,7 +90,6 @@
       text-shadow:0 2px 6px rgba(0,0,0,.55);
     }
 
-    /* 讓奇偶段左右互換 */
     section.hero:nth-child(even) .container{grid-template-columns:0.9fr 1.1fr}
     section.hero:nth-child(even) .shade{
       background:
@@ -100,26 +97,20 @@
         radial-gradient(60% 100% at 100% 50%, rgba(0,0,0,.35) 0%, rgba(0,0,0,0) 70%);
     }
 
-    /* ===== 圓點導覽 ===== */
     .dots{
       position:fixed;right:18px;bottom:22px;display:flex;gap:10px;z-index:10;
       background:rgba(255,255,255,.9);padding:8px 10px;border-radius:999px;box-shadow:0 4px 16px rgba(0,0,0,.12);
     }
-    .dot{
-      width:10px;height:10px;border-radius:50%;background:var(--dot);cursor:pointer;border:0;
-    }
+    .dot{width:10px;height:10px;border-radius:50%;background:var(--dot);cursor:pointer;border:0;}
     .dot.active{background:var(--dot-active)}
 
-    /* 回到頂部按鈕 */
     #toTop{
       position:fixed;right:18px;bottom:72px;z-index:10;
       width:36px;height:36px;border-radius:50%;border:0;cursor:pointer;
       box-shadow:0 4px 16px rgba(0,0,0,.12);background:#fff;
-      display:flex;align-items:center;justify-content:center;
-      font-size:16px;
+      display:flex;align-items:center;justify-content:center;font-size:16px;
     }
 
-    /* ===== 底部內容卡 ===== */
     .card{
       max-width:1100px;margin:28px auto;background:var(--card);
       border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.08);padding:22px;
@@ -131,12 +122,10 @@
     a:hover{text-decoration:underline}
     .muted{color:var(--muted);font-size:14px}
 
-    /* 動畫敏感使用者 */
     @media (prefers-reduced-motion: reduce){
       html{scroll-behavior:auto}
       .dot,.cta{transition:none !important}
     }
-
     @media (max-width: 900px){
       .hero .container{grid-template-columns:1fr}
       .hero .shade{background:linear-gradient(0deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,0) 60%)}
@@ -146,18 +135,18 @@
 </head>
 <body>
 
-  <!-- 頂部導覽列：右上角登入/註冊，已登入顯示用戶名與登出 -->
+  <!-- 頂部導覽列 -->
   <header class="nav">
-    <a class="brand" href="{{ url_for('index') }}">惡意流量模擬與防禦測試平台</a>
+    <a class="brand" href="/">惡意流量模擬與防禦測試平台</a>
 
-    {% if session.get('user') %}
+    {% if session is defined and session.get('user') %}
       <span style="color:#334155;">你好，{{ session.get('user') }}</span>
-      <form method="post" action="{{ url_for('logout') }}" style="margin:0;">
+      <form method="post" action="/logout" style="margin:0;">
         <button type="submit" class="btn">登出</button>
       </form>
     {% else %}
-      <a class="btn" href="{{ url_for('login') }}">登入</a>
-      <a class="btn btn-primary" href="{{ url_for('register') }}">註冊</a>
+      <a class="btn" href="/login">登入</a>
+      <a class="btn btn-primary" href="/register">註冊</a>
     {% endif %}
   </header>
   <div class="nav-spacer"></div>
@@ -219,7 +208,7 @@
   <!-- Dashboard 卡片 -->
   <div class="card" id="dashboard">
     <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:8px;">
-      <!-- 可選：CSV 匯出與複製當前連結 -->
+      <!-- 保留：CSV 匯出與複製連結（未實作就先註解） -->
       <!-- <a class="cta" href="/export.csv">匯出 CSV</a>
       <button class="cta" id="copyLink">複製目前連結</button> -->
     </div>
@@ -307,12 +296,6 @@
         document.querySelector('#stats tbody').innerHTML = `<tr><td colspan="2" class="muted">讀取失敗</td></tr>`;
       }
     })();
-
-    // 可選：複製目前連結
-    // document.getElementById('copyLink')?.addEventListener('click', ()=>{
-    //   navigator.clipboard.writeText(location.href);
-    //   alert('已複製目前連結');
-    // });
   </script>
 </body>
 </html>
