@@ -21,6 +21,25 @@
       color:var(--ink);background:#f3f4f6;scroll-behavior:smooth
     }
 
+    /* ===== 頂部導覽列 ===== */
+    header.nav {
+      position:fixed;top:0;left:0;right:0;height:56px;
+      display:flex;align-items:center;justify-content:flex-end;gap:12px;padding:0 16px;
+      background:rgba(255,255,255,.9);backdrop-filter:saturate(120%) blur(6px);
+      z-index:20;box-shadow:0 1px 8px rgba(0,0,0,.08);
+    }
+    header.nav a.brand {
+      margin-right:auto;color:#0f172a;text-decoration:none;font-weight:800;
+    }
+    header.nav a.btn, header.nav button.btn {
+      padding:8px 12px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;cursor:pointer;
+      text-decoration:none;color:#0f172a;
+    }
+    header.nav a.btn-primary {
+      background:#0ea5e9;border-color:#0ea5e9;color:#fff;
+    }
+    .nav-spacer { height:56px; } /* 防止內容被 fixed header 蓋住 */
+
     /* ===== Full-bleed hero sections ===== */
     section.hero{
       width:100vw;height:var(--hero-h);
@@ -127,6 +146,22 @@
 </head>
 <body>
 
+  <!-- 頂部導覽列：右上角登入/註冊，已登入顯示用戶名與登出 -->
+  <header class="nav">
+    <a class="brand" href="{{ url_for('index') }}">惡意流量模擬與防禦測試平台</a>
+
+    {% if session.get('user') %}
+      <span style="color:#334155;">你好，{{ session.get('user') }}</span>
+      <form method="post" action="{{ url_for('logout') }}" style="margin:0;">
+        <button type="submit" class="btn">登出</button>
+      </form>
+    {% else %}
+      <a class="btn" href="{{ url_for('login') }}">登入</a>
+      <a class="btn btn-primary" href="{{ url_for('register') }}">註冊</a>
+    {% endif %}
+  </header>
+  <div class="nav-spacer"></div>
+
   <!-- Intro / Hero 1 -->
   <section class="hero" id="intro">
     <div class="bg" style="background-image:url('{{ url_for('static', filename='images/intro.jpg') }}'), linear-gradient(#f5f1ec,#f5f1ec)"></div>
@@ -174,7 +209,6 @@
         透過這樣的測試，你可以知道自己的防禦系統（IPS/IDS）能不能擋下，  
         如果擋不下，就能立刻發現弱點並加以改進。
         </p>
-        <!-- Linux 也開放下載與清單 -->
         <a class="cta" href="/downloads/agent-linux">下載 Linux 版</a>
         <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 →</a>
       </div>
@@ -185,10 +219,9 @@
   <!-- Dashboard 卡片 -->
   <div class="card" id="dashboard">
     <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:8px;">
-      <!-- 可選：CSV 匯出與複製當前連結
-      <a class="cta" href="/export.csv">匯出 CSV</a>
-      <button class="cta" id="copyLink">複製目前連結</button>
-      -->
+      <!-- 可選：CSV 匯出與複製當前連結 -->
+      <!-- <a class="cta" href="/export.csv">匯出 CSV</a>
+      <button class="cta" id="copyLink">複製目前連結</button> -->
     </div>
     <div class="grid">
       <div>
@@ -274,6 +307,12 @@
         document.querySelector('#stats tbody').innerHTML = `<tr><td colspan="2" class="muted">讀取失敗</td></tr>`;
       }
     })();
+
+    // 可選：複製目前連結
+    // document.getElementById('copyLink')?.addEventListener('click', ()=>{
+    //   navigator.clipboard.writeText(location.href);
+    //   alert('已複製目前連結');
+    // });
   </script>
 </body>
 </html>
