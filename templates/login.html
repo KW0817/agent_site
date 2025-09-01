@@ -2,33 +2,100 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>登入</title>
+  <title>登入｜惡意流量模擬與防禦測試平台</title>
   <style>
-    body{margin:0;font-family:Arial,sans-serif;background:#f3f4f6}
-    .card{max-width:420px;margin:60px auto;background:#fff;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.08);padding:22px}
-    label{display:block;margin:10px 0 6px;color:#334155}
-    input{width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:8px}
-    .row{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-top:14px}
-    .btn{padding:10px 14px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;cursor:pointer}
-    .btn-primary{background:#0ea5e9;border-color:#0ea5e9;color:#fff}
-    a{text-decoration:none;color:#1a73e8}
-    .error{color:#b91c1c;margin-top:10px}
+    :root{
+      --ink:#0f172a; --muted:#6b7280; --card:#ffffff;
+      --brand:#0ea5e9; --border:#e5e7eb; --bg:#f3f4f6;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;font-family:Arial,system-ui,-apple-system,sans-serif;color:var(--ink);
+      background: radial-gradient(1200px 600px at 20% -10%, #dbeafe 0%, transparent 60%),
+                  radial-gradient(900px 500px at 100% 0%, #e0f2fe 0%, transparent 65%),
+                  var(--bg);
+      min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;
+    }
+    .wrap{width:100%; max-width:440px}
+    .brand {
+      display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:14px;
+      color:#0f172a; text-decoration:none; font-weight:800;
+    }
+    .card{
+      background:rgba(255,255,255,.9);
+      backdrop-filter:saturate(120%) blur(8px);
+      border:1px solid var(--border);
+      border-radius:16px;padding:22px 22px 18px;
+      box-shadow:0 10px 30px rgba(2,8,23,.08);
+    }
+    h2{margin:0 0 4px; font-size:22px}
+    p.subtitle{margin:0 0 14px; color:var(--muted); font-size:14px}
+    label{display:block;margin:12px 0 6px;color:#334155;font-size:14px}
+    .field{
+      position:relative;
+    }
+    input{
+      width:100%;padding:12px 14px; border:1px solid var(--border); border-radius:10px;
+      outline:none; font-size:15px; background:#fff;
+    }
+    .toggle{
+      position:absolute; right:10px; top:50%; transform:translateY(-50%);
+      border:0;background:transparent; cursor:pointer; color:#64748b;
+      font-size:13px; padding:4px 6px;
+    }
+    .row{display:flex; gap:10px; align-items:center; justify-content:space-between; margin-top:16px}
+    .btn{padding:10px 14px; border-radius:10px; border:1px solid var(--border); background:#fff; cursor:pointer}
+    .btn-primary{background:var(--brand); border-color:var(--brand); color:#fff}
+    .links{margin-top:14px; display:flex; justify-content:space-between; font-size:14px}
+    a{color:#1a73e8; text-decoration:none}
+    a:hover{text-decoration:underline}
+    .error{
+      margin-top:10px; padding:10px 12px; border-radius:8px; background:#fee2e2; color:#7f1d1d; font-size:14px;
+      border:1px solid #fecaca;
+    }
+    @media (max-width:460px){ .card{padding:18px} }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h2>登入</h2>
-    {% if error %}<div class="error">{{ error }}</div>{% endif %}
-    <form method="post">
-      <label>帳號</label>
-      <input name="username" required>
-      <label>密碼</label>
-      <input name="password" type="password" required>
-      <div class="row">
-        <button class="btn btn-primary" type="submit">登入</button>
-        <a href="{{ url_for('register') }}">沒有帳號？去註冊</a>
-      </div>
-    </form>
+  <div class="wrap">
+    <a class="brand" href="/">惡意流量模擬與防禦測試平台</a>
+    <div class="card">
+      <h2>登入</h2>
+      <p class="subtitle">請輸入帳號與密碼</p>
+
+      {% if error %}<div class="error">{{ error }}</div>{% endif %}
+
+      <form method="post" autocomplete="on">
+        <label>帳號</label>
+        <div class="field">
+          <input name="username" required autofocus placeholder="輸入帳號">
+        </div>
+
+        <label>密碼</label>
+        <div class="field">
+          <input name="password" id="pw" type="password" required placeholder="輸入密碼">
+          <button type="button" class="toggle" onclick="togglePw('pw', this)">顯示</button>
+        </div>
+
+        <div class="row">
+          <a href="/" class="btn">返回首頁</a>
+          <button class="btn btn-primary" type="submit">登入</button>
+        </div>
+        <div class="links">
+          <span></span>
+          <a href="/register">沒有帳號？去註冊</a>
+        </div>
+      </form>
+    </div>
   </div>
+
+  <script>
+    function togglePw(id, btn){
+      const el = document.getElementById(id);
+      const show = el.type === 'password';
+      el.type = show ? 'text' : 'password';
+      btn.textContent = show ? '隱藏' : '顯示';
+    }
+  </script>
 </body>
 </html>
