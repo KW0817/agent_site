@@ -46,49 +46,17 @@ with engine.begin() as conn:
     )
     """))
 
-# ===== 登入保護（全域） =====
-# 公開端點：不需登入
-PUBLIC_ENDPOINTS = {
-    "login",
-    "register",
-    "logout",
-    "health",
-    "report",
-    "static",
-}
+# ===== 首頁（任何人都能看） =====
+@app.route("/")
+def index():
+    return render_template("index.html")
 
-@app.before_request
-def require_login_globally():
-    """
-    規則：
-      - 若已登入：通過
-      - 若 endpoint 在 PUBLIC_ENDPOINTS：通過
-      - 若是 /view 且 method=POST（讓 agent 送特殊封包）：通過
-      - 其他一律要求登入，導向 /login?next=...
-    """
-    ep = request.endpoint  # 可能為 None（404 時）
-    if ep is None:
-        return  # 交給 Flask 預設處理
-
-    # 已登入則放行
-    if session.get("user"):
-        return
-
-    # 公開端點放行
-    if ep in PUBLIC_ENDPOINTS:
-        return
-
-    # 允許 /view 的 POST（匿名上報）
-    if ep == "view" and request.method == "POST":
-        return
-
-    # 其他皆需登入
-    next_url = request.full_path if request.query_string else request.path
-    return redirect(url_for("login", next=next_url))
-
-# ===== 下載檔案（需要登入） =====
+# ===== 下載檔案（需登入） =====
 @app.route("/downloads/<path:filename>")
 def download_file(filename):
+    if not session.get("user"):
+        # 未登入：導向登入頁，並帶回想去的路徑與提示訊息
+        return redirect(url_for("login", next=request.path, msg="請先登入才能下載檔案"))
     downloads_dir = os.path.join(app.root_path, "downloads")
     return send_from_directory(downloads_dir, filename, as_attachment=True)
 
@@ -140,12 +108,7 @@ def report():
 
     return jsonify(ok=True, ts=now.isoformat()+"Z", payload_sha256=payload_hash)
 
-# ===== 首頁（需登入） =====
-@app.route("/")
-def index():
-    return render_template("index.html")
-
-# ===== 檢視頁：GET 需登入；POST 允許匿名上報特徵封包 =====
+# ===== 檢視頁：GET 需登入；POST 允許匿名上報（特徵封包） =====
 @app.route("/view", methods=["GET", "POST"])
 def view():
     if request.method == "POST":
@@ -156,6 +119,10 @@ def view():
         except Exception:
             pass
         return "OK", 200
+
+    # GET：需登入
+    if not session.get("user"):
+        return redirect(url_for("login", next=request.full_path or request.path, msg="請先登入才能查看事件清單"))
 
     vector = (request.args.get("vector") or "").strip()
     client = (request.args.get("client") or "").strip()
@@ -176,9 +143,11 @@ def view():
 
     return render_template("view.html", rows=rows, vector=vector, client=client)
 
-# ===== 近24小時統計（需登入） =====
+# ===== 近24小時統計（需登入；提供給首頁右側表格） =====
 @app.route("/api/stats")
 def api_stats():
+    if not session.get("user"):
+        return jsonify(error="請先登入"), 401
     since = datetime.utcnow() - timedelta(days=1)
     with engine.begin() as conn:
         rows = conn.execute(text("""
@@ -193,6 +162,9 @@ def api_stats():
 # ===== 清除事件（需登入） =====
 @app.route("/clear", methods=["POST"])
 def clear():
+    if not session.get("user"):
+        return redirect(url_for("login", next="/view", msg="請先登入才能清除事件"))
+
     scope  = request.form.get("scope", "all")          # all / filtered
     vector = (request.form.get("vector") or "").strip()
     client = (request.form.get("client") or "").strip()
@@ -218,7 +190,9 @@ def clear():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "GET":
-        return render_template("register.html", error=None)
+        # 支援從 ?msg= 顯示提示
+        msg = request.args.get("msg")
+        return render_template("register.html", error=msg)
 
     username = (request.form.get("username") or "").strip()
     password = (request.form.get("password") or "").strip()
@@ -236,14 +210,15 @@ def register():
         return render_template("register.html", error="此帳號已被使用")
 
     session["user"] = username
-    # 註冊成功後帶回 next（若存在）
     next_url = request.args.get("next") or request.form.get("next") or url_for("index")
     return redirect(next_url)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "GET":
-        return render_template("login.html", error=None)
+        # 從 ?msg= 帶入提示（例如「請先登入」）
+        msg = request.args.get("msg")
+        return render_template("login.html", error=msg)
 
     username = (request.form.get("username") or "").strip()
     password = (request.form.get("password") or "").strip()
@@ -261,14 +236,13 @@ def login():
         return render_template("login.html", error="帳號或密碼錯誤")
 
     session["user"] = row["username"]
-    # 登入成功後帶回 next（若存在）
     next_url = request.args.get("next") or request.form.get("next") or url_for("index")
     return redirect(next_url)
 
 @app.route("/logout", methods=["POST"])
 def logout():
     session.pop("user", None)
-    return redirect(url_for("login"))
+    return redirect(url_for("index"))
 
 # ===== 健康檢查（公開） =====
 @app.route("/health")
