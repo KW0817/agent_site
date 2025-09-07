@@ -10,9 +10,13 @@ import os, json
 app = Flask(__name__, static_folder="static", static_url_path="/static")
 app.secret_key = os.getenv("SECRET_KEY", "change-me-please")  # 請改成環境變數
 
-# ===== 資料庫設定（預設 SQLite；也可用 Render 的 DATABASE_URL） =====
-DB_URL = os.getenv("DATABASE_URL", "sqlite:///events.db")
-engine = create_engine(DB_URL, future=True)
+# ===== 資料庫設定（優先用 DATABASE_URL；fallback 為 SQLite） =====
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+SQLITE_PATH = os.path.join(BASE_DIR, "events.db")
+DEFAULT_SQLITE_URL = f"sqlite:///{SQLITE_PATH}"
+DB_URL = os.getenv("DATABASE_URL", DEFAULT_SQLITE_URL)
+
+engine = create_engine(DB_URL, future=True, pool_pre_ping=True)
 
 # 啟動時建立資料表
 with engine.begin() as conn:
@@ -42,13 +46,53 @@ with engine.begin() as conn:
     )
     """))
 
-# ===== 下載檔案 =====
+# ===== 登入保護（全域） =====
+# 公開端點：不需登入
+PUBLIC_ENDPOINTS = {
+    "login",
+    "register",
+    "logout",
+    "health",
+    "report",
+    "static",
+}
+
+@app.before_request
+def require_login_globally():
+    """
+    規則：
+      - 若已登入：通過
+      - 若 endpoint 在 PUBLIC_ENDPOINTS：通過
+      - 若是 /view 且 method=POST（讓 agent 送特殊封包）：通過
+      - 其他一律要求登入，導向 /login?next=...
+    """
+    ep = request.endpoint  # 可能為 None（404 時）
+    if ep is None:
+        return  # 交給 Flask 預設處理
+
+    # 已登入則放行
+    if session.get("user"):
+        return
+
+    # 公開端點放行
+    if ep in PUBLIC_ENDPOINTS:
+        return
+
+    # 允許 /view 的 POST（匿名上報）
+    if ep == "view" and request.method == "POST":
+        return
+
+    # 其他皆需登入
+    next_url = request.full_path if request.query_string else request.path
+    return redirect(url_for("login", next=next_url))
+
+# ===== 下載檔案（需要登入） =====
 @app.route("/downloads/<path:filename>")
 def download_file(filename):
     downloads_dir = os.path.join(app.root_path, "downloads")
     return send_from_directory(downloads_dir, filename, as_attachment=True)
 
-# ===== Agent 回報 =====
+# ===== Agent 回報（公開） =====
 @app.route("/report", methods=["POST"])
 def report():
     try:
@@ -96,12 +140,12 @@ def report():
 
     return jsonify(ok=True, ts=now.isoformat()+"Z", payload_sha256=payload_hash)
 
-# ===== 首頁 =====
+# ===== 首頁（需登入） =====
 @app.route("/")
 def index():
     return render_template("index.html")
 
-# ===== 檢視頁（GET 顯示，POST 回 200 供特徵封包） =====
+# ===== 檢視頁：GET 需登入；POST 允許匿名上報特徵封包 =====
 @app.route("/view", methods=["GET", "POST"])
 def view():
     if request.method == "POST":
@@ -132,7 +176,7 @@ def view():
 
     return render_template("view.html", rows=rows, vector=vector, client=client)
 
-# ===== 近24小時統計 =====
+# ===== 近24小時統計（需登入） =====
 @app.route("/api/stats")
 def api_stats():
     since = datetime.utcnow() - timedelta(days=1)
@@ -146,7 +190,7 @@ def api_stats():
         """), {"since": since}).mappings().all()
     return jsonify(rows=[dict(r) for r in rows])
 
-# ===== 清除事件（全部或僅目前篩選） =====
+# ===== 清除事件（需登入） =====
 @app.route("/clear", methods=["POST"])
 def clear():
     scope  = request.form.get("scope", "all")          # all / filtered
@@ -167,11 +211,10 @@ def clear():
         else:
             conn.execute(text("DELETE FROM events"))
 
-    # 清完後回到 view（保留目前的查詢參數）
     return redirect(url_for("view", vector=vector if scope=="filtered" else None,
                                    client=client if scope=="filtered" else None))
 
-# ===== 使用者：註冊 / 登入 / 登出 =====
+# ===== 使用者：註冊 / 登入 / 登出（公開頁面） =====
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "GET":
@@ -190,11 +233,12 @@ def register():
                 VALUES (:u, :p, :t)
             """), {"u": username, "p": pw_hash, "t": datetime.utcnow()})
     except Exception:
-        # UNIQUE 衝突或其他 DB 錯誤
         return render_template("register.html", error="此帳號已被使用")
 
     session["user"] = username
-    return redirect(url_for("index"))
+    # 註冊成功後帶回 next（若存在）
+    next_url = request.args.get("next") or request.form.get("next") or url_for("index")
+    return redirect(next_url)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -217,14 +261,16 @@ def login():
         return render_template("login.html", error="帳號或密碼錯誤")
 
     session["user"] = row["username"]
-    return redirect(url_for("index"))
+    # 登入成功後帶回 next（若存在）
+    next_url = request.args.get("next") or request.form.get("next") or url_for("index")
+    return redirect(next_url)
 
 @app.route("/logout", methods=["POST"])
 def logout():
     session.pop("user", None)
-    return redirect(url_for("index"))
+    return redirect(url_for("login"))
 
-# ===== 健康檢查 =====
+# ===== 健康檢查（公開） =====
 @app.route("/health")
 def health():
     return jsonify(status="ok")
