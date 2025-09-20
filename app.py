@@ -8,7 +8,7 @@ import os, json
 
 # ===== App init =====
 app = Flask(__name__, static_folder="static", static_url_path="/static")
-app.secret_key = os.getenv("SECRET_KEY", "change-me-please")  # 請改成環境變數
+app.secret_key = os.getenv("SECRET_KEY", "change-me-please")
 
 # ===== 資料庫設定 =====
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -123,9 +123,7 @@ def view():
 
     username = session["user"]
     vector = (request.args.get("vector") or "").strip()
-    client = (request.args.get("client") or "").strip()
 
-    # jie 可以看全部
     if username == "jie":
         query = """
             SELECT id, ts, client_id, ip_public, ip_internal, vector, payload_sha256, payload_len
@@ -141,13 +139,14 @@ def view():
         """
         params = {"client": username}
         if vector:
-            query += " AND vector = :vector"; params["vector"] = vector
+            query += " AND vector = :vector"
+            params["vector"] = vector
         query += " ORDER BY ts DESC LIMIT 500"
 
     with engine.begin() as conn:
         rows = conn.execute(text(query), params).mappings().all()
 
-    return render_template("view.html", rows=rows, vector=vector, client=client)
+    return render_template("view.html", rows=rows, vector=vector, client=username)
 
 # ===== 近24小時統計 =====
 @app.route("/api/stats")
@@ -202,10 +201,9 @@ def clear():
         else:
             conn.execute(text("DELETE FROM events"))
 
-    return redirect(url_for("view", vector=vector if scope=="filtered" else None,
-                                   client=client if scope=="filtered" else None))
+    return redirect(url_for("view"))
 
-# ===== 使用者註冊 =====
+# ===== 註冊 =====
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "GET":
@@ -228,10 +226,9 @@ def register():
         return render_template("register.html", error="此帳號已被使用")
 
     session["user"] = username
-    next_url = request.args.get("next") or request.form.get("next") or url_for("index")
-    return redirect(next_url)
+    return redirect(url_for("index"))
 
-# ===== 使用者登入 =====
+# ===== 登入 =====
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "GET":
@@ -254,16 +251,15 @@ def login():
         return render_template("login.html", error="帳號或密碼錯誤")
 
     session["user"] = row["username"]
-    next_url = request.args.get("next") or request.form.get("next") or url_for("index")
-    return redirect(next_url)
+    return redirect(url_for("index"))
 
-# ===== 使用者登出 =====
+# ===== 登出 =====
 @app.route("/logout", methods=["POST"])
 def logout():
     session.pop("user", None)
     return redirect(url_for("index"))
 
-# ===== 管理員：使用者清單 =====
+# ===== 管理員查看所有使用者 =====
 @app.route("/users")
 def users_list():
     if not session.get("user"):
@@ -285,6 +281,7 @@ def users_list():
 def health():
     return jsonify(status="ok")
 
-# ===== 主程式 =====
+# ===== 主程式入口 =====
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.getenv("PORT", "5050")))
+    port = int(os.environ.get("PORT", 5000))  # Render 會丟 PORT
+    app.run(host="0.0.0.0", port=port)
