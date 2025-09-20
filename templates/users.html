@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>使用者清單</title>
+  <style>
+    body{
+      margin:0;padding:24px;
+      font-family:Arial,sans-serif;
+      background:#f7f7f7;
+    }
+    .wrap{
+      max-width:900px;
+      margin:0 auto;
+      background:#fff;
+      border-radius:12px;
+      padding:20px 24px;
+      box-shadow:0 0 10px rgba(0,0,0,.06);
+    }
+    h2{margin-top:0}
+    table{width:100%;border-collapse:collapse;margin-top:14px}
+    th,td{
+      border-bottom:1px solid #eee;
+      padding:8px 6px;
+      text-align:left;
+      font-size:14px;
+    }
+    a{color:#007bff;text-decoration:none}
+    a:hover{text-decoration:underline}
+    .muted{color:#6b7280;font-size:13px}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h2>使用者清單（僅管理員可見）</h2>
+  <p class="muted">此頁面僅在登入 <strong>jie</strong> 帳號時可存取。</p>
+  <p><a href="{{ url_for('index') }}">← 返回首頁</a></p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>帳號</th>
+        <th>註冊時間 (UTC)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td>{{ u.id }}</td>
+        <td>{{ u.username }}</td>
+        <td>{{ u.created_at }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="3">尚無使用者</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+</body>
+</html>
