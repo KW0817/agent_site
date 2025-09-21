@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <title>使用者清單</title>
   <style>
-    body {
-      margin:0; padding:24px;
+    body{
+      margin:0;padding:24px;
       font-family:Arial,sans-serif;
       background:#f7f7f7;
     }
-    .wrap {
+    .wrap{
       max-width:900px;
       margin:0 auto;
       background:#fff;
@@ -17,34 +17,17 @@
       padding:20px 24px;
       box-shadow:0 0 10px rgba(0,0,0,.06);
     }
-    h2 { margin-top:0 }
-    table {
-      width:100%; border-collapse:collapse; margin-top:14px;
-    }
-    thead {
-      background:#f1f5f9;
-    }
-    th, td {
+    h2{margin-top:0}
+    table{width:100%;border-collapse:collapse;margin-top:14px}
+    th,td{
       border-bottom:1px solid #eee;
-      padding:10px 8px;
+      padding:8px 6px;
       text-align:left;
       font-size:14px;
     }
-    tbody tr:nth-child(even) {
-      background:#fafafa;
-    }
-    td strong {
-      color:#111;
-    }
-    a {
-      color:#007bff; text-decoration:none;
-    }
-    a:hover {
-      text-decoration:underline;
-    }
-    .muted {
-      color:#6b7280; font-size:13px;
-    }
+    a{color:#007bff;text-decoration:none}
+    a:hover{text-decoration:underline}
+    .muted{color:#6b7280;font-size:13px}
   </style>
 </head>
 <body>
@@ -65,8 +48,8 @@
       {% for u in users %}
       <tr>
         <td>{{ u.id }}</td>
-        <td><strong>{{ u.username }}</strong></td>
-        <td>{{ u.created_at.strftime("%Y-%m-%d %H:%M:%S") }}</td>
+        <td>{{ u.username }}</td>
+        <td>{{ u.created_at }}</td>
       </tr>
       {% else %}
       <tr><td colspan="3">尚無使用者</td></tr>
