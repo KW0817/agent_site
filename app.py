@@ -1,4 +1,3 @@
-# app.py
 from flask import Flask, request, render_template, send_from_directory, jsonify, redirect, url_for, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
@@ -20,7 +19,6 @@ engine = create_engine(DB_URL, future=True, pool_pre_ping=True)
 
 # 啟動時建立資料表
 with engine.begin() as conn:
-    # 事件表
     conn.execute(text("""
     CREATE TABLE IF NOT EXISTS events (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -36,7 +34,6 @@ with engine.begin() as conn:
         missed INTEGER NOT NULL
     )
     """))
-    # 使用者表
     conn.execute(text("""
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -274,7 +271,21 @@ def users_list():
             ORDER BY created_at DESC
         """)).mappings().all()
 
-    return render_template("users.html", users=rows)
+    # 格式化時間
+    users = []
+    for r in rows:
+        created_at = r["created_at"]
+        if hasattr(created_at, "strftime"):  # datetime 物件
+            created_at = created_at.strftime("%Y-%m-%d %H:%M:%S")
+        else:  # 字串
+            created_at = str(created_at).split(".")[0]
+        users.append({
+            "id": r["id"],
+            "username": r["username"],
+            "created_at": created_at
+        })
+
+    return render_template("users.html", users=users)
 
 # ===== 健康檢查 =====
 @app.route("/health")
@@ -283,5 +294,5 @@ def health():
 
 # ===== 主程式入口 =====
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))  # Render 會丟 PORT
+    port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
