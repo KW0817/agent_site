@@ -97,7 +97,7 @@
         <p>以簡單可理解的方式模擬「像攻擊一樣」的流量，幫助你測試系統是否能擋住。</p>
 
         {% if session is defined and session.get('user') %}
-          <a class="cta" href="/downloads/agent.exe">下載 agent.exe</a>
+          <a class="cta" href="/download_agent?platform=windows">下載 agent</a>
           <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 →</a>
         {% else %}
           <a class="cta" href="/login?next=/downloads/agent.exe&msg=%E8%AB%8B%E5%85%88%E7%99%BB%E5%85%A5%E6%89%8D%E8%83%BD%E4%B8%8B%E8%BC%89">登入後才可下載</a>
@@ -122,7 +122,7 @@
         </p>
 
         {% if session is defined and session.get('user') %}
-          <a class="cta" href="/downloads/agent-linux">下載 Linux 版</a>
+          <a class="cta" href="/download_agent?platform=linux">下載 agent</a>
           <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 →</a>
         {% else %}
           <a class="cta" href="/login?next=/downloads/agent-linux&msg=%E8%AB%8B%E5%85%88%E7%99%BB%E5%85%A5%E6%89%8D%E8%83%BD%E4%B8%8B%E8%BC%89">登入後才可下載</a>
