@@ -1,397 +1,306 @@
-# app.py
-from flask import Flask, request, render_template, send_from_directory, jsonify, redirect, url_for, session, make_response
-from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime, timedelta
-from hashlib import sha256
-from sqlalchemy import create_engine, text
-import os, json, re
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>惡意流量模擬與防禦測試平台</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{
+      --hero-h: 80vh;
+      --brand: #e53935;
+      --ink: #0f172a;
+      --muted:#6b7280;
+      --card:#ffffff;
+      --dot:#cbd5e1;
+      --dot-active:#0ea5e9;
+      --line:#0ea5e9;
+      --black-line:#1e293b;
+    }
+    *{box-sizing:border-box}
+    html,body{
+      margin:0;padding:0;
+      font-family:Arial,system-ui,-apple-system,sans-serif;
+      color:var(--ink);background:#f3f4f6;scroll-behavior:smooth
+    }
 
-# ===== App init =====
-app = Flask(__name__, static_folder="static", static_url_path="/static")
-app.secret_key = os.getenv("SECRET_KEY", "change-me-please")
+    /* ===== 頂部導覽列 ===== */
+    header.nav{
+      position:fixed;top:0;left:0;right:0;height:56px;
+      display:flex;align-items:center;justify-content:flex-end;gap:12px;
+      padding:0 16px;background:rgba(255,255,255,.9);
+      backdrop-filter:saturate(120%) blur(6px);
+      z-index:20;box-shadow:0 1px 8px rgba(0,0,0,.08);
+      border-bottom:2px solid var(--black-line);
+    }
+    header.nav a.brand{margin-right:auto;color:#0f172a;text-decoration:none;font-weight:800}
+    header.nav a.btn, header.nav button.btn{
+      padding:8px 12px;border-radius:8px;
+      border:1px solid #e5e7eb;background:#fff;
+      cursor:pointer;text-decoration:none;color:#0f172a
+    }
+    header.nav a.btn-primary{background:#0ea5e9;border-color:#0ea5e9;color:#fff}
+    .nav-spacer{height:56px}
 
-# ===== 資料庫設定 =====
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-SQLITE_PATH = os.path.join(BASE_DIR, "events.db")
-DEFAULT_SQLITE_URL = f"sqlite:///{SQLITE_PATH}"
-DB_URL = os.getenv("DATABASE_URL", DEFAULT_SQLITE_URL)
+    /* ===== Section 共用樣式 ===== */
+    section.hero{
+      width:100vw;
+      position:relative;display:flex;align-items:center;
+      margin:0;padding:60px 0;
+      border-top:3px solid var(--black-line);
+      border-bottom:3px solid var(--black-line);
+      background:#fff;
+    }
+    section.hero:nth-child(even){
+      background:#f9fafb;
+    }
+    .hero .container{
+      width:100%;max-width:1100px;margin:0 auto;padding:0 24px;
+      position:relative;z-index:1;
+    }
+    .eyebrow{color:var(--brand);font-weight:700;margin-bottom:8px;letter-spacing:1px;font-size:20px}
+    .hero h1,.hero h2{
+      margin:0 0 12px;color:#0f172a;font-weight:700;position:relative;
+      padding-bottom:8px;border-bottom:2px solid var(--black-line);
+    }
+    .hero h1::after,.hero h2::after{
+      content:"";display:block;width:60px;height:3px;
+      background:var(--line);margin-top:6px;border-radius:3px;
+    }
+    .hero p{
+      margin:0;color:#374151;
+      font-size:clamp(16px, 2.2vw, 20px);line-height:1.9;font-weight:500
+    }
+    .cta{
+      display:inline-block;margin-top:16px;padding:10px 14px;
+      border-radius:10px;background:#fff;border:1px solid #0f172a;
+      color:#111;text-decoration:none
+    }
 
-engine = create_engine(DB_URL, future=True, pool_pre_ping=True)
+    /* ===== Agents 區塊 ===== */
+    .agents-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:40px;
+      margin-top:20px;
+    }
+    .agent-box{
+      border:2px solid var(--black-line);
+      border-radius:12px;
+      padding:20px;
+      background:#fff;
+      box-shadow:0 2px 8px rgba(0,0,0,.08);
+      height:100%;
+    }
 
-# 啟動時建立資料表（events, users）
-with engine.begin() as conn:
-    conn.execute(text("""
-    CREATE TABLE IF NOT EXISTS events (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        ts DATETIME NOT NULL,
-        client_id TEXT,
-        ip_public TEXT,
-        ip_internal TEXT,
-        user_agent TEXT,
-        vector TEXT,
-        payload_sha256 TEXT,
-        payload_len INTEGER,
-        payload_sample TEXT,
-        missed INTEGER NOT NULL
-    )
-    """))
-    conn.execute(text("""
-    CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE NOT NULL,
-        password_hash TEXT NOT NULL,
-        created_at DATETIME NOT NULL
-    )
-    """))
+    /* ===== Dashboard 卡片 ===== */
+    .card{
+      max-width:1100px;margin:28px auto;background:var(--card);
+      border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.08);
+      padding:22px;border:2px solid var(--black-line)
+    }
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    table{width:100%;border-collapse:collapse;margin-top:8px;font-size:14px;border:1px solid var(--black-line)}
+    th,td{border-bottom:1px solid #eee;padding:8px 6px;text-align:left;border-right:1px solid #ccc}
+    a{color:#1a73e8;text-decoration:none}
+    a:hover{text-decoration:underline}
+    .muted{color:var(--muted);font-size:14px}
 
-# -------- helper functions ----------
-def safe_text_preview(b: bytes, limit=1024) -> str:
-    if not b:
-        return ""
-    try:
-        s = b.decode("utf-8", errors="replace")
-        s = s.replace("\r", "\\r").replace("\n", "\\n")
-        return (s[:limit] + "…") if len(s) > limit else s
-    except Exception:
-        r = repr(b)
-        return (r[:limit] + "…") if len(r) > limit else r
+    /* ===== dots 與回頂部 ===== */
+    .dots{
+      position:fixed;right:18px;bottom:22px;display:flex;gap:10px;z-index:9999;
+      background:rgba(255,255,255,.9);padding:8px 10px;border-radius:999px;
+      box-shadow:0 4px 16px rgba(0,0,0,.12);border:1px solid var(--black-line)
+    }
+    .dot{width:10px;height:10px;border-radius:50%;background:var(--dot);cursor:pointer;border:1px solid var(--black-line)}
+    .dot.active{background:var(--dot-active)}
+    #toTop{
+      position:fixed;right:18px;bottom:72px;z-index:10;width:36px;height:36px;
+      border-radius:50%;border:2px solid var(--black-line);cursor:pointer;
+      box-shadow:0 4px 16px rgba(0,0,0,.12);background:#fff;
+      display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--line)
+    }
 
-# zero-pad id to 6 digits
-def uid_from_user_id(user_id: int) -> str:
-    try:
-        return f"{int(user_id):06d}"
-    except Exception:
-        return "000000"
+    @media (max-width: 900px){
+      .agents-grid{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
 
-# ------------------------------------
+  <!-- 頂部導覽列 -->
+  <header class="nav">
+    <a class="brand" href="/">惡意流量模擬與防禦測試平台</a>
+    {% if session is defined and session.get('user') %}
+      <span style="color:#334155;">你好，{{ session.get('user') }}</span>
+      <form method="post" action="/logout" style="margin:0;">
+        <button type="submit" class="btn">登出</button>
+      </form>
+    {% else %}
+      <a class="btn btn-primary" href="/login">登入</a>
+      <a class="btn" href="/register">註冊</a>
+    {% endif %}
+  </header>
+  <div class="nav-spacer"></div>
 
-# ===== 首頁 =====
-@app.route("/")
-def index():
-    return render_template("index.html")
+  <!-- Intro -->
+  <section class="hero" id="intro">
+    <div class="container" style="display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:center;">
+      <div>
+        <div class="eyebrow">專題簡介</div>
+        <h1>惡意流量模擬與防禦測試平台</h1>
+        <p>
+          本專題旨在開發一個網站平台，提供輕量化測試 agent，讓企業能模擬各種惡意攻擊行為，
+          驗證其 IPS/IDS 防禦能力。透過惡意程式樣本分析與特徵提取，平台可生成詳細測試報告，
+          協助企業即時發現防禦弱點並調整策略，避免防禦失效與資安風險。
+        </p>
+      </div>
+      <div>
+        <img src="流程圖1.jpg" alt="流程圖" style="width:100%;border:2px solid var(--black-line);border-radius:8px;">
+      </div>
+    </div>
+  </section>
 
-# ===== 下載 agent：回傳帶 UID 的檔名（需登入） =====
-@app.route("/download_agent")
-def download_agent():
-    """
-    下載預設檔案 downloads/agent.exe (或 agent-linux)
-    - 先檢查登入
-    - 從 users 讀取 id -> 產生 agent_<UID>.exe 作為 download filename
-    """
-    if not session.get("user"):
-        return redirect(url_for("login", next=request.path, msg="請先登入才能下載"))
+  <!-- 事件一 -->
+  <section class="hero" id="agents">
+    <div class="container">
+      <div class="eyebrow">事件一 · 惡意流量測試 Agent</div>
+      <p>此事件提供 Windows 與 Linux 兩種版本的測試 Agent，用來模擬不同環境下的惡意流量，幫助檢驗 IPS/IDS 是否能成功攔截，並即時回報測試結果。</p>
+      <div class="agents-grid">
 
-    # 取使用者 id（DB）
-    with engine.begin() as conn:
-        user_row = conn.execute(text("SELECT id FROM users WHERE username = :u"), {"u": session["user"]}).mappings().first()
-    if not user_row:
-        return "使用者不存在", 404
+        <!-- Windows -->
+        <div class="agent-box">
+          <div class="eyebrow">Agent · Windows</div>
+          <h2>Windows 測試 Agent</h2>
+          <p>以簡單可理解的方式模擬「像攻擊一樣」的流量，幫助你測試系統是否能擋住。</p>
+          {% if session is defined and session.get('user') %}
+            <a class="cta" href="/downloads/agent.exe">下載 agent.exe</a>
+            <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 →</a>
+          {% else %}
+            <a class="cta" href="/login?next=/downloads/agent.exe">登入後才可下載</a>
+            <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單</a>
+          {% endif %}
+        </div>
 
-    uid = uid_from_user_id(user_row["id"])
-    # 你可讓前端指定 platform ?platform=windows|linux，這裡以 windows 為例
-    platform = (request.args.get("platform") or "windows").lower()
-    if platform == "linux":
-        stored_name = "agent-linux"   # 實際存在的檔名（請放在 downloads/）
-        ext = ""
-    else:
-        stored_name = "agent.exe"
-        ext = ".exe"
+        <!-- Linux -->
+        <div class="agent-box">
+          <div class="eyebrow">Agent · Linux</div>
+          <h2>Linux 測試 Agent</h2>
+          <p>這個版本是給 Linux 使用者的測試工具。它會產生模擬攻擊的流量並回報，讓你知道防禦是否擋得下；若沒擋住，就能立刻發現並改善。</p>
+          {% if session is defined and session.get('user') %}
+            <a class="cta" href="/downloads/agent-linux">下載 Linux 版</a>
+            <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 →</a>
+          {% else %}
+            <a class="cta" href="/login?next=/downloads/agent-linux">登入後才可下載</a>
+            <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單</a>
+          {% endif %}
+        </div>
 
-    downloads_dir = os.path.join(app.root_path, "downloads")
-    file_path = os.path.join(downloads_dir, stored_name)
-    if not os.path.exists(file_path):
-        return "檔案不存在", 404
+      </div>
+    </div>
+  </section>
 
-    # 生成下載檔名 agent_<UID>.exe
-    download_name = f"agent_{uid}{ext}"
+  <!-- 事件二 (新增) -->
+  <section class="hero" id="agents-2">
+    <div class="container">
+      <div class="eyebrow">事件二 · （內容待補）</div>
+      <p>此事件內容尚未建立，將來可放新的測試 Agent 或其他惡意流量模擬項目。</p>
+      <div class="agents-grid">
+        <div class="agent-box">
+          <h2>區塊 A</h2>
+          <p>（空白內容）</p>
+        </div>
+        <div class="agent-box">
+          <h2>區塊 B</h2>
+          <p>（空白內容）</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    # 用 send_from_directory 但覆寫 Content-Disposition 以確保檔名
-    resp = make_response(send_from_directory(downloads_dir, stored_name, as_attachment=True))
-    # Set Content-Disposition explicitly (兼容性處理)
-    resp.headers["Content-Disposition"] = f'attachment; filename="{download_name}"'
-    return resp
+  <!-- 事件三 (新增) -->
+  <section class="hero" id="agents-3">
+    <div class="container">
+      <div class="eyebrow">事件三 · （內容待補）</div>
+      <p>此事件內容尚未建立，將來可放新的測試 Agent 或其他惡意流量模擬項目。</p>
+      <div class="agents-grid">
+        <div class="agent-box">
+          <h2>區塊 A</h2>
+          <p>（空白內容）</p>
+        </div>
+        <div class="agent-box">
+          <h2>區塊 B</h2>
+          <p>（空白內容）</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-# ===== Agent 回報（公開） =====
-@app.route("/report", methods=["POST"])
-def report():
-    try:
-        data = request.get_json(force=True, silent=False)
-    except Exception:
-        return jsonify(ok=False, error="Invalid JSON"), 400
+  <!-- Dashboard -->
+  <div class="card" id="dashboard">
+    <div class="grid">
+      <div>
+        <ul>
+          {% if session is defined and session.get('user') %}
+            <li><a href="/downloads/agent.exe">點我下載 agent.exe</a></li>
+            <li class="muted">下載並執行後，若封包未被 IPS/IDS 攔截，會在右側統計與清單出現。</li>
+            <p style="margin-top:12px"><a href="/view">查看最近事件清單 →</a></p>
+          {% else %}
+            <li><a href="/login?next=/downloads/agent.exe">登入後才可下載 agent.exe</a></li>
+            <li class="muted">若尚未登入，將無法產生統計或查看清單。</li>
+            <p style="margin-top:12px"><a href="/login?next=/view">登入後查看最近事件清單 →</a></p>
+          {% endif %}
+        </ul>
+      </div>
+      <div>
+        <strong>近 24 小時統計（依向量）</strong>
+        <table id="stats">
+          <thead><tr><th>向量</th><th>漏攔截數</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <p class="muted" id="statsNote" style="margin-top:8px;"></p>
+      </div>
+    </div>
+  </div>
 
-    # 相容舊鍵名
-    if isinstance(data, dict) and "name" in data and "ip" in data:
-        data = {
-            "client_id": data.get("name") or "",
-            "ip_internal": data.get("ip") or "",
-            "ip_public": data.get("public_ip") or "",
-            "user_agent": request.headers.get("User-Agent", "agent/mini-1.0"),
-            "vector": "SIMPLE-TEST",
-            "payload": data.get("os") or ""
+  <!-- dots nav + 回到頂部 -->
+  <button id="toTop" aria-label="回到頂部">↑</button>
+  <div class="dots" id="dots" role="navigation" aria-label="頁面區段導覽">
+    <button class="dot" data-target="#intro" aria-label="Intro"></button>
+    <button class="dot" data-target="#agents" aria-label="事件一"></button>
+    <button class="dot" data-target="#agents-2" aria-label="事件二"></button>
+    <button class="dot" data-target="#dashboard" aria-label="Dashboard"></button>
+  </div>
+
+  <script>
+    const dots = Array.from(document.querySelectorAll('.dot'));
+    dots.forEach(d => d.addEventListener('click', () => {
+      const t = document.querySelector(d.dataset.target);
+      if(t) t.scrollIntoView({behavior:'smooth', block:'start'});
+    }));
+    const sections = ['#intro','#agents','#agents-2','#dashboard'].map(s=>document.querySelector(s));
+    const setActive = (idx)=>{
+      dots.forEach((d,i)=>d.classList.toggle('active', i===idx));
+      dots.forEach((d,i)=>d.setAttribute('aria-current', i===idx ? 'true' : 'false'));
+    };
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){
+          const idx = sections.indexOf(e.target);
+          setActive(idx);
         }
-
-    now = datetime.utcnow()
-    client_id   = (data.get("client_id") or "").strip()[:128]
-    ip_public   = (data.get("ip_public") or request.headers.get("X-Forwarded-For") or request.remote_addr or "").strip()[:64]
-    ip_internal = (data.get("ip_internal") or "").strip()[:64]
-    user_agent  = (data.get("user_agent") or request.headers.get("User-Agent") or "").strip()[:256]
-    vector      = (data.get("vector") or "UNKNOWN").strip()[:64]
-
-    payload_raw = data.get("payload", "")
-    if isinstance(payload_raw, (dict, list)):
-        payload_raw = json.dumps(payload_raw, ensure_ascii=False)
-    payload_bytes = str(payload_raw).encode("utf-8", errors="ignore")
-    payload_hash  = sha256(payload_bytes).hexdigest()
-    payload_len   = len(payload_bytes)
-    sample        = safe_text_preview(payload_bytes, limit=1024)
-
-    with engine.begin() as conn:
-        conn.execute(text("""
-            INSERT INTO events (ts, client_id, ip_public, ip_internal, user_agent, vector,
-                                payload_sha256, payload_len, payload_sample, missed)
-            VALUES (:ts, :client_id, :ip_public, :ip_internal, :user_agent, :vector,
-                    :payload_sha256, :payload_len, :payload_sample, 1)
-        """), {
-            "ts": now, "client_id": client_id, "ip_public": ip_public, "ip_internal": ip_internal,
-            "user_agent": user_agent, "vector": vector, "payload_sha256": payload_hash,
-            "payload_len": payload_len, "payload_sample": sample
-        })
-
-    return jsonify(ok=True, ts=now.isoformat()+"Z", payload_sha256=payload_hash)
-
-# ===== 檢視事件清單 =====
-@app.route("/view", methods=["GET", "POST"])
-def view():
-    # (保留 POST 處理以接 raw/JSON，這段可維持你現有的處理)
-    if request.method == "POST":
-        try:
-            raw_bytes = request.get_data(cache=False, as_text=False) or b""
-            ua = request.headers.get("User-Agent", "") or ""
-            parsed_json = None
-            try:
-                parsed_json = json.loads(raw_bytes.decode('utf-8', errors='ignore'))
-            except Exception:
-                parsed_json = None
-
-            now = datetime.utcnow()
-
-            if isinstance(parsed_json, dict):
-                client_id   = (parsed_json.get("client_id") or parsed_json.get("name") or "").strip()[:128]
-                ip_public   = (parsed_json.get("ip_public") or parsed_json.get("public_ip") or request.headers.get("X-Forwarded-For") or request.remote_addr or "").strip()[:64]
-                ip_internal = (parsed_json.get("ip_internal") or parsed_json.get("ip") or "").strip()[:64]
-                user_agent  = (parsed_json.get("user_agent") or ua)[:256]
-                vector      = (parsed_json.get("vector") or "JSON")[:64]
-                payload_field = parsed_json.get("payload") or parsed_json.get("os") or parsed_json.get("data") or ""
-                if isinstance(payload_field, (dict, list)):
-                    payload_field = json.dumps(payload_field, ensure_ascii=False)
-                payload_bytes = str(payload_field).encode("utf-8", errors="ignore")
-            else:
-                payload_bytes = raw_bytes
-                client_id = request.args.get("client") or ""
-                ip_public = request.headers.get("X-Forwarded-For") or request.remote_addr or ""
-                ip_internal = ""
-                user_agent = ua or "unknown"
-                vector = "RAW"
-
-            payload_hash = sha256(payload_bytes).hexdigest()
-            payload_len = len(payload_bytes)
-            sample = safe_text_preview(payload_bytes, limit=1024)
-
-            with engine.begin() as conn:
-                conn.execute(text("""
-                    INSERT INTO events (ts, client_id, ip_public, ip_internal, user_agent, vector,
-                                        payload_sha256, payload_len, payload_sample, missed)
-                    VALUES (:ts, :client_id, :ip_public, :ip_internal, :user_agent, :vector,
-                            :payload_sha256, :payload_len, :payload_sample, 1)
-                """), {
-                    "ts": now,
-                    "client_id": (client_id or "")[:128],
-                    "ip_public": (ip_public or "")[:64],
-                    "ip_internal": (ip_internal or "")[:64],
-                    "user_agent": (user_agent or "")[:256],
-                    "vector": (vector or "RAW")[:64],
-                    "payload_sha256": payload_hash,
-                    "payload_len": payload_len,
-                    "payload_sample": sample
-                })
-            app.logger.info(f"/view POST stored: client={client_id} vec={vector} len={payload_len}")
-        except Exception as e:
-            app.logger.exception("Error handling /view POST: %s", e)
-        return "OK", 200
-
-    # GET: show list (must be logged in)
-    if not session.get("user"):
-        return redirect(url_for("login", next=request.full_path or request.path, msg="請先登入才能查看事件清單"))
-
-    username = session["user"]
-    vector = (request.args.get("vector") or "").strip()
-
-    # 如果是管理員 jie -> 全部；否則只看 client_id = UID（使用者 id padded）
-    if username == "jie":
-        query = """
-            SELECT id, ts, client_id, ip_public, ip_internal, vector, payload_sha256, payload_len, payload_sample
-            FROM events
-            ORDER BY ts DESC LIMIT 500
-        """
-        params = {}
-    else:
-        # 讀出使用者在 DB 的 id（轉成 6 位 UID 字串）
-        with engine.begin() as conn:
-            user_row = conn.execute(text("SELECT id FROM users WHERE username = :u"), {"u": username}).mappings().first()
-        uid = uid_from_user_id(user_row["id"]) if user_row else username
-        # 只看 client_id 與 uid 相同的事件
-        query = """
-            SELECT id, ts, client_id, ip_public, ip_internal, vector, payload_sha256, payload_len, payload_sample
-            FROM events
-            WHERE client_id = :client
-        """
-        params = {"client": uid}
-        if vector:
-            query += " AND vector = :vector"
-            params["vector"] = vector
-        query += " ORDER BY ts DESC LIMIT 500"
-
-    with engine.begin() as conn:
-        rows = conn.execute(text(query), params).mappings().all()
-
-    return render_template("view.html", rows=rows, vector=vector, client=username)
-
-# ===== 近24小時統計 =====
-@app.route("/api/stats")
-def api_stats():
-    if not session.get("user"):
-        return jsonify(error="請先登入"), 401
-
-    username = session["user"]
-    since = datetime.utcnow() - timedelta(days=1)
-
-    with engine.begin() as conn:
-        if username == "jie":
-            rows = conn.execute(text("""
-                SELECT vector, COUNT(*) AS cnt
-                FROM events
-                WHERE ts >= :since
-                GROUP BY vector
-                ORDER BY cnt DESC
-            """), {"since": since}).mappings().all()
-        else:
-            # user -> filter by uid
-            user_row = conn.execute(text("SELECT id FROM users WHERE username = :u"), {"u": username}).mappings().first()
-            uid = uid_from_user_id(user_row["id"]) if user_row else username
-            rows = conn.execute(text("""
-                SELECT vector, COUNT(*) AS cnt
-                FROM events
-                WHERE ts >= :since AND client_id = :client
-                GROUP BY vector
-                ORDER BY cnt DESC
-            """), {"since": since, "client": uid}).mappings().all()
-
-    return jsonify(rows=[dict(r) for r in rows])
-
-# ===== 清除事件 =====
-@app.route("/clear", methods=["POST"])
-def clear():
-    if not session.get("user"):
-        return redirect(url_for("login", next="/view", msg="請先登入才能清除事件"))
-
-    scope  = request.form.get("scope", "all")
-    vector = (request.form.get("vector") or "").strip()
-    client = (request.form.get("client") or "").strip()
-
-    with engine.begin() as conn:
-        if scope == "filtered" and (vector or client):
-            q = "DELETE FROM events WHERE 1=1"
-            p = {}
-            if vector:
-                q += " AND vector = :vector"
-                p["vector"] = vector
-            if client:
-                q += " AND client_id = :client"
-                p["client"] = client
-            conn.execute(text(q), p)
-        else:
-            conn.execute(text("DELETE FROM events"))
-
-    return redirect(url_for("view"))
-
-# ===== 註冊 =====
-@app.route("/register", methods=["GET", "POST"])
-def register():
-    if request.method == "GET":
-        msg = request.args.get("msg")
-        return render_template("register.html", error=msg)
-
-    username = (request.form.get("username") or "").strip()
-    password = (request.form.get("password") or "").strip()
-    if not username or not password:
-        return render_template("register.html", error="請輸入帳號與密碼")
-
-    pw_hash = generate_password_hash(password)
-    try:
-        with engine.begin() as conn:
-            conn.execute(text("""
-                INSERT INTO users (username, password_hash, created_at)
-                VALUES (:u, :p, :t)
-            """), {"u": username, "p": pw_hash, "t": datetime.utcnow()})
-    except Exception:
-        return render_template("register.html", error="此帳號已被使用")
-
-    session["user"] = username
-    return redirect(url_for("index"))
-
-# ===== 登入 =====
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "GET":
-        msg = request.args.get("msg")
-        return render_template("login.html", error=msg)
-
-    username = (request.form.get("username") or "").strip()
-    password = (request.form.get("password") or "").strip()
-    if not username or not password:
-        return render_template("login.html", error="請輸入帳號與密碼")
-
-    with engine.begin() as conn:
-        row = conn.execute(text("""
-            SELECT id, username, password_hash
-            FROM users
-            WHERE username = :u
-        """), {"u": username}).mappings().first()
-
-    if not row or not check_password_hash(row["password_hash"], password):
-        return render_template("login.html", error="帳號或密碼錯誤")
-
-    session["user"] = row["username"]
-    return redirect(url_for("index"))
-
-# ===== 登出 =====
-@app.route("/logout", methods=["POST"])
-def logout():
-    session.pop("user", None)
-    return redirect(url_for("index"))
-
-# ===== 管理員查看所有使用者 =====
-@app.route("/users")
-def users_list():
-    if not session.get("user"):
-        return redirect(url_for("login", msg="請先登入"))
-    if session["user"] != "jie":
-        return "你沒有權限查看這個頁面", 403
-
-    with engine.begin() as conn:
-        rows = conn.execute(text("""
-            SELECT id, username, created_at
-            FROM users
-            ORDER BY created_at DESC
-        """)).mappings().all()
-
-    return render_template("users.html", users=rows)
-
-# ===== 健康檢查 =====
-@app.route("/health")
-def health():
-    return jsonify(status="ok")
-
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+      });
+    }, {threshold:0.55});
+    sections.forEach(s=>io.observe(s));
+    dots.forEach((d,i)=>{
+      d.setAttribute('role','button');
+      d.setAttribute('tabindex','0');
+      d.addEventListener('keydown',(e)=>{
+        if(e.key === 'Enter' || e.key === ' '){ d.click(); }
+        if(e.key === 'ArrowRight'){ dots[Math.min(i+1,dots.length-1)].click(); }
+        if(e.key === 'ArrowLeft'){ dots[Math.max(i-1,0)].click(); }
+      });
+    });
+    document.getElementById('toTop').onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
+  </script>
+</body>
+</html>
