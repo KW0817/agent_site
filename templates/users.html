@@ -10,7 +10,7 @@
       background:#f7f7f7;
     }
     .wrap{
-      max-width:900px;
+      max-width:1100px;
       margin:0 auto;
       background:#fff;
       border-radius:12px;
@@ -24,10 +24,17 @@
       padding:8px 6px;
       text-align:left;
       font-size:14px;
+      vertical-align:top;
     }
     a{color:#007bff;text-decoration:none}
     a:hover{text-decoration:underline}
     .muted{color:#6b7280;font-size:13px}
+    .hash-cell{
+      font-family:monospace;
+      font-size:12px;
+      word-break:break-all;
+      color:#374151;
+    }
   </style>
 </head>
 <body>
@@ -41,6 +48,7 @@
       <tr>
         <th>ID</th>
         <th>帳號</th>
+        <th>密碼 Hash</th>
         <th>註冊時間 (UTC)</th>
       </tr>
     </thead>
@@ -49,10 +57,11 @@
       <tr>
         <td>{{ u.id }}</td>
         <td>{{ u.username }}</td>
+        <td class="hash-cell">{{ u.password_hash }}</td>
         <td>{{ u.created_at }}</td>
       </tr>
       {% else %}
-      <tr><td colspan="3">尚無使用者</td></tr>
+      <tr><td colspan="4">尚無使用者</td></tr>
       {% endfor %}
     </tbody>
   </table>
