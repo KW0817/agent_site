@@ -199,28 +199,10 @@
     </div>
   </section>
 
-  <!-- 事件二 (新增) -->
+  <!-- 事件二 -->
   <section class="hero" id="agents-2">
     <div class="container">
       <div class="eyebrow">事件二 · （內容待補）</div>
-      <p>此事件內容尚未建立，將來可放新的測試 Agent 或其他惡意流量模擬項目。</p>
-      <div class="agents-grid">
-        <div class="agent-box">
-          <h2>區塊 A</h2>
-          <p>（空白內容）</p>
-        </div>
-        <div class="agent-box">
-          <h2>區塊 B</h2>
-          <p>（空白內容）</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 事件三 (新增) -->
-  <section class="hero" id="agents-3">
-    <div class="container">
-      <div class="eyebrow">事件三 · （內容待補）</div>
       <p>此事件內容尚未建立，將來可放新的測試 Agent 或其他惡意流量模擬項目。</p>
       <div class="agents-grid">
         <div class="agent-box">
