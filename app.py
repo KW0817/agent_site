@@ -1,4 +1,3 @@
-# app.py
 from flask import Flask, request, render_template, send_from_directory, jsonify, redirect, url_for, session, make_response
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
@@ -56,18 +55,21 @@ def safe_text_preview(b: bytes, limit=1024) -> str:
         r = repr(b)
         return (r[:limit] + "…") if len(r) > limit else r
 
+# zero-pad id to 6 digits
 def uid_from_user_id(user_id: int) -> str:
     try:
         return f"{int(user_id):06d}"
     except Exception:
         return "000000"
 
+# ------------------------------------
+
 # ===== 首頁 =====
 @app.route("/")
 def index():
     return render_template("index.html")
 
-# ===== 下載 agent =====
+# ===== 下載 agent：回傳帶 UID 的檔名（需登入） =====
 @app.route("/download_agent")
 def download_agent():
     if not session.get("user"):
@@ -197,6 +199,7 @@ def view():
                     "payload_len": payload_len,
                     "payload_sample": sample
                 })
+            app.logger.info(f"/view POST stored: client={client_id} vec={vector} len={payload_len}")
         except Exception as e:
             app.logger.exception("Error handling /view POST: %s", e)
         return "OK", 200
