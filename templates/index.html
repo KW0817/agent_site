@@ -218,33 +218,23 @@
       </div>
     </div>
   </section>
-
-  <!-- Dashboard -->
-  <div class="card" id="dashboard">
-    <div class="grid">
-      <div>
-        <ul>
-          {% if session is defined and session.get('user') %}
-            <li><a href="/downloads/agent.exe">點我下載 agent.exe</a></li>
-            <li class="muted">下載並執行後，若封包未被 IPS/IDS 攔截，會在右側統計與清單出現。</li>
-            <p style="margin-top:12px"><a href="/view">查看最近事件清單 →</a></p>
-          {% else %}
-            <li><a href="/login?next=/downloads/agent.exe">登入後才可下載 agent.exe</a></li>
-            <li class="muted">若尚未登入，將無法產生統計或查看清單。</li>
-            <p style="margin-top:12px"><a href="/login?next=/view">登入後查看最近事件清單 →</a></p>
-          {% endif %}
-        </ul>
-      </div>
-      <div>
-        <strong>近 24 小時統計（依向量）</strong>
-        <table id="stats">
-          <thead><tr><th>向量</th><th>漏攔截數</th></tr></thead>
-          <tbody></tbody>
-        </table>
-        <p class="muted" id="statsNote" style="margin-top:8px;"></p>
+  <!-- 事件三 -->
+  <section class="hero" id="agents-3">
+    <div class="container">
+      <div class="eyebrow">事件三 · （內容待補）</div>
+      <p>此事件內容尚未建立，將來可放新的測試 Agent 或其他惡意流量模擬項目。</p>
+      <div class="agents-grid">
+        <div class="agent-box">
+          <h2>區塊 A</h2>
+          <p>（空白內容）</p>
+        </div>
+        <div class="agent-box">
+          <h2>區塊 B</h2>
+          <p>（空白內容）</p>
+        </div>
       </div>
     </div>
-  </div>
+  </section>
 
   <!-- dots nav + 回到頂部 -->
   <button id="toTop" aria-label="回到頂部">↑</button>
