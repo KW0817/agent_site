@@ -13,41 +13,116 @@
       --card:#ffffff;
       --dot:#cbd5e1;
       --dot-active:#0ea5e9;
+      --line:#0ea5e9;
+      --black-line:#1e293b;
     }
     *{box-sizing:border-box}
-    html,body{margin:0;padding:0;font-family:Arial,system-ui,-apple-system,sans-serif;color:var(--ink);background:#f3f4f6;scroll-behavior:smooth}
+    html,body{
+      margin:0;padding:0;
+      font-family:Arial,system-ui,-apple-system,sans-serif;
+      color:var(--ink);background:#f3f4f6;scroll-behavior:smooth
+    }
+
     /* ===== 頂部導覽列 ===== */
-    header.nav{position:fixed;top:0;left:0;right:0;height:56px;display:flex;align-items:center;justify-content:flex-end;gap:12px;padding:0 16px;background:rgba(255,255,255,.9);backdrop-filter:saturate(120%) blur(6px);z-index:20;box-shadow:0 1px 8px rgba(0,0,0,.08)}
+    header.nav{
+      position:fixed;top:0;left:0;right:0;height:56px;
+      display:flex;align-items:center;justify-content:flex-end;gap:12px;
+      padding:0 16px;background:rgba(255,255,255,.9);
+      backdrop-filter:saturate(120%) blur(6px);
+      z-index:20;box-shadow:0 1px 8px rgba(0,0,0,.08);
+      border-bottom:2px solid var(--black-line);
+    }
     header.nav a.brand{margin-right:auto;color:#0f172a;text-decoration:none;font-weight:800}
-    header.nav a.btn, header.nav button.btn{padding:8px 12px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;cursor:pointer;text-decoration:none;color:#0f172a}
+    header.nav a.btn, header.nav button.btn{
+      padding:8px 12px;border-radius:8px;
+      border:1px solid #e5e7eb;background:#fff;
+      cursor:pointer;text-decoration:none;color:#0f172a
+    }
     header.nav a.btn-primary{background:#0ea5e9;border-color:#0ea5e9;color:#fff}
     .nav-spacer{height:56px}
-    /* ===== Full-bleed hero sections ===== */
-    section.hero{width:100vw;height:var(--hero-h);position:relative;display:flex;align-items:center;overflow:hidden}
-    .hero .bg{position:absolute;inset:0;background:#f5f1ec center/cover no-repeat;filter:saturate(1) contrast(1);transform:scale(1.02)}
-    .hero .shade{position:absolute;inset:0;background:linear-gradient(90deg, rgba(0,0,0,.48) 0%, rgba(0,0,0,.28) 40%, rgba(0,0,0,0) 70%),radial-gradient(60% 100% at 0% 50%, rgba(0,0,0,.35) 0%, rgba(0,0,0,0) 70%);pointer-events:none}
-    .hero .container{width:100%;max-width:1100px;margin:0 auto;padding:0 24px;position:relative;z-index:1;display:grid;grid-template-columns:1.1fr 0.9fr;gap:28px;align-items:center}
-    .eyebrow{color:var(--brand);font-weight:700;margin-bottom:8px}
-    .hero h1{margin:0 0 12px;color:#fff;font-size:clamp(28px, 4.5vw, 46px);text-shadow:0 2px 10px rgba(0,0,0,.55)}
-    .hero p{margin:0;color:#fff;font-size:clamp(16px, 2.2vw, 20px);line-height:1.9;font-weight:500;text-shadow:0 1px 4px rgba(0,0,0,.6)}
-    .cta{display:inline-block;margin-top:16px;padding:10px 14px;border-radius:10px;background:#fff;border:1px solid #e5e7eb;color:#111;text-decoration:none}
-    .cta[aria-disabled="true"]{opacity:.6;pointer-events:none}
-    section.hero h2{margin:0 0 12px;font-size:clamp(22px, 3vw, 32px);font-weight:700;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.55)}
-    section.hero:nth-child(even) .container{grid-template-columns:0.9fr 1.1fr}
-    section.hero:nth-child(even) .shade{background:linear-gradient(270deg, rgba(0,0,0,.48) 0%, rgba(0,0,0,.28) 40%, rgba(0,0,0,0) 70%),radial-gradient(60% 100% at 100% 50%, rgba(0,0,0,.35) 0%, rgba(0,0,0,0) 70%)}
-    .dots{position:fixed;right:18px;bottom:22px;display:flex;gap:10px;z-index:10;background:rgba(255,255,255,.9);padding:8px 10px;border-radius:999px;box-shadow:0 4px 16px rgba(0,0,0,.12)}
-    .dot{width:10px;height:10px;border-radius:50%;background:var(--dot);cursor:pointer;border:0}
-    .dot.active{background:var(--dot-active)}
-    #toTop{position:fixed;right:18px;bottom:72px;z-index:10;width:36px;height:36px;border-radius:50%;border:0;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.12);background:#fff;display:flex;align-items:center;justify-content:center;font-size:16px}
-    .card{max-width:1100px;margin:28px auto;background:var(--card);border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.08);padding:22px}
+
+    /* ===== Section 共用樣式 ===== */
+    section.hero{
+      width:100vw;
+      position:relative;display:flex;align-items:center;
+      margin:0;padding:60px 0;
+      border-top:3px solid var(--black-line);
+      border-bottom:3px solid var(--black-line);
+      background:#fff;
+    }
+    section.hero:nth-child(even){
+      background:#f9fafb;
+    }
+    .hero .container{
+      width:100%;max-width:1100px;margin:0 auto;padding:0 24px;
+      position:relative;z-index:1;
+    }
+    .eyebrow{color:var(--brand);font-weight:700;margin-bottom:8px;letter-spacing:1px;font-size:20px}
+    .hero h1,.hero h2{
+      margin:0 0 12px;color:#0f172a;font-weight:700;position:relative;
+      padding-bottom:8px;border-bottom:2px solid var(--black-line);
+    }
+    .hero h1::after,.hero h2::after{
+      content:"";display:block;width:60px;height:3px;
+      background:var(--line);margin-top:6px;border-radius:3px;
+    }
+    .hero p{
+      margin:0;color:#374151;
+      font-size:clamp(16px, 2.2vw, 20px);line-height:1.9;font-weight:500
+    }
+    .cta{
+      display:inline-block;margin-top:16px;padding:10px 14px;
+      border-radius:10px;background:#fff;border:1px solid #0f172a;
+      color:#111;text-decoration:none
+    }
+
+    /* ===== Agents 區塊 ===== */
+    .agents-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:40px;
+      margin-top:20px;
+    }
+    .agent-box{
+      border:2px solid var(--black-line);
+      border-radius:12px;
+      padding:20px;
+      background:#fff;
+      box-shadow:0 2px 8px rgba(0,0,0,.08);
+      height:100%;
+    }
+
+    /* ===== Dashboard 卡片 ===== */
+    .card{
+      max-width:1100px;margin:28px auto;background:var(--card);
+      border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.08);
+      padding:22px;border:2px solid var(--black-line)
+    }
     .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-    table{width:100%;border-collapse:collapse;margin-top:8px;font-size:14px}
-    th,td{border-bottom:1px solid #eee;padding:8px 6px;text-align:left}
+    table{width:100%;border-collapse:collapse;margin-top:8px;font-size:14px;border:1px solid var(--black-line)}
+    th,td{border-bottom:1px solid #eee;padding:8px 6px;text-align:left;border-right:1px solid #ccc}
     a{color:#1a73e8;text-decoration:none}
     a:hover{text-decoration:underline}
     .muted{color:var(--muted);font-size:14px}
-    @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}.dot,.cta{transition:none !important}}
-    @media (max-width: 900px){.hero .container{grid-template-columns:1fr}.hero .shade{background:linear-gradient(0deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,0) 60%)}:root{ --hero-h: 70vh; }}
+
+    /* ===== dots 與回頂部 ===== */
+    .dots{
+      position:fixed;right:18px;bottom:22px;display:flex;gap:10px;z-index:9999;
+      background:rgba(255,255,255,.9);padding:8px 10px;border-radius:999px;
+      box-shadow:0 4px 16px rgba(0,0,0,.12);border:1px solid var(--black-line)
+    }
+    .dot{width:10px;height:10px;border-radius:50%;background:var(--dot);cursor:pointer;border:1px solid var(--black-line)}
+    .dot.active{background:var(--dot-active)}
+    #toTop{
+      position:fixed;right:18px;bottom:72px;z-index:10;width:36px;height:36px;
+      border-radius:50%;border:2px solid var(--black-line);cursor:pointer;
+      box-shadow:0 4px 16px rgba(0,0,0,.12);background:#fff;
+      display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--line)
+    }
+
+    @media (max-width: 900px){
+      .agents-grid{grid-template-columns:1fr}
+    }
   </style>
 </head>
 <body>
@@ -55,7 +130,6 @@
   <!-- 頂部導覽列 -->
   <header class="nav">
     <a class="brand" href="/">惡意流量模擬與防禦測試平台</a>
-
     {% if session is defined and session.get('user') %}
       <span style="color:#334155;">你好，{{ session.get('user') }}</span>
       <form method="post" action="/logout" style="margin:0;">
@@ -68,11 +142,9 @@
   </header>
   <div class="nav-spacer"></div>
 
-  <!-- Intro / Hero 1 -->
+  <!-- Intro -->
   <section class="hero" id="intro">
-    <div class="bg" style="background-image:url('{{ url_for('static', filename='images/intro.jpg') }}'), linear-gradient(#f5f1ec,#f5f1ec)"></div>
-    <div class="shade"></div>
-    <div class="container">
+    <div class="container" style="display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:center;">
       <div>
         <div class="eyebrow">專題簡介</div>
         <h1>惡意流量模擬與防禦測試平台</h1>
@@ -82,58 +154,70 @@
           協助企業即時發現防禦弱點並調整策略，避免防禦失效與資安風險。
         </p>
       </div>
-      <div></div>
-    </div>
-  </section>
-
-  <!-- Hero 2: Windows Agent -->
-  <section class="hero" id="agent-windows">
-    <div class="bg" style="background-image:url('{{ url_for('static', filename='images/agent-windows.jpg') }}'), linear-gradient(#0d1117,#0d1117)"></div>
-    <div class="shade"></div>
-    <div class="container">
       <div>
-        <div class="eyebrow">Agent · Windows</div>
-        <h2>Windows 測試 Agent</h2>
-        <p>以簡單可理解的方式模擬「像攻擊一樣」的流量，幫助你測試系統是否能擋住。</p>
-
-        {% if session is defined and session.get('user') %}
-          <a class="cta" href="/download_agent?platform=windows">下載 agent</a>
-          <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 →</a>
-        {% else %}
-          <a class="cta" href="/login?next=/downloads/agent.exe&msg=%E8%AB%8B%E5%85%88%E7%99%BB%E5%85%A5%E6%89%8D%E8%83%BD%E4%B8%8B%E8%BC%89">登入後才可下載</a>
-          <a class="cta" href="/login?next=/view&msg=%E8%AB%8B%E5%85%88%E7%99%BB%E5%85%A5%E6%89%8D%E8%83%BD%E6%9F%A5%E7%9C%8B" style="margin-left:8px;">登入後查看事件清單</a>
-        {% endif %}
+        <img src="流程圖1.jpg" alt="流程圖" style="width:100%;border:2px solid var(--black-line);border-radius:8px;">
       </div>
-      <div></div>
     </div>
   </section>
 
-  <!-- Hero 3: Linux Agent -->
-  <section class="hero" id="agent-linux">
-    <div class="bg" style="background-image:url('{{ url_for('static', filename='images/agent-linux.jpg') }}'), linear-gradient(#0b3b2e,#0b3b2e)"></div>
-    <div class="shade"></div>
+  <!-- 事件一 -->
+  <section class="hero" id="agents">
     <div class="container">
-      <div>
-        <div class="eyebrow">Agent · Linux</div>
-        <h2>Linux 測試 Agent</h2>
-        <p>
-          這個版本是給 Linux 使用者的測試工具。它會產生模擬攻擊的流量並回報，
-          讓你知道防禦是否擋得下；若沒擋住，就能立刻發現並改善。
-        </p>
+      <div class="eyebrow">事件一 · 惡意流量測試 Agent</div>
+      <p>此事件提供 Windows 與 Linux 兩種版本的測試 Agent，用來模擬不同環境下的惡意流量，幫助檢驗 IPS/IDS 是否能成功攔截，並即時回報測試結果。</p>
+      <div class="agents-grid">
 
-        {% if session is defined and session.get('user') %}
-          <a class="cta" href="/download_agent?platform=linux">下載 agent</a>
-          <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 →</a>
-        {% else %}
-          <a class="cta" href="/login?next=/downloads/agent-linux&msg=%E8%AB%8B%E5%85%88%E7%99%BB%E5%85%A5%E6%89%8D%E8%83%BD%E4%B8%8B%E8%BC%89">登入後才可下載</a>
-          <a class="cta" href="/login?next=/view&msg=%E8%AB%8B%E5%85%88%E7%99%BB%E5%85%A5%E6%89%8D%E8%83%BD%E6%9F%A5%E7%9C%8B" style="margin-left:8px;">登入後查看事件清單</a>
-        {% endif %}
+        <!-- Windows -->
+        <div class="agent-box">
+          <div class="eyebrow">Agent · Windows</div>
+          <h2>Windows 測試 Agent</h2>
+          <p>以簡單可理解的方式模擬「像攻擊一樣」的流量，幫助你測試系統是否能擋住。</p>
+          {% if session is defined and session.get('user') %}
+            <a class="cta" href="/downloads/agent.exe">下載 agent.exe</a>
+            <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 →</a>
+          {% else %}
+            <a class="cta" href="/login?next=/downloads/agent.exe">登入後才可下載</a>
+            <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單</a>
+          {% endif %}
+        </div>
+
+        <!-- Linux -->
+        <div class="agent-box">
+          <div class="eyebrow">Agent · Linux</div>
+          <h2>Linux 測試 Agent</h2>
+          <p>這個版本是給 Linux 使用者的測試工具。它會產生模擬攻擊的流量並回報，讓你知道防禦是否擋得下；若沒擋住，就能立刻發現並改善。</p>
+          {% if session is defined and session.get('user') %}
+            <a class="cta" href="/downloads/agent-linux">下載 Linux 版</a>
+            <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 →</a>
+          {% else %}
+            <a class="cta" href="/login?next=/downloads/agent-linux">登入後才可下載</a>
+            <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單</a>
+          {% endif %}
+        </div>
+
       </div>
-      <div></div>
     </div>
   </section>
 
-  <!-- Dashboard 卡片 -->
+  <!-- 事件二 -->
+  <section class="hero" id="agents-2">
+    <div class="container">
+      <div class="eyebrow">事件二 · （內容待補）</div>
+      <p>此事件內容尚未建立，將來可放新的測試 Agent 或其他惡意流量模擬項目。</p>
+      <div class="agents-grid">
+        <div class="agent-box">
+          <h2>區塊 A</h2>
+          <p>（空白內容）</p>
+        </div>
+        <div class="agent-box">
+          <h2>區塊 B</h2>
+          <p>（空白內容）</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Dashboard -->
   <div class="card" id="dashboard">
     <div class="grid">
       <div>
@@ -143,9 +227,9 @@
             <li class="muted">下載並執行後，若封包未被 IPS/IDS 攔截，會在右側統計與清單出現。</li>
             <p style="margin-top:12px"><a href="/view">查看最近事件清單 →</a></p>
           {% else %}
-            <li><a href="/login?next=/downloads/agent.exe&msg=%E8%AB%8B%E5%85%88%E7%99%BB%E5%85%A5%E6%89%8D%E8%83%BD%E4%B8%8B%E8%BC%89">登入後才可下載 agent.exe</a></li>
+            <li><a href="/login?next=/downloads/agent.exe">登入後才可下載 agent.exe</a></li>
             <li class="muted">若尚未登入，將無法產生統計或查看清單。</li>
-            <p style="margin-top:12px"><a href="/login?next=/view&msg=%E8%AB%8B%E5%85%88%E7%99%BB%E5%85%A5%E6%89%8D%E8%83%BD%E6%9F%A5%E7%9C%8B">登入後查看最近事件清單 →</a></p>
+            <p style="margin-top:12px"><a href="/login?next=/view">登入後查看最近事件清單 →</a></p>
           {% endif %}
         </ul>
       </div>
@@ -164,21 +248,18 @@
   <button id="toTop" aria-label="回到頂部">↑</button>
   <div class="dots" id="dots" role="navigation" aria-label="頁面區段導覽">
     <button class="dot" data-target="#intro" aria-label="Intro"></button>
-    <button class="dot" data-target="#agent-windows" aria-label="Windows"></button>
-    <button class="dot" data-target="#agent-linux" aria-label="Linux"></button>
+    <button class="dot" data-target="#agents" aria-label="事件一"></button>
+    <button class="dot" data-target="#agents-2" aria-label="事件二"></button>
     <button class="dot" data-target="#dashboard" aria-label="Dashboard"></button>
   </div>
 
   <script>
-    // 圓點導覽：點擊捲動
     const dots = Array.from(document.querySelectorAll('.dot'));
     dots.forEach(d => d.addEventListener('click', () => {
       const t = document.querySelector(d.dataset.target);
       if(t) t.scrollIntoView({behavior:'smooth', block:'start'});
     }));
-    const sections = ['#intro','#agent-windows','#agent-linux','#dashboard'].map(s=>document.querySelector(s));
-
-    // 高亮與 aria-current 更新
+    const sections = ['#intro','#agents','#agents-2','#dashboard'].map(s=>document.querySelector(s));
     const setActive = (idx)=>{
       dots.forEach((d,i)=>d.classList.toggle('active', i===idx));
       dots.forEach((d,i)=>d.setAttribute('aria-current', i===idx ? 'true' : 'false'));
@@ -192,8 +273,6 @@
       });
     }, {threshold:0.55});
     sections.forEach(s=>io.observe(s));
-
-    // 鍵盤可用性
     dots.forEach((d,i)=>{
       d.setAttribute('role','button');
       d.setAttribute('tabindex','0');
@@ -203,34 +282,7 @@
         if(e.key === 'ArrowLeft'){ dots[Math.max(i-1,0)].click(); }
       });
     });
-
-    // 回到頂部
     document.getElementById('toTop').onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
-
-    // 右側統計：未登入時顯示提示；已登入才呼叫 API
-    (async () => {
-      try{
-        const res = await fetch('/api/stats');
-        if(res.status === 401){
-          document.querySelector('#stats tbody').innerHTML = `<tr><td colspan="2" class="muted">需登入後才能查看統計</td></tr>`;
-          document.getElementById('statsNote').textContent = '提示：請先登入以載入統計資料。';
-          return;
-        }
-        const data = await res.json();
-        const tbody = document.querySelector('#stats tbody');
-        tbody.innerHTML = '';
-        (data.rows || []).forEach(r=>{
-          const tr=document.createElement('tr');
-          tr.innerHTML = `<td><a href="/view?vector=${encodeURIComponent(r.vector)}">${r.vector||'UNKNOWN'}</a></td><td>${r.cnt}</td>`;
-          tbody.appendChild(tr);
-        });
-        if(!tbody.children.length){
-          tbody.innerHTML = `<tr><td colspan="2" class="muted">尚無資料</td></tr>`;
-        }
-      }catch(e){
-        document.querySelector('#stats tbody').innerHTML = `<tr><td colspan="2" class="muted">讀取失敗</td></tr>`;
-      }
-    })();
   </script>
 </body>
 </html>
