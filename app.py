@@ -1,9 +1,10 @@
-from flask import Flask, request, render_template, send_from_directory, jsonify, redirect, url_for, session
+# app.py
+from flask import Flask, request, render_template, send_from_directory, jsonify, redirect, url_for, session, make_response
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 from hashlib import sha256
 from sqlalchemy import create_engine, text
-import os, json
+import os, json, re
 
 # ===== App init =====
 app = Flask(__name__, static_folder="static", static_url_path="/static")
@@ -17,7 +18,7 @@ DB_URL = os.getenv("DATABASE_URL", DEFAULT_SQLITE_URL)
 
 engine = create_engine(DB_URL, future=True, pool_pre_ping=True)
 
-# 啟動時建立資料表
+# 啟動時建立資料表（events, users）
 with engine.begin() as conn:
     conn.execute(text("""
     CREATE TABLE IF NOT EXISTS events (
@@ -43,18 +44,72 @@ with engine.begin() as conn:
     )
     """))
 
+# -------- helper functions ----------
+def safe_text_preview(b: bytes, limit=1024) -> str:
+    if not b:
+        return ""
+    try:
+        s = b.decode("utf-8", errors="replace")
+        s = s.replace("\r", "\\r").replace("\n", "\\n")
+        return (s[:limit] + "…") if len(s) > limit else s
+    except Exception:
+        r = repr(b)
+        return (r[:limit] + "…") if len(r) > limit else r
+
+# zero-pad id to 6 digits
+def uid_from_user_id(user_id: int) -> str:
+    try:
+        return f"{int(user_id):06d}"
+    except Exception:
+        return "000000"
+
+# ------------------------------------
+
 # ===== 首頁 =====
 @app.route("/")
 def index():
     return render_template("index.html")
 
-# ===== 下載檔案（需登入） =====
-@app.route("/downloads/<path:filename>")
-def download_file(filename):
+# ===== 下載 agent：回傳帶 UID 的檔名（需登入） =====
+@app.route("/download_agent")
+def download_agent():
+    """
+    下載預設檔案 downloads/agent.exe (或 agent-linux)
+    - 先檢查登入
+    - 從 users 讀取 id -> 產生 agent_<UID>.exe 作為 download filename
+    """
     if not session.get("user"):
-        return redirect(url_for("login", next=request.path, msg="請先登入才能下載檔案"))
+        return redirect(url_for("login", next=request.path, msg="請先登入才能下載"))
+
+    # 取使用者 id（DB）
+    with engine.begin() as conn:
+        user_row = conn.execute(text("SELECT id FROM users WHERE username = :u"), {"u": session["user"]}).mappings().first()
+    if not user_row:
+        return "使用者不存在", 404
+
+    uid = uid_from_user_id(user_row["id"])
+    # 你可讓前端指定 platform ?platform=windows|linux，這裡以 windows 為例
+    platform = (request.args.get("platform") or "windows").lower()
+    if platform == "linux":
+        stored_name = "agent-linux"   # 實際存在的檔名（請放在 downloads/）
+        ext = ""
+    else:
+        stored_name = "agent.exe"
+        ext = ".exe"
+
     downloads_dir = os.path.join(app.root_path, "downloads")
-    return send_from_directory(downloads_dir, filename, as_attachment=True)
+    file_path = os.path.join(downloads_dir, stored_name)
+    if not os.path.exists(file_path):
+        return "檔案不存在", 404
+
+    # 生成下載檔名 agent_<UID>.exe
+    download_name = f"agent_{uid}{ext}"
+
+    # 用 send_from_directory 但覆寫 Content-Disposition 以確保檔名
+    resp = make_response(send_from_directory(downloads_dir, stored_name, as_attachment=True))
+    # Set Content-Disposition explicitly (兼容性處理)
+    resp.headers["Content-Disposition"] = f'attachment; filename="{download_name}"'
+    return resp
 
 # ===== Agent 回報（公開） =====
 @app.route("/report", methods=["POST"])
@@ -64,6 +119,7 @@ def report():
     except Exception:
         return jsonify(ok=False, error="Invalid JSON"), 400
 
+    # 相容舊鍵名
     if isinstance(data, dict) and "name" in data and "ip" in data:
         data = {
             "client_id": data.get("name") or "",
@@ -87,7 +143,7 @@ def report():
     payload_bytes = str(payload_raw).encode("utf-8", errors="ignore")
     payload_hash  = sha256(payload_bytes).hexdigest()
     payload_len   = len(payload_bytes)
-    sample        = payload_bytes[:1024].decode("utf-8", errors="replace")
+    sample        = safe_text_preview(payload_bytes, limit=1024)
 
     with engine.begin() as conn:
         conn.execute(text("""
@@ -106,35 +162,90 @@ def report():
 # ===== 檢視事件清單 =====
 @app.route("/view", methods=["GET", "POST"])
 def view():
+    # (保留 POST 處理以接 raw/JSON，這段可維持你現有的處理)
     if request.method == "POST":
         try:
-            raw = request.get_data(cache=False, as_text=False) or b""
-            ua  = request.headers.get("User-Agent", "")
-            app.logger.info(f"/view POST received: len={len(raw)}, UA={ua}")
-        except Exception:
-            pass
+            raw_bytes = request.get_data(cache=False, as_text=False) or b""
+            ua = request.headers.get("User-Agent", "") or ""
+            parsed_json = None
+            try:
+                parsed_json = json.loads(raw_bytes.decode('utf-8', errors='ignore'))
+            except Exception:
+                parsed_json = None
+
+            now = datetime.utcnow()
+
+            if isinstance(parsed_json, dict):
+                client_id   = (parsed_json.get("client_id") or parsed_json.get("name") or "").strip()[:128]
+                ip_public   = (parsed_json.get("ip_public") or parsed_json.get("public_ip") or request.headers.get("X-Forwarded-For") or request.remote_addr or "").strip()[:64]
+                ip_internal = (parsed_json.get("ip_internal") or parsed_json.get("ip") or "").strip()[:64]
+                user_agent  = (parsed_json.get("user_agent") or ua)[:256]
+                vector      = (parsed_json.get("vector") or "JSON")[:64]
+                payload_field = parsed_json.get("payload") or parsed_json.get("os") or parsed_json.get("data") or ""
+                if isinstance(payload_field, (dict, list)):
+                    payload_field = json.dumps(payload_field, ensure_ascii=False)
+                payload_bytes = str(payload_field).encode("utf-8", errors="ignore")
+            else:
+                payload_bytes = raw_bytes
+                client_id = request.args.get("client") or ""
+                ip_public = request.headers.get("X-Forwarded-For") or request.remote_addr or ""
+                ip_internal = ""
+                user_agent = ua or "unknown"
+                vector = "RAW"
+
+            payload_hash = sha256(payload_bytes).hexdigest()
+            payload_len = len(payload_bytes)
+            sample = safe_text_preview(payload_bytes, limit=1024)
+
+            with engine.begin() as conn:
+                conn.execute(text("""
+                    INSERT INTO events (ts, client_id, ip_public, ip_internal, user_agent, vector,
+                                        payload_sha256, payload_len, payload_sample, missed)
+                    VALUES (:ts, :client_id, :ip_public, :ip_internal, :user_agent, :vector,
+                            :payload_sha256, :payload_len, :payload_sample, 1)
+                """), {
+                    "ts": now,
+                    "client_id": (client_id or "")[:128],
+                    "ip_public": (ip_public or "")[:64],
+                    "ip_internal": (ip_internal or "")[:64],
+                    "user_agent": (user_agent or "")[:256],
+                    "vector": (vector or "RAW")[:64],
+                    "payload_sha256": payload_hash,
+                    "payload_len": payload_len,
+                    "payload_sample": sample
+                })
+            app.logger.info(f"/view POST stored: client={client_id} vec={vector} len={payload_len}")
+        except Exception as e:
+            app.logger.exception("Error handling /view POST: %s", e)
         return "OK", 200
 
+    # GET: show list (must be logged in)
     if not session.get("user"):
         return redirect(url_for("login", next=request.full_path or request.path, msg="請先登入才能查看事件清單"))
 
     username = session["user"]
     vector = (request.args.get("vector") or "").strip()
 
+    # 如果是管理員 jie -> 全部；否則只看 client_id = UID（使用者 id padded）
     if username == "jie":
         query = """
-            SELECT id, ts, client_id, ip_public, ip_internal, vector, payload_sha256, payload_len
+            SELECT id, ts, client_id, ip_public, ip_internal, vector, payload_sha256, payload_len, payload_sample
             FROM events
             ORDER BY ts DESC LIMIT 500
         """
         params = {}
     else:
+        # 讀出使用者在 DB 的 id（轉成 6 位 UID 字串）
+        with engine.begin() as conn:
+            user_row = conn.execute(text("SELECT id FROM users WHERE username = :u"), {"u": username}).mappings().first()
+        uid = uid_from_user_id(user_row["id"]) if user_row else username
+        # 只看 client_id 與 uid 相同的事件
         query = """
-            SELECT id, ts, client_id, ip_public, ip_internal, vector, payload_sha256, payload_len
+            SELECT id, ts, client_id, ip_public, ip_internal, vector, payload_sha256, payload_len, payload_sample
             FROM events
             WHERE client_id = :client
         """
-        params = {"client": username}
+        params = {"client": uid}
         if vector:
             query += " AND vector = :vector"
             params["vector"] = vector
@@ -164,13 +275,16 @@ def api_stats():
                 ORDER BY cnt DESC
             """), {"since": since}).mappings().all()
         else:
+            # user -> filter by uid
+            user_row = conn.execute(text("SELECT id FROM users WHERE username = :u"), {"u": username}).mappings().first()
+            uid = uid_from_user_id(user_row["id"]) if user_row else username
             rows = conn.execute(text("""
                 SELECT vector, COUNT(*) AS cnt
                 FROM events
                 WHERE ts >= :since AND client_id = :client
                 GROUP BY vector
                 ORDER BY cnt DESC
-            """), {"since": since, "client": username}).mappings().all()
+            """), {"since": since, "client": uid}).mappings().all()
 
     return jsonify(rows=[dict(r) for r in rows])
 
@@ -266,34 +380,18 @@ def users_list():
 
     with engine.begin() as conn:
         rows = conn.execute(text("""
-            SELECT id, username, password_hash, created_at
+            SELECT id, username, created_at
             FROM users
             ORDER BY created_at DESC
         """)).mappings().all()
 
-    # 格式化
-    users = []
-    for r in rows:
-        created_at = r["created_at"]
-        if hasattr(created_at, "strftime"):
-            created_at = created_at.strftime("%Y-%m-%d %H:%M:%S")
-        else:
-            created_at = str(created_at).split(".")[0]
-        users.append({
-            "id": r["id"],
-            "username": r["username"],
-            "password_hash": r["password_hash"],
-            "created_at": created_at
-        })
-
-    return render_template("users.html", users=users)
+    return render_template("users.html", users=rows)
 
 # ===== 健康檢查 =====
 @app.route("/health")
 def health():
     return jsonify(status="ok")
 
-# ===== 主程式入口 =====
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
