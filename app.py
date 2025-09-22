@@ -1,4 +1,3 @@
-# app.py
 from flask import Flask, request, render_template, send_from_directory, jsonify, redirect, url_for, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
@@ -6,11 +5,11 @@ from hashlib import sha256
 from sqlalchemy import create_engine, text
 import os, json
 
-# ===== App init (只初始化一次，並設定 static) =====
+# ===== App init =====
 app = Flask(__name__, static_folder="static", static_url_path="/static")
-app.secret_key = os.getenv("SECRET_KEY", "change-me-please")  # 請改成環境變數
+app.secret_key = os.getenv("SECRET_KEY", "change-me-please")
 
-# ===== 資料庫設定（優先用 DATABASE_URL；fallback 為 SQLite） =====
+# ===== 資料庫設定 =====
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 SQLITE_PATH = os.path.join(BASE_DIR, "events.db")
 DEFAULT_SQLITE_URL = f"sqlite:///{SQLITE_PATH}"
@@ -20,7 +19,6 @@ engine = create_engine(DB_URL, future=True, pool_pre_ping=True)
 
 # 啟動時建立資料表
 with engine.begin() as conn:
-    # 事件表
     conn.execute(text("""
     CREATE TABLE IF NOT EXISTS events (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -36,7 +34,6 @@ with engine.begin() as conn:
         missed INTEGER NOT NULL
     )
     """))
-    # 使用者表
     conn.execute(text("""
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -46,7 +43,7 @@ with engine.begin() as conn:
     )
     """))
 
-# ===== 首頁（任何人都能看） =====
+# ===== 首頁 =====
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -55,7 +52,6 @@ def index():
 @app.route("/downloads/<path:filename>")
 def download_file(filename):
     if not session.get("user"):
-        # 未登入：導向登入頁，並帶回想去的路徑與提示訊息
         return redirect(url_for("login", next=request.path, msg="請先登入才能下載檔案"))
     downloads_dir = os.path.join(app.root_path, "downloads")
     return send_from_directory(downloads_dir, filename, as_attachment=True)
@@ -68,7 +64,6 @@ def report():
     except Exception:
         return jsonify(ok=False, error="Invalid JSON"), 400
 
-    # 相容舊鍵名
     if isinstance(data, dict) and "name" in data and "ip" in data:
         data = {
             "client_id": data.get("name") or "",
@@ -108,7 +103,7 @@ def report():
 
     return jsonify(ok=True, ts=now.isoformat()+"Z", payload_sha256=payload_hash)
 
-# ===== 檢視頁：GET 需登入；POST 允許匿名上報（特徵封包） =====
+# ===== 檢視事件清單 =====
 @app.route("/view", methods=["GET", "POST"])
 def view():
     if request.method == "POST":
@@ -120,52 +115,72 @@ def view():
             pass
         return "OK", 200
 
-    # GET：需登入
     if not session.get("user"):
         return redirect(url_for("login", next=request.full_path or request.path, msg="請先登入才能查看事件清單"))
 
+    username = session["user"]
     vector = (request.args.get("vector") or "").strip()
-    client = (request.args.get("client") or "").strip()
 
-    query = """
-        SELECT id, ts, client_id, ip_public, ip_internal, vector, payload_sha256, payload_len
-        FROM events WHERE 1=1
-    """
-    params = {}
-    if vector:
-        query += " AND vector = :vector"; params["vector"] = vector
-    if client:
-        query += " AND client_id = :client"; params["client"] = client
-    query += " ORDER BY ts DESC LIMIT 500"
+    if username == "jie":
+        query = """
+            SELECT id, ts, client_id, ip_public, ip_internal, vector, payload_sha256, payload_len
+            FROM events
+            ORDER BY ts DESC LIMIT 500
+        """
+        params = {}
+    else:
+        query = """
+            SELECT id, ts, client_id, ip_public, ip_internal, vector, payload_sha256, payload_len
+            FROM events
+            WHERE client_id = :client
+        """
+        params = {"client": username}
+        if vector:
+            query += " AND vector = :vector"
+            params["vector"] = vector
+        query += " ORDER BY ts DESC LIMIT 500"
 
     with engine.begin() as conn:
         rows = conn.execute(text(query), params).mappings().all()
 
-    return render_template("view.html", rows=rows, vector=vector, client=client)
+    return render_template("view.html", rows=rows, vector=vector, client=username)
 
-# ===== 近24小時統計（需登入；提供給首頁右側表格） =====
+# ===== 近24小時統計 =====
 @app.route("/api/stats")
 def api_stats():
     if not session.get("user"):
         return jsonify(error="請先登入"), 401
+
+    username = session["user"]
     since = datetime.utcnow() - timedelta(days=1)
+
     with engine.begin() as conn:
-        rows = conn.execute(text("""
-            SELECT vector, COUNT(*) AS cnt
-            FROM events
-            WHERE ts >= :since
-            GROUP BY vector
-            ORDER BY cnt DESC
-        """), {"since": since}).mappings().all()
+        if username == "jie":
+            rows = conn.execute(text("""
+                SELECT vector, COUNT(*) AS cnt
+                FROM events
+                WHERE ts >= :since
+                GROUP BY vector
+                ORDER BY cnt DESC
+            """), {"since": since}).mappings().all()
+        else:
+            rows = conn.execute(text("""
+                SELECT vector, COUNT(*) AS cnt
+                FROM events
+                WHERE ts >= :since AND client_id = :client
+                GROUP BY vector
+                ORDER BY cnt DESC
+            """), {"since": since, "client": username}).mappings().all()
+
     return jsonify(rows=[dict(r) for r in rows])
 
-# ===== 清除事件（需登入） =====
+# ===== 清除事件 =====
 @app.route("/clear", methods=["POST"])
 def clear():
     if not session.get("user"):
         return redirect(url_for("login", next="/view", msg="請先登入才能清除事件"))
 
-    scope  = request.form.get("scope", "all")          # all / filtered
+    scope  = request.form.get("scope", "all")
     vector = (request.form.get("vector") or "").strip()
     client = (request.form.get("client") or "").strip()
 
@@ -183,14 +198,12 @@ def clear():
         else:
             conn.execute(text("DELETE FROM events"))
 
-    return redirect(url_for("view", vector=vector if scope=="filtered" else None,
-                                   client=client if scope=="filtered" else None))
+    return redirect(url_for("view"))
 
-# ===== 使用者：註冊 / 登入 / 登出（公開頁面） =====
+# ===== 註冊 =====
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "GET":
-        # 支援從 ?msg= 顯示提示
         msg = request.args.get("msg")
         return render_template("register.html", error=msg)
 
@@ -210,13 +223,12 @@ def register():
         return render_template("register.html", error="此帳號已被使用")
 
     session["user"] = username
-    next_url = request.args.get("next") or request.form.get("next") or url_for("index")
-    return redirect(next_url)
+    return redirect(url_for("index"))
 
+# ===== 登入 =====
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "GET":
-        # 從 ?msg= 帶入提示（例如「請先登入」）
         msg = request.args.get("msg")
         return render_template("login.html", error=msg)
 
@@ -236,19 +248,52 @@ def login():
         return render_template("login.html", error="帳號或密碼錯誤")
 
     session["user"] = row["username"]
-    next_url = request.args.get("next") or request.form.get("next") or url_for("index")
-    return redirect(next_url)
+    return redirect(url_for("index"))
 
+# ===== 登出 =====
 @app.route("/logout", methods=["POST"])
 def logout():
     session.pop("user", None)
     return redirect(url_for("index"))
 
-# ===== 健康檢查（公開） =====
+# ===== 管理員查看所有使用者 =====
+@app.route("/users")
+def users_list():
+    if not session.get("user"):
+        return redirect(url_for("login", msg="請先登入"))
+    if session["user"] != "jie":
+        return "你沒有權限查看這個頁面", 403
+
+    with engine.begin() as conn:
+        rows = conn.execute(text("""
+            SELECT id, username, password_hash, created_at
+            FROM users
+            ORDER BY created_at DESC
+        """)).mappings().all()
+
+    # 格式化
+    users = []
+    for r in rows:
+        created_at = r["created_at"]
+        if hasattr(created_at, "strftime"):
+            created_at = created_at.strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            created_at = str(created_at).split(".")[0]
+        users.append({
+            "id": r["id"],
+            "username": r["username"],
+            "password_hash": r["password_hash"],
+            "created_at": created_at
+        })
+
+    return render_template("users.html", users=users)
+
+# ===== 健康檢查 =====
 @app.route("/health")
 def health():
     return jsonify(status="ok")
 
-# ===== 主程式 =====
+# ===== 主程式入口 =====
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.getenv("PORT", "5050")))
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
