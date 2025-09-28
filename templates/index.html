@@ -173,7 +173,7 @@
         <div class="agent-box">
           <div class="eyebrow">Agent · Windows</div>
           <h2>Windows 測試 Agent</h2>
-          <p>執行後，它會把結果回傳到平台，讓你清楚看到IDS與IPS防禦系統是否成功擋下攻擊 若沒有擋住，會有哪些漏網的封包?</p>
+          <p>Bifrost 類後門會偷偷外洩機敏資料，此 Agent 有相同行為，立即檢驗你的 IDS/IPS。</p>
           {% if session is defined and session.get('user') %}
             <a class="cta" href="/download_agent?platform=windows">下載 agent</a>
             <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 →</a>
@@ -187,7 +187,7 @@
         <div class="agent-box">
           <div class="eyebrow">Agent · Linux</div>
           <h2>Linux 測試 Agent</h2>
-          <p>這個版本是給 Linux 使用者的測試工具。它會產生模擬攻擊的流量並回報，讓你知道防禦是否擋得下；若沒擋住，就能立刻發現並改善。</p>
+          <p>這個版本是給 Linux 使用者的測試工具。一樣會產生模擬攻擊的流量並回報，讓你知道防禦是否擋得下；若沒擋住，就能立刻發現並改善。</p>
           {% if session is defined and session.get('user') %}
             <a class="cta" href="/download_agent?platform=linux">下載 agent</a>
             <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 →</a>
