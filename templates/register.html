@@ -16,6 +16,19 @@
                   var(--bg);
       min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;
     }
+    body::before, body::after{
+      content:""; position:absolute; top:-200px; left:-200px;
+      width:800px; height:800px; border-radius:50%;
+      background:radial-gradient(circle, #93c5fd 0%, transparent 70%);
+      animation: float1 18s linear infinite;
+      z-index:0; opacity:0.5;
+    }
+    body::after{
+      top:auto; bottom:-200px; left:auto; right:-200px;
+      background:radial-gradient(circle, #a5f3fc 0%, transparent 70%);
+      animation: float2 22s linear infinite;
+      opacity:0.5;
+    }
     .wrap{width:100%; max-width:440px}
     .brand {display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:14px; color:#0f172a; text-decoration:none; font-weight:800;font-size:33px;}
     .card{
