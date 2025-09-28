@@ -155,7 +155,7 @@
         </p>
       </div>
       <div>
-        <img src="{{ url_for('static', filename='images/banner.jpg') }}" 
+        <img src="{{ url_for('static', filename='images/流程圖1.jpg') }}" 
              alt="流程圖" 
              style="width:100%;border:2px solid var(--black-line);border-radius:8px;">
       </div>
@@ -166,18 +166,14 @@
   <section class="hero" id="agents">
     <div class="container">
       <div class="eyebrow">事件一 · 惡意流量測試 Agent</div>
-      <p>這個測試 Agent 會假裝自己是「攻擊者」，產生一些模擬的惡意流量。
-執行後，它會把結果回傳到平台，讓你清楚看到：
-IDS與IPS防禦系統是否成功擋下攻擊
-若沒有擋住，會有哪些漏網的封包?
-這樣你就能快速驗證自己的 IDS/IPS 是否真的有在運作，而不用真的遭遇攻擊風險。</p>
+      <p>此事件提供 Windows 與 Linux 兩種版本的測試 Agent，用來模擬不同特偵的惡意流量，快速驗證自己的 IDS/IPS是否真的有在運作，而不用真的遭遇攻擊風險。</p>
       <div class="agents-grid">
 
         <!-- Windows -->
         <div class="agent-box">
           <div class="eyebrow">Agent · Windows</div>
           <h2>Windows 測試 Agent</h2>
-          <p>以簡單可理解的方式模擬「像攻擊一樣」的流量，幫助你測試系統是否能擋住。</p>
+          <p>執行後，它會把結果回傳到平台，讓你清楚看到IDS與IPS防禦系統是否成功擋下攻擊 若沒有擋住，會有哪些漏網的封包?</p>
           {% if session is defined and session.get('user') %}
             <a class="cta" href="/download_agent?platform=windows">下載 agent</a>
             <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 →</a>
