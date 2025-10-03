@@ -7,9 +7,9 @@
   <style>
     body {
       margin: 0;
-      font-family: Arial, "Microsoft JhengHei", sans-serif;
-      background: linear-gradient(135deg, #0f172a, #1e3a8a);
-      color: white;
+      font-family: "Microsoft JhengHei", Arial, sans-serif;
+      background: #fdfdfd; /* 白色背景 */
+      color: #333;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -17,52 +17,47 @@
     }
     .container {
       text-align: center;
-      max-width: 700px;
+      max-width: 600px;
       padding: 40px;
-      background: rgba(0,0,0,0.5);
-      border-radius: 20px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-    }
-    .container img {
-      max-width: 100%;
-      border-radius: 12px;
-      margin-bottom: 20px;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
     }
     h1 {
-      font-size: 2rem;
-      margin-bottom: 15px;
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      color: #222;
     }
     p {
-      margin-bottom: 25px;
-      line-height: 1.6;
-      color: #d1d5db;
+      margin-bottom: 30px;
+      line-height: 1.7;
+      color: #555;
     }
     .btn {
       display: inline-block;
-      padding: 12px 25px;
+      padding: 12px 28px;
       font-size: 1.1rem;
       font-weight: bold;
-      color: white;
-      background: #0ea5e9;
-      border-radius: 10px;
+      color: #fff;
+      background: #d9c4b1; /* 淺奶茶色 */
+      border-radius: 8px;
       text-decoration: none;
       transition: 0.3s;
     }
     .btn:hover {
-      background: #0284c7;
+      background: #c4aa90; /* hover 稍微深一點 */
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- 上方圖片 -->
-    <img src="static/images/intro.jpg" alt="平台示意圖">
-    
     <!-- 標題 & 說明 -->
     <h1>模擬驗證 IDS/IPS 防禦效能之研究平台</h1>
-    <p>本平台提供惡意流量模擬與防禦測試服務，  
-       協助企業檢驗 IPS/IDS 防禦效能。  
-       點擊下方按鈕即可進入首頁。</p>
+    <p>
+      本平台提供惡意流量模擬與防禦測試服務，<br>
+      協助企業檢驗 IPS/IDS 防禦效能。<br>
+      點擊下方按鈕即可進入首頁。
+    </p>
     
     <!-- 進入首頁按鈕 -->
     <a href="{{ url_for('index') }}" class="btn">點我進入首頁</a>
