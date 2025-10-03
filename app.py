@@ -372,7 +372,7 @@ def users_list():
         rows = conn.execute(text("""
             SELECT id, username, password_hash, created_at
             FROM users
-            ORDER BY created_at DESC
+            ORDER BY id ASC
         """)).mappings().all()
 
     return render_template("users.html", users=rows)
