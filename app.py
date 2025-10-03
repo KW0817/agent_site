@@ -74,6 +74,10 @@ def home():
 def index():
     return render_template("index.html")
 
+# ===== 專題動機 =====
+@app.route("/motivation")
+def motivation():
+    return render_template("motivation.html")
 
 # ===== 下載 agent：回傳帶 UID 的檔名（需登入） =====
 @app.route("/download_agent")
