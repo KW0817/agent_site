@@ -131,8 +131,10 @@
   <header class="nav">
     <a class="brand" href="/">模擬驗證 IDS/IPS 防禦效能之研究</a>
     
-    <!-- 新增的專題動機按鈕 -->
+  <!-- 中間的專題動機 -->
+  <div style="flex:1; text-align:center;">
     <a class="btn" href="/motivation">專題動機</a>
+  </div>
     
     {% if session is defined and session.get('user') %}
       <span style="color:#334155;">你好，{{ session.get('user') }}</span>
