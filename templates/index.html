@@ -130,6 +130,10 @@
   <!-- 頂部導覽列 -->
   <header class="nav">
     <a class="brand" href="/">模擬驗證 IDS/IPS 防禦效能之研究</a>
+
+    <!-- 新增的專題動機按鈕 -->
+    <a class="btn" href="/motivation">專題動機</a>
+    
     {% if session is defined and session.get('user') %}
       <span style="color:#334155;">你好，{{ session.get('user') }}</span>
       <form method="post" action="/logout" style="margin:0;">
