@@ -64,10 +64,16 @@ def uid_from_user_id(user_id: int) -> str:
 
 # ------------------------------------
 
-# ===== 首頁 =====
+# ===== 入口頁 =====
 @app.route("/")
+def home():
+    return render_template("home.html")
+
+# ===== 首頁 =====
+@app.route("/index")
 def index():
     return render_template("index.html")
+
 
 # ===== 下載 agent：回傳帶 UID 的檔名（需登入） =====
 @app.route("/download_agent")
