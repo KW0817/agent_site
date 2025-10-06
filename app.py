@@ -256,6 +256,30 @@ def view():
             rows = conn.execute(text("SELECT * FROM events WHERE client_id=:c ORDER BY ts DESC LIMIT 500"), {"c": uid}).mappings().all()
 
     return render_template("view.html", rows=rows)
+# ===== 清除事件 =====
+@app.route("/clear", methods=["POST"])
+def clear():
+    if not session.get("user"):
+        return redirect(url_for("login", next="/view", msg="請先登入才能清除事件"))
+
+    scope  = request.form.get("scope", "all")
+    vector = (request.form.get("vector") or "").strip()
+    client = (request.form.get("client") or "").strip()
+
+    with engine.begin() as conn:
+        if scope == "filtered" and (vector or client):
+            q = "DELETE FROM events WHERE 1=1"
+            p = {}
+            if vector:
+                q += " AND vector = :vector"
+                p["vector"] = vector
+            if client:
+                q += " AND client_id = :client"
+                p["client"] = client
+            conn.execute(text(q), p)
+        else:
+            conn.execute(text("DELETE FROM events"))
+    return redirect(url_for("view"))
 
 # 健康檢查
 @app.route("/health")
