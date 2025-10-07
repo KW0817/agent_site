@@ -69,6 +69,21 @@ def index():
 def motivation():
     return render_template("motivation.html")
 
+# ===== 使用者清單（僅管理員 jie 可見） =====
+@app.route("/users")
+def users_list():
+    if not session.get("user"):
+        return redirect(url_for("login", msg="請先登入才能查看使用者清單"))
+
+    # 只允許管理員 jie 存取
+    if session["user"] != "jie":
+        return "權限不足，僅管理員可查看。", 403
+
+    with engine.begin() as conn:
+        users = conn.execute(text("SELECT id, username, password_hash, created_at FROM users ORDER BY id ASC")).mappings().all()
+
+    return render_template("users.html", users=users)
+
 # ========== 登入/註冊 ==========
 @app.route("/register", methods=["GET", "POST"])
 def register():
