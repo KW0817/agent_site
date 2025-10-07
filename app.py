@@ -64,6 +64,11 @@ def home():
 def index():
     return render_template("index.html")
 
+# ===== 專題動機 =====
+@app.route("/motivation")
+def motivation():
+    return render_template("motivation.html")
+
 # ========== 登入/註冊 ==========
 @app.route("/register", methods=["GET", "POST"])
 def register():
