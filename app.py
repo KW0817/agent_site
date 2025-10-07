@@ -115,6 +115,22 @@ def login():
 def logout():
     session.pop("user", None)
     return redirect(url_for("index"))
+# ===== 管理員查看所有使用者 =====
+@app.route("/users")
+def users_list():
+    if not session.get("user"):
+        return redirect(url_for("login", msg="請先登入"))
+    if session["user"] != "jie":
+        return "你沒有權限查看這個頁面", 403
+
+    with engine.begin() as conn:
+        rows = conn.execute(text("""
+            SELECT id, username, created_at
+            FROM users
+            ORDER BY created_at DESC
+        """)).mappings().all()
+
+    return render_template("users.html", users=rows)
 
 # ========== Agent 下載 ==========
 @app.route("/download_agent")
