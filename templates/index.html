@@ -381,7 +381,7 @@
       const t = document.querySelector(d.dataset.target);
       if(t) t.scrollIntoView({behavior:'smooth', block:'start'});
     }));
-    const sections = ['#intro','#agents','#agents-2','#dashboard'].map(s=>document.querySelector(s));
+    const sections = ['#intro','#agents','#agents-2','#agents-3','#agents-4','#agents-5','#agents-6','#agents-7','#agents-8','#agents-9','#agents-10','#dashboard'].map(s=>document.querySelector(s));
     const setActive = (idx)=>{
       dots.forEach((d,i)=>d.classList.toggle('active', i===idx));
       dots.forEach((d,i)=>d.setAttribute('aria-current', i===idx ? 'true' : 'false'));
