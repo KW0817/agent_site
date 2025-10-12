@@ -54,7 +54,7 @@
     .dropdown-content a:hover {background-color: #f1f5f9;}
     .dropdown:hover .dropdown-content {display: block;}
 
-    /* ===== Intro ===== */
+    /* ===== Intro（專題簡介字體放大） ===== */
     section.hero{
       background:#fff;
       border-top:3px solid var(--black-line);
@@ -66,10 +66,20 @@
       margin:0 auto;
       padding:0 24px;
     }
-
-    .eyebrow{color:var(--brand);font-weight:700;font-size:20px;margin-bottom:12px;}
-    .event-desc{
-      font-size:18px;font-weight:bold;line-height:1.8;margin-bottom:16px;text-align:left;
+    .hero .eyebrow{
+      color:var(--brand);
+      font-weight:700;
+      font-size:24px; /* 放大標題文字 */
+      margin-bottom:16px;
+    }
+    .hero h2{
+      font-size:32px; /* 放大主標題 */
+      font-weight:800;
+      margin-bottom:18px;
+    }
+    .hero p{
+      font-size:19px; /* 放大段落 */
+      line-height:1.9;
     }
 
     /* ===== 新事件排版 ===== */
@@ -104,7 +114,25 @@
     .agent-box .eyebrow{color:#e53935;margin-bottom:6px;}
     .agent-box h2{margin:0 0 6px;border-bottom:1px solid var(--black-line);padding-bottom:4px;}
     .agent-box p{margin:0 0 8px;line-height:1.6;}
-    .cta{font-size:14px;color:#0ea5e9;text-decoration:underline;margin-right:6px;}
+
+    /* ===== 圓角黑框按鈕樣式 ===== */
+    .cta{
+      display:inline-block;
+      font-size:15px;
+      color:#0f172a;
+      text-decoration:none;
+      border:2px solid var(--black-line);
+      border-radius:10px;
+      background:#fff;
+      padding:6px 14px;
+      margin-right:8px;
+      font-weight:500;
+      transition:all 0.15s ease;
+    }
+    .cta:hover{
+      background:#f1f5f9;
+    }
+
     @media(max-width:900px){
       .agents-layout{grid-template-columns:1fr;}
       .event-left img{width:100%;}
@@ -157,7 +185,7 @@
   </header>
   <div class="nav-spacer"></div>
 
-  <!-- ===== Intro ===== -->
+  <!-- ===== Intro（字體放大區） ===== -->
   <section class="hero" id="intro">
     <div class="container" style="display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:center;">
       <div>
@@ -177,7 +205,7 @@
     </div>
   </section>
 
-  <!-- ===== 事件一 ===== -->
+  <!-- ===== 事件一（按鈕已改成圓角黑框） ===== -->
   <section class="hero" id="agents-1">
     <div class="container">
       <div class="eyebrow">事件一 · 惡意流量測試 Agent</div>
@@ -225,119 +253,11 @@
     </div>
   </section>
 
-  <!-- ===== 事件二 ===== -->
-  <section class="hero" id="agents-2">
-    <div class="container">
-      <div class="eyebrow">事件二 · 基於 Rust 的資訊竊取程式濫用 GitHub 程式碼空間</div>
-      <p class="event-desc">
-        駭客濫用 GitHub Codespaces 發布以 Rust 撰寫的資訊竊取惡意程式，用來竊取瀏覽器資料、密碼與加密貨幣錢包資訊。
-      </p>
-
-      <div class="agents-layout">
-        <div class="event-left">
-          <img src="{{ url_for('static', filename='images/事件二.jpg') }}" alt="事件二示意圖">
-          <div class="event-links">
-            <a href="https://www.trendmicro.com/en_us/research/23/e/rust-based-info-stealers-abuse-github-codespaces.html" target="_blank">
-              https://www.trendmicro.com/en_us/research/23/e/rust-based-info-stealers-abuse-github-codespaces.html
-            </a>
-          </div>
-        </div>
-        <!-- 右側：原本的區塊 A / B（保留原始內容與 Jinja） -->
-        <div class="event-right">
-          <div class="agents-grid">
-            <!-- Windows -->
-            <div class="agent-box">
-              <div class="eyebrow">Agent · Windows</div>
-              <h2>A</h2>
-              <p>敘述</p>
-              {% if session is defined and session.get('user') %}
-                <a class="cta" href="/download_agent?platform=windows">下載 agent (改)</a>
-                <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 → (改)</a>
-              {% else %}
-                <a class="cta" href="/login?next=/downloads/agent.exe">登入後才可下載 (改)</a>
-                <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單 (改)</a>
-              {% endif %}
-            </div>
-
-            <!-- Linux -->
-            <div class="agent-box">
-              <div class="eyebrow">Agent · Linux</div>
-              <h2>B</h2>
-              <p>敘述</p>
-              {% if session is defined and session.get('user') %}
-                <a class="cta" href="/download_agent?platform=linux">下載 agent(改)</a>
-                <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 → (改)</a>
-              {% else %}
-                <a class="cta" href="/login?next=/downloads/agent-linux">登入後才可下載 (改)</a>
-                <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單 (改)</a>
-              {% endif %}
-
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== 事件三 ===== -->
-  <section class="hero" id="agents-3">
-    <div class="container">
-      <div class="eyebrow">事件三 · 揭開 Earth Kapre（RedCurl）網路間諜策略</div>
-      <p class="event-desc">
-        Earth Kapre（又名 RedCurl）是一個以經濟間諜為目的的駭客組織，透過釣魚郵件和惡意檔案入侵企業內網，竊取機密文件與公司資料。
-      </p>
-
-      <div class="agents-layout">
-        <div class="event-left">
-          <img src="{{ url_for('static', filename='images/事件三.jpg') }}" alt="事件三示意圖">
-          <div class="event-links">
-            <a href="https://www.trendmicro.com/en_us/research/24/c/unveiling-earth-kapre-aka-redcurls-cyberespionage-tactics-with-t.html" target="_blank">
-              https://www.trendmicro.com/en_us/research/24/c/unveiling-earth-kapre-aka-redcurls-cyberespionage-tactics-with-t.html
-            </a>
-          </div>
-        </div>
-        <!-- 右側：原本的區塊 A / B（保留原始內容與 Jinja） -->
-        <div class="event-right">
-          <div class="agents-grid">
-            <!-- Windows -->
-            <div class="agent-box">
-              <div class="eyebrow">Agent · Windows</div>
-              <h2>A</h2>
-              <p>敘述</p>
-              {% if session is defined and session.get('user') %}
-                <a class="cta" href="/download_agent?platform=windows">下載 agent (改)</a>
-                <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 → (改)</a>
-              {% else %}
-                <a class="cta" href="/login?next=/downloads/agent.exe">登入後才可下載 (改)</a>
-                <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單 (改)</a>
-              {% endif %}
-            </div>
-
-            <!-- Linux -->
-            <div class="agent-box">
-              <div class="eyebrow">Agent · Linux</div>
-              <h2>B</h2>
-              <p>敘述</p>
-              {% if session is defined and session.get('user') %}
-                <a class="cta" href="/download_agent?platform=linux">下載 agent(改)</a>
-                <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 → (改)</a>
-              {% else %}
-                <a class="cta" href="/login?next=/downloads/agent-linux">登入後才可下載 (改)</a>
-                <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單 (改)</a>
-              {% endif %}
-
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- ===== dots & 回頂部 ===== -->
   <button id="toTop" aria-label="回到頂部">↑</button>
   <div class="dots" id="dots">
     <button class="dot" data-target="#intro"></button>
     <button class="dot" data-target="#agents-1"></button>
-    <button class="dot" data-target="#agents-2"></button>
-    <button class="dot" data-target="#agents-3"></button>
   </div>
 
   <script>
@@ -346,8 +266,7 @@
       const t = document.querySelector(d.dataset.target);
       if(t) t.scrollIntoView({behavior:'smooth', block:'start'});
     }));
-
-    const sections = ['#intro','#agents-1','#agents-2','#agents-3'].map(s=>document.querySelector(s));
+    const sections = ['#intro','#agents-1'].map(s=>document.querySelector(s));
     const setActive = idx => dots.forEach((d,i)=>d.classList.toggle('active', i===idx));
     const io = new IntersectionObserver(entries=>{
       entries.forEach(e=>{
