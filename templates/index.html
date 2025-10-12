@@ -5,142 +5,203 @@
   <title>模擬驗證 IDS/IPS 防禦效能之研究</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    :root{
-      --brand:#e53935;
-      --ink:#0f172a;
-      --black-line:#1e293b;
-      --dot:#cbd5e1;
-      --dot-active:#0ea5e9;
+    :root {
+      --brand: #e53935;
+      --ink: #0f172a;
+      --black-line: #1e293b;
+      --dot: #cbd5e1;
+      --dot-active: #0ea5e9;
     }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family:Arial,system-ui,-apple-system,sans-serif;
-      background:#f3f4f6;
-      color:var(--ink);
-      scroll-behavior:smooth;
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, system-ui, -apple-system, sans-serif;
+      background: #f3f4f6;
+      color: var(--ink);
+      scroll-behavior: smooth;
     }
 
     /* ===== 導覽列 ===== */
-    header.nav{
-      position:fixed;top:0;left:0;right:0;height:56px;
-      display:flex;align-items:center;justify-content:flex-end;gap:12px;
-      padding:0 16px;background:#fff;z-index:100;
-      border-bottom:2px solid var(--black-line);
-      box-shadow:0 1px 6px rgba(0,0,0,.08);
+    header.nav {
+      position: fixed; top: 0; left: 0; right: 0; height: 56px;
+      display: flex; align-items: center; justify-content: flex-end; gap: 12px;
+      padding: 0 16px; background: #fff; z-index: 100;
+      border-bottom: 2px solid var(--black-line);
+      box-shadow: 0 1px 6px rgba(0,0,0,.08);
     }
-    header.nav a.brand{margin-right:auto;text-decoration:none;font-weight:800;color:#111827}
-    header.nav a.btn,header.nav button.btn{
-      border:1px solid #ccc;border-radius:8px;background:#fff;padding:8px 12px;text-decoration:none;color:#111827;
-      cursor:pointer;
+    header.nav a.brand {
+      margin-right: auto;
+      text-decoration: none;
+      font-weight: 800;
+      color: #111827;
     }
-    header.nav a.btn-primary{background:#0ea5e9;border-color:#0ea5e9;color:#fff;}
-    .nav-spacer{height:56px;}
-
-    /* ===== 下拉選單 ===== */
-    .dropdown {position: relative;display: inline-block;}
-    .dropdown-content {
-      display: none;position: absolute;right: 0;
-      background-color: #fff;min-width: 140px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      border: 1px solid var(--black-line);
-      border-radius: 8px;z-index: 99;
+    header.nav a.btn, header.nav button.btn {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #fff;
+      padding: 8px 12px;
+      text-decoration: none;
+      color: #111827;
+      cursor: pointer;
     }
-    .dropdown-content a {
-      color: #0f172a;padding: 10px 14px;text-decoration: none;
-      display: block;border-bottom: 1px solid #eee;
+    header.nav a.btn-primary {
+      background: #0ea5e9;
+      border-color: #0ea5e9;
+      color: #fff;
     }
-    .dropdown-content a:last-child {border-bottom: none;}
-    .dropdown-content a:hover {background-color: #f1f5f9;}
-    .dropdown:hover .dropdown-content {display: block;}
+    .nav-spacer { height: 56px; }
 
     /* ===== Intro ===== */
-    section.hero{
-      background:#fff;
-      border-top:3px solid var(--black-line);
-      border-bottom:3px solid var(--black-line);
-      padding:60px 0;
+    section.hero {
+      background: #fff;
+      border-top: 3px solid var(--black-line);
+      border-bottom: 3px solid var(--black-line);
+      padding: 60px 0;
     }
-    .hero .container{
-      max-width:1100px;
-      margin:0 auto;
-      padding:0 24px;
+    .hero .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
     }
-
-    .eyebrow{color:var(--brand);font-weight:700;font-size:22px;margin-bottom:12px;}
-    .hero h2{font-size:30px;font-weight:800;color:#111;margin-bottom:16px;}
-    .hero p{font-size:18px;line-height:2;color:#1e293b;font-weight:500;}
-
-    .event-desc{
-      font-size:18px;font-weight:bold;line-height:1.8;margin-bottom:16px;text-align:left;
+    .eyebrow {
+      color: var(--brand);
+      font-weight: 700;
+      font-size: 22px;
+      margin-bottom: 12px;
     }
-
-    /* ===== 新事件排版 ===== */
-    .agents-layout{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:40px;
-      align-items:start;
-      margin-top:10px;
+    .hero h2 {
+      font-size: 32px;
+      font-weight: 800;
+      color: #111;
+      margin-bottom: 20px;
+      letter-spacing: 0.5px;
     }
-    .event-left{display:flex;flex-direction:column;align-items:center;}
-    .event-left img{
-      width:100%;
-      border:2px solid var(--black-line);
-      border-radius:10px;
-      box-shadow:0 2px 8px rgba(0,0,0,.06);
-      margin-bottom:16px;
-    }
-    .event-links{width:100%;text-align:left;margin-top:8px;}
-    .event-links a{
-      display:inline-block;font-size:14px;color:#0f172a;text-decoration:none;
-      border:1px solid var(--black-line);border-radius:8px;background:#fff;padding:6px 10px;
-    }
-    .agents-grid{display:grid;grid-template-rows:1fr 1fr;gap:20px;}
-    .agent-box{
-      border:2px solid var(--black-line);
-      border-radius:12px;
-      padding:20px;
-      background:#fff;
-      box-shadow:0 2px 8px rgba(0,0,0,.08);
-    }
-    .agent-box .eyebrow{color:#e53935;margin-bottom:6px;}
-    .agent-box h2{margin:0 0 6px;border-bottom:1px solid var(--black-line);padding-bottom:4px;}
-    .agent-box p{margin:0 0 8px;line-height:1.6;}
-
-    /* ===== CTA 按鈕樣式 (加黑框) ===== */
-    .cta{
-      font-size:15px;
-      color:#0ea5e9;
-      text-decoration:underline;
-      margin-right:8px;
-      padding:4px 10px;
-      border:1px solid var(--black-line);
-      border-radius:6px;
-      background:#fff;
-    }
-    .cta:hover{
-      background:#f1f5f9;
+    .hero p {
+      font-size: 19px;
+      line-height: 2;
+      color: #1e293b;
+      font-weight: 500;
+      letter-spacing: 0.4px;
     }
 
-    @media(max-width:900px){
-      .agents-layout{grid-template-columns:1fr;}
-      .event-left img{width:100%;}
+    /* ===== 事件說明文字 ===== */
+    .event-desc {
+      font-size: 18px;
+      font-weight: bold;
+      line-height: 1.8;
+      margin-bottom: 16px;
+      text-align: left;
+    }
+
+    /* ===== 事件排版 ===== */
+    .agents-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: start;
+      margin-top: 10px;
+    }
+    .event-left {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .event-left img {
+      width: 105%; /* 放大事件一圖片 */
+      max-width: 105%;
+      border: 2px solid var(--black-line);
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .06);
+      margin-bottom: 18px;
+    }
+    .event-links {
+      width: 100%;
+      text-align: left;
+      margin-top: 8px;
+    }
+    .event-links a {
+      display: inline-block;
+      font-size: 14px;
+      color: #0f172a;
+      text-decoration: none;
+      border: 1px solid var(--black-line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 6px 10px;
+    }
+
+    /* ===== agent 區塊 ===== */
+    .agents-grid {
+      display: grid;
+      grid-template-rows: 1fr 1fr;
+      gap: 20px;
+    }
+    .agent-box {
+      border: 2px solid var(--black-line);
+      border-radius: 12px;
+      padding: 20px;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+    }
+    .agent-box .eyebrow {
+      color: #e53935;
+      margin-bottom: 6px;
+    }
+    .agent-box h2 {
+      margin: 0 0 6px;
+      border-bottom: 1px solid var(--black-line);
+      padding-bottom: 4px;
+    }
+    .agent-box p {
+      margin: 0 0 8px;
+      line-height: 1.6;
+    }
+
+    /* ===== CTA 實體按鈕樣式 ===== */
+    .cta {
+      display: inline-block;
+      font-size: 15px;
+      font-weight: 500;
+      color: #0f172a;
+      text-decoration: none;
+      border: 1.8px solid var(--black-line);
+      border-radius: 10px;
+      background: #fff;
+      padding: 6px 14px;
+      margin-right: 10px;
+      transition: all .15s ease;
+    }
+    .cta:hover {
+      background: #f1f5f9;
+    }
+
+    @media(max-width:900px) {
+      .agents-layout { grid-template-columns: 1fr; }
+      .event-left img { width: 100%; }
     }
 
     /* ===== dots & 回頂部 ===== */
-    .dots{
-      position:fixed;right:18px;bottom:22px;display:flex;gap:10px;z-index:9999;
-      background:rgba(255,255,255,.9);padding:8px 10px;border-radius:999px;
-      box-shadow:0 4px 16px rgba(0,0,0,.12);border:1px solid var(--black-line)
+    .dots {
+      position: fixed; right: 18px; bottom: 22px;
+      display: flex; gap: 10px; z-index: 9999;
+      background: rgba(255, 255, 255, .9);
+      padding: 8px 10px; border-radius: 999px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, .12);
+      border: 1px solid var(--black-line);
     }
-    .dot{width:10px;height:10px;border-radius:50%;background:var(--dot);cursor:pointer;border:1px solid var(--black-line)}
-    .dot.active{background:var(--dot-active)}
-    #toTop{
-      position:fixed;right:18px;bottom:72px;z-index:10;width:36px;height:36px;
-      border-radius:50%;border:2px solid var(--black-line);cursor:pointer;
-      box-shadow:0 4px 16px rgba(0,0,0,.12);background:#fff;
-      display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--dot-active)
+    .dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--dot); cursor: pointer;
+      border: 1px solid var(--black-line);
+    }
+    .dot.active { background: var(--dot-active); }
+    #toTop {
+      position: fixed; right: 18px; bottom: 72px; z-index: 10;
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 2px solid var(--black-line); cursor: pointer;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, .12); background: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; color: var(--dot-active);
     }
   </style>
 </head>
@@ -152,7 +213,6 @@
     <div style="display:flex;align-items:center;gap:12px;margin-right:auto;">
       <a class="brand" href="/">模擬驗證 IDS/IPS 防禦效能之研究</a>
       <a class="btn" href="/motivation">專題動機</a>
-
       <div class="dropdown">
         <button class="btn">事件選單 ▼</button>
         <div class="dropdown-content">
@@ -218,119 +278,15 @@
             <div class="eyebrow">Agent · Windows</div>
             <h2>Windows 測試 Agent</h2>
             <p>Bifrost 類後門會偷偷外洩機敏資料，此 Agent 有相同行為，立即檢驗你的 IDS/IPS。</p>
-            {% if session is defined and session.get('user') %}
-              <a class="cta" href="/download_agent?platform=windows">下載 agent</a>
-              <a class="cta" href="/view">查看事件清單 →</a>
-            {% else %}
-              <a class="cta" href="/login?next=/downloads/agent.exe">登入後才可下載</a>
-              <a class="cta" href="/login?next=/view">登入後查看事件清單</a>
-            {% endif %}
+            <a class="cta" href="#">下載 agent</a>
+            <a class="cta" href="#">查看事件清單 →</a>
           </div>
           <div class="agent-box">
             <div class="eyebrow">Agent · Linux</div>
             <h2>Linux 測試 Agent</h2>
             <p>這個版本是給 Linux 使用者的測試工具，一樣會產生模擬攻擊流量並回報結果。</p>
-            {% if session is defined and session.get('user') %}
-              <a class="cta" href="/download_agent?platform=linux">下載 agent</a>
-              <a class="cta" href="/view">查看事件清單 →</a>
-            {% else %}
-              <a class="cta" href="/login?next=/downloads/agent-linux">登入後才可下載</a>
-              <a class="cta" href="/login?next=/view">登入後查看事件清單</a>
-            {% endif %}
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== 事件二 ===== -->
-  <section class="hero" id="agents-2">
-    <div class="container">
-      <div class="eyebrow">事件二 · 基於 Rust 的資訊竊取程式濫用 GitHub 程式碼空間</div>
-      <p class="event-desc">
-        駭客濫用 GitHub Codespaces 發布以 Rust 撰寫的資訊竊取惡意程式，用來竊取瀏覽器資料、密碼與加密貨幣錢包資訊。
-      </p>
-
-      <div class="agents-layout">
-        <div class="event-left">
-          <img src="{{ url_for('static', filename='images/事件二.jpg') }}" alt="事件二示意圖">
-          <div class="event-links">
-            <a href="https://www.trendmicro.com/en_us/research/23/e/rust-based-info-stealers-abuse-github-codespaces.html" target="_blank">
-              https://www.trendmicro.com/en_us/research/23/e/rust-based-info-stealers-abuse-github-codespaces.html
-            </a>
-          </div>
-        </div>
-        <div class="agents-grid">
-          <div class="agent-box">
-            <div class="eyebrow">Agent · Windows</div>
-            <h2>A</h2>
-            <p>敘述</p>
-            {% if session is defined and session.get('user') %}
-              <a class="cta" href="/download_agent?platform=windows">下載 agent</a>
-              <a class="cta" href="/view">查看事件清單 →</a>
-            {% else %}
-              <a class="cta" href="/login?next=/downloads/agent.exe">登入後才可下載</a>
-              <a class="cta" href="/login?next=/view">登入後查看事件清單</a>
-            {% endif %}
-          </div>
-          <div class="agent-box">
-            <div class="eyebrow">Agent · Linux</div>
-            <h2>B</h2>
-            <p>敘述</p>
-            {% if session is defined and session.get('user') %}
-              <a class="cta" href="/download_agent?platform=linux">下載 agent</a>
-              <a class="cta" href="/view">查看事件清單 →</a>
-            {% else %}
-              <a class="cta" href="/login?next=/downloads/agent-linux">登入後才可下載</a>
-              <a class="cta" href="/login?next=/view">登入後查看事件清單</a>
-            {% endif %}
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== 事件三 ===== -->
-  <section class="hero" id="agents-3">
-    <div class="container">
-      <div class="eyebrow">事件三 · 揭開 Earth Kapre（RedCurl）網路間諜策略</div>
-      <p class="event-desc">
-        Earth Kapre（又名 RedCurl）是一個以經濟間諜為目的的駭客組織，透過釣魚郵件和惡意檔案入侵企業內網，竊取機密文件與公司資料。
-      </p>
-
-      <div class="agents-layout">
-        <div class="event-left">
-          <img src="{{ url_for('static', filename='images/事件三.jpg') }}" alt="事件三示意圖">
-          <div class="event-links">
-            <a href="https://www.trendmicro.com/en_us/research/24/c/unveiling-earth-kapre-aka-redcurls-cyberespionage-tactics-with-t.html" target="_blank">
-              https://www.trendmicro.com/en_us/research/24/c/unveiling-earth-kapre-aka-redcurls-cyberespionage-tactics-with-t.html
-            </a>
-          </div>
-        </div>
-        <div class="agents-grid">
-          <div class="agent-box">
-            <div class="eyebrow">Agent · Windows</div>
-            <h2>A</h2>
-            <p>敘述</p>
-            {% if session is defined and session.get('user') %}
-              <a class="cta" href="/download_agent?platform=windows">下載 agent</a>
-              <a class="cta" href="/view">查看事件清單 →</a>
-            {% else %}
-              <a class="cta" href="/login?next=/downloads/agent.exe">登入後才可下載</a>
-              <a class="cta" href="/login?next=/view">登入後查看事件清單</a>
-            {% endif %}
-          </div>
-          <div class="agent-box">
-            <div class="eyebrow">Agent · Linux</div>
-            <h2>B</h2>
-            <p>敘述</p>
-            {% if session is defined and session.get('user') %}
-              <a class="cta" href="/download_agent?platform=linux">下載 agent</a>
-              <a class="cta" href="/view">查看事件清單 →</a>
-            {% else %}
-              <a class="cta" href="/login?next=/downloads/agent-linux">登入後才可下載</a>
-              <a class="cta" href="/login?next=/view">登入後查看事件清單</a>
-            {% endif %}
+            <a class="cta" href="#">下載 agent</a>
+            <a class="cta" href="#">查看事件清單 →</a>
           </div>
         </div>
       </div>
@@ -342,29 +298,27 @@
   <div class="dots" id="dots">
     <button class="dot" data-target="#intro"></button>
     <button class="dot" data-target="#agents-1"></button>
-    <button class="dot" data-target="#agents-2"></button>
-    <button class="dot" data-target="#agents-3"></button>
   </div>
 
   <script>
     const dots = Array.from(document.querySelectorAll('.dot'));
     dots.forEach(d => d.addEventListener('click', () => {
       const t = document.querySelector(d.dataset.target);
-      if(t) t.scrollIntoView({behavior:'smooth', block:'start'});
+      if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }));
 
-    const sections = ['#intro','#agents-1','#agents-2','#agents-3'].map(s=>document.querySelector(s));
-    const setActive = idx => dots.forEach((d,i)=>d.classList.toggle('active', i===idx));
-    const io = new IntersectionObserver(entries=>{
-      entries.forEach(e=>{
-        if(e.isIntersecting){
+    const sections = ['#intro', '#agents-1'].map(s => document.querySelector(s));
+    const setActive = idx => dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
           const idx = sections.indexOf(e.target);
           setActive(idx);
         }
       });
-    }, {threshold:0.55});
-    sections.forEach(s=>{if(s) io.observe(s);});
-    document.getElementById('toTop').onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
+    }, { threshold: 0.55 });
+    sections.forEach(s => { if (s) io.observe(s); });
+    document.getElementById('toTop').onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
   </script>
 </body>
 </html>
