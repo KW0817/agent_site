@@ -367,7 +367,7 @@
       if(t) t.scrollIntoView({behavior:'smooth', block:'start'});
     }));
 
-    const sections = ['#intro','#agents-1'].map(s=>document.querySelector(s));
+    const sections = ['#intro','#agents-1','#agents-2','#agents-3',].map(s=>document.querySelector(s));
     const setActive = idx => dots.forEach((d,i)=>d.classList.toggle('active', i===idx));
     const io = new IntersectionObserver(entries=>{
       entries.forEach(e=>{
