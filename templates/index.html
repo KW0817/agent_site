@@ -66,7 +66,6 @@
       margin:0 auto;
       padding:0 24px;
     }
-    /* ===== 專題簡介放大 ===== */
     .hero .eyebrow{
       color:var(--brand);
       font-weight:700;
@@ -74,7 +73,7 @@
       margin-bottom:16px;
     }
     .hero h2{
-      font-size:26px; /* ✅ 主標題改小 */
+      font-size:26px; /* 主標題稍微縮小 */
       font-weight:700;
       margin-bottom:18px;
     }
@@ -93,7 +92,7 @@
     }
     .event-left{display:flex;flex-direction:column;align-items:center;}
     .event-left img{
-      width:90%;
+      width:100%; /* ✅ 放大事件一圖片 */
       border:2px solid var(--black-line);
       border-radius:10px;
       box-shadow:0 2px 8px rgba(0,0,0,.06);
@@ -115,14 +114,14 @@
     }
     .agent-box .eyebrow{color:#e53935;margin-bottom:6px;}
     .agent-box h2{
-      font-size:18px; /* ✅ Agent 標題變小 */
+      font-size:18px; /* Agent 標題縮小 */
       margin:0 0 6px;
       border-bottom:1px solid var(--black-line);
       padding-bottom:4px;
     }
     .agent-box p{margin:0 0 8px;line-height:1.6;}
 
-    /* ===== 按鈕樣式 (所有事件通用) ===== */
+    /* ===== 按鈕樣式 ===== */
     .cta{
       display:inline-block;
       font-size:15px;
@@ -163,8 +162,6 @@
 </head>
 
 <body>
-
-  <!-- ===== 導覽列 ===== -->
   <header class="nav">
     <div style="display:flex;align-items:center;gap:12px;margin-right:auto;">
       <a class="brand" href="/">模擬驗證 IDS/IPS 防禦效能之研究</a>
@@ -212,7 +209,7 @@
     </div>
   </section>
 
-  <!-- ===== 事件一 ===== -->
+  <!-- ===== 事件一 (圖片放大) ===== -->
   <section class="hero" id="agents-1">
     <div class="container">
       <div class="eyebrow">事件一 · 惡意流量測試 Agent</div>
@@ -250,7 +247,7 @@
     </div>
   </section>
 
-  <!-- ===== 事件二 ===== -->
+    <!-- ===== 事件二 ===== -->
   <section class="hero" id="agents-2">
     <div class="container">
       <div class="eyebrow">事件二 · 基於 Rust 的資訊竊取程式濫用 GitHub 程式碼空間</div>
@@ -267,20 +264,36 @@
             </a>
           </div>
         </div>
-        <div class="agents-grid">
-          <div class="agent-box">
-            <div class="eyebrow">Agent · Windows</div>
-            <h2>A</h2>
-            <p>敘述</p>
-            <a class="cta" href="/download_agent?platform=windows">下載 agent</a>
-            <a class="cta" href="/view">查看事件清單 →</a>
-          </div>
-          <div class="agent-box">
-            <div class="eyebrow">Agent · Linux</div>
-            <h2>B</h2>
-            <p>敘述</p>
-            <a class="cta" href="/download_agent?platform=linux">下載 agent</a>
-            <a class="cta" href="/view">查看事件清單 →</a>
+        <!-- 右側：原本的區塊 A / B（保留原始內容與 Jinja） -->
+        <div class="event-right">
+          <div class="agents-grid">
+            <!-- Windows -->
+            <div class="agent-box">
+              <div class="eyebrow">Agent · Windows</div>
+              <h2>A</h2>
+              <p>敘述</p>
+              {% if session is defined and session.get('user') %}
+                <a class="cta" href="/download_agent?platform=windows">下載 agent (改)</a>
+                <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 → (改)</a>
+              {% else %}
+                <a class="cta" href="/login?next=/downloads/agent.exe">登入後才可下載 (改)</a>
+                <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單 (改)</a>
+              {% endif %}
+            </div>
+
+            <!-- Linux -->
+            <div class="agent-box">
+              <div class="eyebrow">Agent · Linux</div>
+              <h2>B</h2>
+              <p>敘述</p>
+              {% if session is defined and session.get('user') %}
+                <a class="cta" href="/download_agent?platform=linux">下載 agent(改)</a>
+                <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 → (改)</a>
+              {% else %}
+                <a class="cta" href="/login?next=/downloads/agent-linux">登入後才可下載 (改)</a>
+                <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單 (改)</a>
+              {% endif %}
+
           </div>
         </div>
       </div>
@@ -304,20 +317,36 @@
             </a>
           </div>
         </div>
-        <div class="agents-grid">
-          <div class="agent-box">
-            <div class="eyebrow">Agent · Windows</div>
-            <h2>A</h2>
-            <p>敘述</p>
-            <a class="cta" href="/download_agent?platform=windows">下載 agent</a>
-            <a class="cta" href="/view">查看事件清單 →</a>
-          </div>
-          <div class="agent-box">
-            <div class="eyebrow">Agent · Linux</div>
-            <h2>B</h2>
-            <p>敘述</p>
-            <a class="cta" href="/download_agent?platform=linux">下載 agent</a>
-            <a class="cta" href="/view">查看事件清單 →</a>
+        <!-- 右側：原本的區塊 A / B（保留原始內容與 Jinja） -->
+        <div class="event-right">
+          <div class="agents-grid">
+            <!-- Windows -->
+            <div class="agent-box">
+              <div class="eyebrow">Agent · Windows</div>
+              <h2>A</h2>
+              <p>敘述</p>
+              {% if session is defined and session.get('user') %}
+                <a class="cta" href="/download_agent?platform=windows">下載 agent (改)</a>
+                <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 → (改)</a>
+              {% else %}
+                <a class="cta" href="/login?next=/downloads/agent.exe">登入後才可下載 (改)</a>
+                <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單 (改)</a>
+              {% endif %}
+            </div>
+
+            <!-- Linux -->
+            <div class="agent-box">
+              <div class="eyebrow">Agent · Linux</div>
+              <h2>B</h2>
+              <p>敘述</p>
+              {% if session is defined and session.get('user') %}
+                <a class="cta" href="/download_agent?platform=linux">下載 agent(改)</a>
+                <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 → (改)</a>
+              {% else %}
+                <a class="cta" href="/login?next=/downloads/agent-linux">登入後才可下載 (改)</a>
+                <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單 (改)</a>
+              {% endif %}
+
           </div>
         </div>
       </div>
@@ -329,8 +358,6 @@
   <div class="dots" id="dots">
     <button class="dot" data-target="#intro"></button>
     <button class="dot" data-target="#agents-1"></button>
-    <button class="dot" data-target="#agents-2"></button>
-    <button class="dot" data-target="#agents-3"></button>
   </div>
 
   <script>
@@ -340,7 +367,7 @@
       if(t) t.scrollIntoView({behavior:'smooth', block:'start'});
     }));
 
-    const sections = ['#intro','#agents-1','#agents-2','#agents-3'].map(s=>document.querySelector(s));
+    const sections = ['#intro','#agents-1'].map(s=>document.querySelector(s));
     const setActive = idx => dots.forEach((d,i)=>d.classList.toggle('active', i===idx));
     const io = new IntersectionObserver(entries=>{
       entries.forEach(e=>{
