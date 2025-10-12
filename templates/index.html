@@ -76,7 +76,7 @@
       color:#111;text-decoration:none
     }
 
-    /* ===== Agents 區塊 ===== */
+    /* ===== Agents 區塊 (原先 grid) ===== */
     .agents-grid{
       display:grid;
       grid-template-columns:1fr 1fr;
@@ -169,6 +169,57 @@
     @media (max-width: 900px){
       .agents-grid{grid-template-columns:1fr}
     }
+
+    /* ===== 新版事件排版（左圖片、右內容、下方連結） ===== */
+    .agents-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr; /* 左圖片、右內容 */
+      gap: 40px;
+      align-items: start;
+      margin-top: 20px;
+    }
+    .event-left img {
+      width: 100%;
+      border-radius: 10px;
+      border: 2px solid var(--black-line);
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+      display:block;
+    }
+    .event-desc {
+      font-size: 18px;
+      line-height: 1.8;
+      color: #1e293b;
+      margin-bottom: 12px;
+    }
+    .agents-layout .agents-grid {
+      display: grid;
+      grid-template-columns: 1fr; /* 右側原本的兩個區塊改上下排列 */
+      gap: 20px;
+    }
+    .event-links {
+      margin-top: 18px;
+      text-align: left; /* 左對齊較符合設計 */
+    }
+    .event-links a {
+      display: inline-block;
+      margin: 6px 8px 6px 0;
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--black-line);
+      background: #fff;
+      color: #0f172a;
+      text-decoration: none;
+    }
+    .event-links a:hover {
+      background:#f1f5f9;
+    }
+
+    @media (max-width: 900px) {
+      .agents-layout {
+        grid-template-columns: 1fr;
+      }
+      .event-links { text-align: center; }
+    }
   </style>
 </head>
 <body>
@@ -229,194 +280,353 @@
     </div>
   </section>
 
-  <!-- 事件一 -->
+  <!-- ===== 事件一（改版：上敘述、左圖片、右側 A/B、下連結） ===== -->
   <section class="hero" id="agents">
     <div class="container">
       <div class="eyebrow">事件一 · 惡意流量測試 Agent</div>
-      <p>此事件提供 Windows 與 Linux 兩種版本的測試 Agent，用來模擬不同特偵的惡意流量，快速驗證自己的 IDS/IPS是否真的有在運作，而不用真的遭遇攻擊風險。</p>
-      <div class="agents-grid">
 
-        <!-- Windows -->
-        <div class="agent-box">
-          <div class="eyebrow">Agent · Windows</div>
-          <h2>Windows 測試 Agent</h2>
-          <p>Bifrost 類後門會偷偷外洩機敏資料，此 Agent 有相同行為，立即檢驗你的 IDS/IPS。</p>
-          {% if session is defined and session.get('user') %}
-            <a class="cta" href="/download_agent?platform=windows">下載 agent</a>
-            <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 →</a>
-          {% else %}
-            <a class="cta" href="/login?next=/downloads/agent.exe">登入後才可下載</a>
-            <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單</a>
-          {% endif %}
+      <!-- 敘述文字（保留原文） -->
+      <p class="event-desc">
+        此事件提供 Windows 與 Linux 兩種版本的測試 Agent，用來模擬不同特偵的惡意流量，快速驗證自己的 IDS/IPS是否真的有在運作，而不用真的遭遇攻擊風險。
+      </p>
+
+      <div class="agents-layout">
+        <!-- 左側圖片（綠色框位置） -->
+        <div class="event-left">
+          <img src="{{ url_for('static', filename='images/事件一.jpg') }}" alt="事件一示意圖">
+          <div class="event-links">
+            <a href="/downloads/agent-info-1" target="_blank">相關資源</a>
+          </div>
         </div>
 
-        <!-- Linux -->
-        <div class="agent-box">
-          <div class="eyebrow">Agent · Linux</div>
-          <h2>Linux 測試 Agent</h2>
-          <p>這個版本是給 Linux 使用者的測試工具。一樣會產生模擬攻擊的流量並回報，讓你知道防禦是否擋得下；若沒擋住，就能立刻發現並改善。</p>
-          {% if session is defined and session.get('user') %}
-            <a class="cta" href="/download_agent?platform=linux">下載 agent</a>
-            <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 →</a>
-          {% else %}
-            <a class="cta" href="/login?next=/downloads/agent-linux">登入後才可下載</a>
-            <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單</a>
-          {% endif %}
-        </div>
+        <!-- 右側：原本的區塊 A / B（保留原始內容與 Jinja） -->
+        <div class="event-right">
+          <div class="agents-grid">
+            <!-- Windows -->
+            <div class="agent-box">
+              <div class="eyebrow">Agent · Windows</div>
+              <h2>Windows 測試 Agent</h2>
+              <p>Bifrost 類後門會偷偷外洩機敏資料，此 Agent 有相同行為，立即檢驗你的 IDS/IPS。</p>
+              {% if session is defined and session.get('user') %}
+                <a class="cta" href="/download_agent?platform=windows">下載 agent</a>
+                <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 →</a>
+              {% else %}
+                <a class="cta" href="/login?next=/downloads/agent.exe">登入後才可下載</a>
+                <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單</a>
+              {% endif %}
+            </div>
 
+            <!-- Linux -->
+            <div class="agent-box">
+              <div class="eyebrow">Agent · Linux</div>
+              <h2>Linux 測試 Agent</h2>
+              <p>這個版本是給 Linux 使用者的測試工具。一樣會產生模擬攻擊的流量並回報，讓你知道防禦是否擋得下；若沒擋住，就能立刻發現並改善。</p>
+              {% if session is defined and session.get('user') %}
+                <a class="cta" href="/download_agent?platform=linux">下載 agent</a>
+                <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 →</a>
+              {% else %}
+                <a class="cta" href="/login?next=/downloads/agent-linux">登入後才可下載</a>
+                <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單</a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- 事件二 -->
+  <!-- ===== 事件二（同樣結構，保留原文） ===== -->
   <section class="hero" id="agents-2">
     <div class="container">
       <div class="eyebrow">事件二 · （內容待補）</div>
-      <p>駭客濫用 GitHub Codespaces 發布以 Rust 撰寫的資訊竊取惡意程式，用來竊取瀏覽器資料、密碼與加密貨幣錢包資訊。</p>
-      <div class="agents-grid">
-        <div class="agent-box">
-          <h2>區塊 A</h2>
-          <p>（空白內容）</p>
+
+      <p class="event-desc">
+        駭客濫用 GitHub Codespaces 發布以 Rust 撰寫的資訊竊取惡意程式，用來竊取瀏覽器資料、密碼與加密貨幣錢包資訊。
+      </p>
+
+      <div class="agents-layout">
+        <div class="event-left">
+          <img src="{{ url_for('static', filename='images/事件二.jpg') }}" alt="事件二示意圖">
+          <div class="event-links">
+            <a href="https://www.trendmicro.com/en_us/research/22/d/new-apt-group-earth-berberoka-targets-gambling-websites-with-old.html" target="_blank">參考報告</a>
+          </div>
         </div>
-        <div class="agent-box">
-          <h2>區塊 B</h2>
-          <p>（空白內容）</p>
+
+        <div class="event-right">
+          <div class="agents-grid">
+            <div class="agent-box">
+              <h2>區塊 A</h2>
+              <p>（空白內容）</p>
+            </div>
+            <div class="agent-box">
+              <h2>區塊 B</h2>
+              <p>（空白內容）</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </section>
-  <!-- 事件三 -->
+
+  <!-- ===== 事件三 ===== -->
   <section class="hero" id="agents-3">
     <div class="container">
       <div class="eyebrow">事件三 · （內容待補）</div>
-      <p>Earth Kapre（又名 RedCurl）是一個以經濟間諜為目的的駭客組織，透過釣魚郵件和惡意檔案入侵企業內網，竊取機密文件與公司資料。</p>
-      <div class="agents-grid">
-        <div class="agent-box">
-          <h2>區塊 A</h2>
-          <p>（空白內容）</p>
+
+      <p class="event-desc">
+        Earth Kapre（又名 RedCurl）是一個以經濟間諜為目的的駭客組織，透過釣魚郵件和惡意檔案入侵企業內網，竊取機密文件與公司資料。
+      </p>
+
+      <div class="agents-layout">
+        <div class="event-left">
+          <img src="{{ url_for('static', filename='images/事件三.jpg') }}" alt="事件三示意圖">
+          <div class="event-links">
+            <a href="#">補充資料</a>
+          </div>
         </div>
-        <div class="agent-box">
-          <h2>區塊 B</h2>
-          <p>（空白內容）</p>
+
+        <div class="event-right">
+          <div class="agents-grid">
+            <div class="agent-box">
+              <h2>區塊 A</h2>
+              <p>（空白內容）</p>
+            </div>
+            <div class="agent-box">
+              <h2>區塊 B</h2>
+              <p>（空白內容）</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </section>
-  <!-- 事件四 -->
+
+  <!-- ===== 事件四 ===== -->
   <section class="hero" id="agents-4">
     <div class="container">
       <div class="eyebrow">事件四 · （內容待補）</div>
-      <p>「BatLoader 惡意程式利用混淆的 JavaScript 與合法工具（如 PowerShell、MSI、遠端管理軟體）下載並執行惡意載荷，用於滲透系統與部署後續攻擊。」</p>
-      <div class="agents-grid">
-        <div class="agent-box">
-          <h2>區塊 A</h2>
-          <p>（空白內容）</p>
+
+      <p class="event-desc">
+        「BatLoader 惡意程式利用混淆的 JavaScript 與合法工具（如 PowerShell、MSI、遠端管理軟體）下載並執行惡意載荷，用於滲透系統與部署後續攻擊。」
+      </p>
+
+      <div class="agents-layout">
+        <div class="event-left">
+          <img src="{{ url_for('static', filename='images/事件四.jpg') }}" alt="事件四示意圖">
+          <div class="event-links">
+            <a href="#">補充連結</a>
+          </div>
         </div>
-        <div class="agent-box">
-          <h2>區塊 B</h2>
-          <p>（空白內容）</p>
+
+        <div class="event-right">
+          <div class="agents-grid">
+            <div class="agent-box">
+              <h2>區塊 A</h2>
+              <p>（空白內容）</p>
+            </div>
+            <div class="agent-box">
+              <h2>區塊 B</h2>
+              <p>（空白內容）</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </section>
-  <!-- 事件五 -->
+
+  <!-- ===== 事件五 ===== -->
   <section class="hero" id="agents-5">
     <div class="container">
       <div class="eyebrow">事件五 · （內容待補）</div>
-      <p>駭客組織 IronTiger 透過被植入後門的聊天應用程式 Mimi 攻擊 Windows、Mac 和 Linux 使用者，以竊取資料並進行遠端控制。</p>
-      <div class="agents-grid">
-        <div class="agent-box">
-          <h2>區塊 A</h2>
-          <p>（空白內容）</p>
+
+      <p class="event-desc">
+        駭客組織 IronTiger 透過被植入後門的聊天應用程式 Mimi 攻擊 Windows、Mac 和 Linux 使用者，以竊取資料並進行遠端控制。
+      </p>
+
+      <div class="agents-layout">
+        <div class="event-left">
+          <img src="{{ url_for('static', filename='images/事件五.jpg') }}" alt="事件五示意圖">
+          <div class="event-links">
+            <a href="#">更多資訊</a>
+          </div>
         </div>
-        <div class="agent-box">
-          <h2>區塊 B</h2>
-          <p>（空白內容）</p>
+
+        <div class="event-right">
+          <div class="agents-grid">
+            <div class="agent-box">
+              <h2>區塊 A</h2>
+              <p>（空白內容）</p>
+            </div>
+            <div class="agent-box">
+              <h2>區塊 B</h2>
+              <p>（空白內容）</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </section>
-  <!-- 事件六 -->
+
+  <!-- ===== 事件六 ===== -->
   <section class="hero" id="agents-6">
     <div class="container">
       <div class="eyebrow">事件六 · （內容待補）</div>
-      <p>駭客組織 Earth Preta 針對全球政府與外交單位發動魚叉式網釣攻擊，利用惡意文件竊取機密資料與敏感資訊。</p>
-      <div class="agents-grid">
-        <div class="agent-box">
-          <h2>區塊 A</h2>
-          <p>（空白內容）</p>
+
+      <p class="event-desc">
+        駭客組織 Earth Preta 針對全球政府與外交單位發動魚叉式網釣攻擊，利用惡意文件竊取機密資料與敏感資訊。
+      </p>
+
+      <div class="agents-layout">
+        <div class="event-left">
+          <img src="{{ url_for('static', filename='images/事件六.jpg') }}" alt="事件六示意圖">
+          <div class="event-links">
+            <a href="#">來源</a>
+          </div>
         </div>
-        <div class="agent-box">
-          <h2>區塊 B</h2>
-          <p>（空白內容）</p>
+
+        <div class="event-right">
+          <div class="agents-grid">
+            <div class="agent-box">
+              <h2>區塊 A</h2>
+              <p>（空白內容）</p>
+            </div>
+            <div class="agent-box">
+              <h2>區塊 B</h2>
+              <p>（空白內容）</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </section>
-  <!-- 事件七 -->
+
+  <!-- ===== 事件七 ===== -->
   <section class="hero" id="agents-7">
     <div class="container">
       <div class="eyebrow">事件七 · （內容待補）</div>
-      <p>駭客組織 Earth Berberoka 以線上博弈網站為主要目標，利用老舊的遠端存取木馬攻擊 Windows、Linux 與 macOS 系統進行資料竊取與控制。</p>
-      <div class="agents-grid">
-        <div class="agent-box">
-          <h2>區塊 A</h2>
-          <p>（空白內容）</p>
+
+      <p class="event-desc">
+        駭客組織 Earth Berberoka 以線上博弈網站為主要目標，利用老舊的遠端存取木馬攻擊 Windows、Linux 與 macOS 系統進行資料竊取與控制。
+      </p>
+
+      <div class="agents-layout">
+        <div class="event-left">
+          <img src="{{ url_for('static', filename='images/事件七.jpg') }}" alt="事件七示意圖">
+          <div class="event-links">
+            <a href="#">參考</a>
+          </div>
         </div>
-        <div class="agent-box">
-          <h2>區塊 B</h2>
-          <p>（空白內容）</p>
+
+        <div class="event-right">
+          <div class="agents-grid">
+            <div class="agent-box">
+              <h2>區塊 A</h2>
+              <p>（空白內容）</p>
+            </div>
+            <div class="agent-box">
+              <h2>區塊 B</h2>
+              <p>（空白內容）</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </section>
-  <!-- 事件八-->
+
+  <!-- ===== 事件八 ===== -->
   <section class="hero" id="agents-8">
     <div class="container">
       <div class="eyebrow">事件八 · （內容待補）</div>
-      <p>NetDooka 是透過惡意下載器 PrivateLoader 傳播的惡意框架，具備下載器、C2 通訊與遠端存取木馬功能，可用於大規模感染與控制受害電腦。</p>
-      <div class="agents-grid">
-        <div class="agent-box">
-          <h2>區塊 A</h2>
-          <p>（空白內容）</p>
+
+      <p class="event-desc">
+        NetDooka 是透過惡意下載器 PrivateLoader 傳播的惡意框架，具備下載器、C2 通訊與遠端存取木馬功能，可用於大規模感染與控制受害電腦。
+      </p>
+
+      <div class="agents-layout">
+        <div class="event-left">
+          <img src="{{ url_for('static', filename='images/事件八.jpg') }}" alt="事件八示意圖">
+          <div class="event-links">
+            <a href="#">補充資料</a>
+          </div>
         </div>
-        <div class="agent-box">
-          <h2>區塊 B</h2>
-          <p>（空白內容）</p>
+
+        <div class="event-right">
+          <div class="agents-grid">
+            <div class="agent-box">
+              <h2>區塊 A</h2>
+              <p>（空白內容）</p>
+            </div>
+            <div class="agent-box">
+              <h2>區塊 B</h2>
+              <p>（空白內容）</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </section>
-  <!-- 事件九 -->
+
+  <!-- ===== 事件九 ===== -->
   <section class="hero" id="agents-9">
     <div class="container">
       <div class="eyebrow">事件九 · （內容待補）</div>
-      <p>xHunt 駭客組織針對科威特的政府及航運運輸業發動攻擊，利用兩種後門（TriFive 與 Snugy）滲透 Microsoft Exchange 伺服器，分別透過刪除郵件草稿與 DNS 通道進行指令控制與資料竊取。</p>
-      <div class="agents-grid">
-        <div class="agent-box">
-          <h2>區塊 A</h2>
-          <p>（空白內容）</p>
+
+      <p class="event-desc">
+        xHunt 駭客組織針對科威特的政府及航運運輸業發動攻擊，利用兩種後門（TriFive 與 Snugy）滲透 Microsoft Exchange 伺服器，分別透過刪除郵件草稿與 DNS 通道進行指令控制與資料竊取。
+      </p>
+
+      <div class="agents-layout">
+        <div class="event-left">
+          <img src="{{ url_for('static', filename='images/事件九.jpg') }}" alt="事件九示意圖">
+          <div class="event-links">
+            <a href="#">來源連結</a>
+          </div>
         </div>
-        <div class="agent-box">
-          <h2>區塊 B</h2>
-          <p>（空白內容）</p>
+
+        <div class="event-right">
+          <div class="agents-grid">
+            <div class="agent-box">
+              <h2>區塊 A</h2>
+              <p>（空白內容）</p>
+            </div>
+            <div class="agent-box">
+              <h2>區塊 B</h2>
+              <p>（空白內容）</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </section>
-  <!-- 事件十 -->
+
+  <!-- ===== 事件十 ===== -->
   <section class="hero" id="agents-10">
     <div class="container">
       <div class="eyebrow">事件十 · （內容待補）</div>
-      <p>Earth Berberoka 持續以線上博弈網站為目標，利用惡意網域與遠端木馬竊取資料並與攻擊伺服器通訊。</p>
-      <div class="agents-grid">
-        <div class="agent-box">
-          <h2>區塊 A</h2>
-          <p>（空白內容）</p>
+
+      <p class="event-desc">
+        「Earth Berberoka 持續以線上博弈網站為目標，利用惡意網域與遠端木馬竊取資料並與攻擊伺服器通訊。」
+      </p>
+
+      <div class="agents-layout">
+        <div class="event-left">
+          <img src="{{ url_for('static', filename='images/事件十.jpg') }}" alt="事件十示意圖">
+          <div class="event-links">
+            <a href="#">更多閱讀</a>
+          </div>
         </div>
-        <div class="agent-box">
-          <h2>區塊 B</h2>
-          <p>（空白內容）</p>
+
+        <div class="event-right">
+          <div class="agents-grid">
+            <div class="agent-box">
+              <h2>區塊 A</h2>
+              <p>（空白內容）</p>
+            </div>
+            <div class="agent-box">
+              <h2>區塊 B</h2>
+              <p>（空白內容）</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -463,7 +673,7 @@
         }
       });
     }, {threshold:0.55});
-    sections.forEach(s=>io.observe(s));
+    sections.forEach(s=>{ if(s) io.observe(s); });
 
     dots.forEach((d,i)=>{
       d.setAttribute('role','button');
