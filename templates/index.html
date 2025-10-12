@@ -175,8 +175,22 @@
       display: grid;
       grid-template-columns: 1fr 1fr; /* 左圖片、右內容 */
       gap: 40px;
-      align-items: start;
+      align-items: start; /* 垂直頂端對齊 */
       margin-top: 20px;
+    }
+    .agents-layout .event-left,
+    .agents-layout .event-right {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start; /* 從上方開始對齊 */
+    }
+    .event-desc {
+      font-size: 18px;
+      line-height: 1.8;
+      color: #1e293b;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: flex-start; /* 讓描述與圖片頂端對齊 */
     }
     .event-left img {
       width: 100%;
@@ -184,12 +198,6 @@
       border: 2px solid var(--black-line);
       box-shadow: 0 2px 8px rgba(0,0,0,.06);
       display:block;
-    }
-    .event-desc {
-      font-size: 18px;
-      line-height: 1.8;
-      color: #1e293b;
-      margin-bottom: 12px;
     }
     .agents-layout .agents-grid {
       display: grid;
