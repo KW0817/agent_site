@@ -67,7 +67,10 @@
       padding:0 24px;
     }
 
-    .eyebrow{color:var(--brand);font-weight:700;font-size:20px;margin-bottom:12px;}
+    .eyebrow{color:var(--brand);font-weight:700;font-size:22px;margin-bottom:12px;}
+    .hero h2{font-size:30px;font-weight:800;color:#111;margin-bottom:16px;}
+    .hero p{font-size:18px;line-height:2;color:#1e293b;font-weight:500;}
+
     .event-desc{
       font-size:18px;font-weight:bold;line-height:1.8;margin-bottom:16px;text-align:left;
     }
@@ -82,11 +85,11 @@
     }
     .event-left{display:flex;flex-direction:column;align-items:center;}
     .event-left img{
-      width:90%;
+      width:100%;
       border:2px solid var(--black-line);
       border-radius:10px;
       box-shadow:0 2px 8px rgba(0,0,0,.06);
-      margin-bottom:12px;
+      margin-bottom:16px;
     }
     .event-links{width:100%;text-align:left;margin-top:8px;}
     .event-links a{
@@ -104,7 +107,22 @@
     .agent-box .eyebrow{color:#e53935;margin-bottom:6px;}
     .agent-box h2{margin:0 0 6px;border-bottom:1px solid var(--black-line);padding-bottom:4px;}
     .agent-box p{margin:0 0 8px;line-height:1.6;}
-    .cta{font-size:14px;color:#0ea5e9;text-decoration:underline;margin-right:6px;}
+
+    /* ===== CTA 按鈕樣式 (加黑框) ===== */
+    .cta{
+      font-size:15px;
+      color:#0ea5e9;
+      text-decoration:underline;
+      margin-right:8px;
+      padding:4px 10px;
+      border:1px solid var(--black-line);
+      border-radius:6px;
+      background:#fff;
+    }
+    .cta:hover{
+      background:#f1f5f9;
+    }
+
     @media(max-width:900px){
       .agents-layout{grid-template-columns:1fr;}
       .event-left img{width:100%;}
@@ -242,36 +260,30 @@
             </a>
           </div>
         </div>
-        <!-- 右側：原本的區塊 A / B（保留原始內容與 Jinja） -->
-        <div class="event-right">
-          <div class="agents-grid">
-            <!-- Windows -->
-            <div class="agent-box">
-              <div class="eyebrow">Agent · Windows</div>
-              <h2>A</h2>
-              <p>敘述</p>
-              {% if session is defined and session.get('user') %}
-                <a class="cta" href="/download_agent?platform=windows">下載 agent (改)</a>
-                <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 → (改)</a>
-              {% else %}
-                <a class="cta" href="/login?next=/downloads/agent.exe">登入後才可下載 (改)</a>
-                <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單 (改)</a>
-              {% endif %}
-            </div>
-
-            <!-- Linux -->
-            <div class="agent-box">
-              <div class="eyebrow">Agent · Linux</div>
-              <h2>B</h2>
-              <p>敘述</p>
-              {% if session is defined and session.get('user') %}
-                <a class="cta" href="/download_agent?platform=linux">下載 agent(改)</a>
-                <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 → (改)</a>
-              {% else %}
-                <a class="cta" href="/login?next=/downloads/agent-linux">登入後才可下載 (改)</a>
-                <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單 (改)</a>
-              {% endif %}
-
+        <div class="agents-grid">
+          <div class="agent-box">
+            <div class="eyebrow">Agent · Windows</div>
+            <h2>A</h2>
+            <p>敘述</p>
+            {% if session is defined and session.get('user') %}
+              <a class="cta" href="/download_agent?platform=windows">下載 agent</a>
+              <a class="cta" href="/view">查看事件清單 →</a>
+            {% else %}
+              <a class="cta" href="/login?next=/downloads/agent.exe">登入後才可下載</a>
+              <a class="cta" href="/login?next=/view">登入後查看事件清單</a>
+            {% endif %}
+          </div>
+          <div class="agent-box">
+            <div class="eyebrow">Agent · Linux</div>
+            <h2>B</h2>
+            <p>敘述</p>
+            {% if session is defined and session.get('user') %}
+              <a class="cta" href="/download_agent?platform=linux">下載 agent</a>
+              <a class="cta" href="/view">查看事件清單 →</a>
+            {% else %}
+              <a class="cta" href="/login?next=/downloads/agent-linux">登入後才可下載</a>
+              <a class="cta" href="/login?next=/view">登入後查看事件清單</a>
+            {% endif %}
           </div>
         </div>
       </div>
@@ -295,36 +307,30 @@
             </a>
           </div>
         </div>
-        <!-- 右側：原本的區塊 A / B（保留原始內容與 Jinja） -->
-        <div class="event-right">
-          <div class="agents-grid">
-            <!-- Windows -->
-            <div class="agent-box">
-              <div class="eyebrow">Agent · Windows</div>
-              <h2>A</h2>
-              <p>敘述</p>
-              {% if session is defined and session.get('user') %}
-                <a class="cta" href="/download_agent?platform=windows">下載 agent (改)</a>
-                <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 → (改)</a>
-              {% else %}
-                <a class="cta" href="/login?next=/downloads/agent.exe">登入後才可下載 (改)</a>
-                <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單 (改)</a>
-              {% endif %}
-            </div>
-
-            <!-- Linux -->
-            <div class="agent-box">
-              <div class="eyebrow">Agent · Linux</div>
-              <h2>B</h2>
-              <p>敘述</p>
-              {% if session is defined and session.get('user') %}
-                <a class="cta" href="/download_agent?platform=linux">下載 agent(改)</a>
-                <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 → (改)</a>
-              {% else %}
-                <a class="cta" href="/login?next=/downloads/agent-linux">登入後才可下載 (改)</a>
-                <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單 (改)</a>
-              {% endif %}
-
+        <div class="agents-grid">
+          <div class="agent-box">
+            <div class="eyebrow">Agent · Windows</div>
+            <h2>A</h2>
+            <p>敘述</p>
+            {% if session is defined and session.get('user') %}
+              <a class="cta" href="/download_agent?platform=windows">下載 agent</a>
+              <a class="cta" href="/view">查看事件清單 →</a>
+            {% else %}
+              <a class="cta" href="/login?next=/downloads/agent.exe">登入後才可下載</a>
+              <a class="cta" href="/login?next=/view">登入後查看事件清單</a>
+            {% endif %}
+          </div>
+          <div class="agent-box">
+            <div class="eyebrow">Agent · Linux</div>
+            <h2>B</h2>
+            <p>敘述</p>
+            {% if session is defined and session.get('user') %}
+              <a class="cta" href="/download_agent?platform=linux">下載 agent</a>
+              <a class="cta" href="/view">查看事件清單 →</a>
+            {% else %}
+              <a class="cta" href="/login?next=/downloads/agent-linux">登入後才可下載</a>
+              <a class="cta" href="/login?next=/view">登入後查看事件清單</a>
+            {% endif %}
           </div>
         </div>
       </div>
