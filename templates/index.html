@@ -175,23 +175,10 @@
       display: grid;
       grid-template-columns: 1fr 1fr; /* 左圖片、右內容 */
       gap: 40px;
-      align-items: start; /* 垂直頂端對齊 */
+      align-items: start;
       margin-top: 20px;
     }
-    .agents-layout .event-left,
-    .agents-layout .event-right {
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start; /* 從上方開始對齊 */
-    }
-    .event-desc {
-      font-size: 18px;
-      line-height: 1.8;
-      color: #1e293b;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: flex-start; /* 讓描述與圖片頂端對齊 */
-    }
+
     .event-left img {
       width: 100%;
       border-radius: 10px;
@@ -199,15 +186,41 @@
       box-shadow: 0 2px 8px rgba(0,0,0,.06);
       display:block;
     }
+
+    /* === 調整：讓敘述與圖片垂直對齊 + 同寬 === */
+    .event-desc {
+      font-size: 18px;
+      line-height: 1.8;
+      color: #1e293b;
+      margin: 0 auto 16px auto;
+      max-width: 1000px;
+      display: flex;
+      justify-content: center;
+    }
+    .event-desc span {
+      display: block;
+      width: 50%;
+      text-align: left;
+    }
+
+    /* 讓敘述區域與圖片寬度對齊 */
+    @media (min-width: 901px){
+      .event-desc span{
+        width: calc(50% - 20px);
+      }
+    }
+
     .agents-layout .agents-grid {
       display: grid;
       grid-template-columns: 1fr; /* 右側原本的兩個區塊改上下排列 */
       gap: 20px;
     }
+
     .event-links {
       margin-top: 18px;
-      text-align: left; /* 左對齊較符合設計 */
+      text-align: left;
     }
+
     .event-links a {
       display: inline-block;
       margin: 6px 8px 6px 0;
@@ -218,6 +231,7 @@
       color: #0f172a;
       text-decoration: none;
     }
+
     .event-links a:hover {
       background:#f1f5f9;
     }
@@ -226,10 +240,14 @@
       .agents-layout {
         grid-template-columns: 1fr;
       }
+      .event-desc span{
+        width:100%;
+      }
       .event-links { text-align: center; }
     }
   </style>
 </head>
+
 <body>
 
   <!-- 頂部導覽列 -->
