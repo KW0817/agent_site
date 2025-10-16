@@ -209,7 +209,7 @@
     </div>
   </section>
 
-  <!-- ===== 事件一 (圖片放大) ===== -->
+  <!-- ===== 事件一 ===== -->
   <section class="hero" id="agents-1">
     <div class="container">
       <div class="eyebrow">事件一 · 惡意流量測試 Agent</div>
@@ -233,11 +233,11 @@
             <h2>Windows 測試 Agent</h2>
             <p>Bifrost 類後門會偷偷外洩機敏資料，此 Agent 有相同行為，立即檢驗你的 IDS/IPS。</p>
             {% if session is defined and session.get('user') %}
-              <a class="cta" href="/download_agent?platform=windows">下載 agent (改)</a>
-              <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 → (改)</a>
+              <a class="cta" href="/download_agent?platform=windows">下載 agent</a>
+              <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 →</a>
             {% else %}
-              <a class="cta" href="/login?next=/downloads/agent.exe">登入後才可下載 (改)</a>
-              <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單 (改)</a>
+              <a class="cta" href="/login?next=/downloads/agent.exe">登入後才可下載</a>
+              <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單</a>
             {% endif %}
           </div>
           <div class="agent-box">
@@ -245,11 +245,11 @@
             <h2>Linux 測試 Agent</h2>
             <p>這個版本是給 Linux 使用者的測試工具，一樣會產生模擬攻擊流量並回報結果。</p>
             {% if session is defined and session.get('user') %}
-              <a class="cta" href="/download_agent?platform=linux">下載 agent(改)</a>
-              <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 → (改)</a>
+              <a class="cta" href="/download_agent?platform=linux">下載 agent</a>
+              <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 →</a>
             {% else %}
-              <a class="cta" href="/login?next=/downloads/agent-linux">登入後才可下載 (改)</a>
-              <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單 (改)</a>
+              <a class="cta" href="/login?next=/downloads/agent-linux">登入後才可下載</a>
+              <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單</a>
             {% endif %}
           </div>
         </div>
@@ -362,12 +362,387 @@
       </div>
     </div>
   </section>
+  <!-- ===== 事件四 ===== -->
+  <section class="hero" id="agents-4">
+    <div class="container">
+      <div class="eyebrow">事件四 · Batloader 惡意軟體濫用合法工具，在 2022 年第 4 季攻擊中使用混淆的 JavaScript 檔案</div>
+      <p class="event-desc">
+        BatLoader 惡意程式利用混淆的 JavaScript 與合法工具（如 PowerShell、MSI、遠端管理軟體）下載並執行惡意載荷，用於滲透系統與部署後續攻擊。
+      </p>
+
+      <div class="agents-layout">
+        <div class="event-left">
+          <img src="{{ url_for('static', filename='images/事件四.jpg') }}" alt="事件四示意圖">
+          <div class="event-links">
+            <a href=" https://www.trendmicro.com/en_us/research/23/a/batloader-malware-abuses-legitimate-tools-uses-obfuscated-javasc.html" target="_blank">
+               https://www.trendmicro.com/en_us/research/23/a/batloader-malware-abuses-legitimate-tools-uses-obfuscated-javasc.html
+            </a>
+          </div>
+        </div>
+        <!-- 右側：原本的區塊 A / B（保留原始內容與 Jinja） -->
+        <div class="event-right">
+          <div class="agents-grid">
+            <!-- Windows -->
+            <div class="agent-box">
+              <div class="eyebrow">Agent · Windows</div>
+              <h2>A</h2>
+              <p>敘述</p>
+              {% if session is defined and session.get('user') %}
+                <a class="cta" href="/download_agent?platform=windows">下載 agent (改)</a>
+                <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 → (改)</a>
+              {% else %}
+                <a class="cta" href="/login?next=/downloads/agent.exe">登入後才可下載 (改)</a>
+                <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單 (改)</a>
+              {% endif %}
+            </div>
+
+            <!-- Linux -->
+            <div class="agent-box">
+              <div class="eyebrow">Agent · Linux</div>
+              <h2>B</h2>
+              <p>敘述</p>
+              {% if session is defined and session.get('user') %}
+                <a class="cta" href="/download_agent?platform=linux">下載 agent(改)</a>
+                <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 → (改)</a>
+              {% else %}
+                <a class="cta" href="/login?next=/downloads/agent-linux">登入後才可下載 (改)</a>
+                <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單 (改)</a>
+              {% endif %}
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- ===== 事件五 ===== -->
+  <section class="hero" id="agents-5">
+    <div class="container">
+      <div class="eyebrow">事件五 · Iron Tiger 入侵聊天應用程式 Mimi，針對 Windows、Mac 和 Linux 用戶</div>
+      <p class="event-desc">
+        駭客組織 IronTiger 透過被植入後門的聊天應用程式 Mimi 攻擊 Windows、Mac 和 Linux 使用者，以竊取資料並進行遠端控制。
+      </p>
+
+      <div class="agents-layout">
+        <div class="event-left">
+          <img src="{{ url_for('static', filename='images/事件五.jpg') }}" alt="事件五示意圖">
+          <div class="event-links">
+            <a href="https://www.trendmicro.com/en_us/research/22/h/irontiger-compromises-chat-app-Mimi-targets-windows-mac-linux-users.html" target="_blank">
+              https://www.trendmicro.com/en_us/research/22/h/irontiger-compromises-chat-app-Mimi-targets-windows-mac-linux-users.html
+            </a>
+          </div>
+        </div>
+        <!-- 右側：原本的區塊 A / B（保留原始內容與 Jinja） -->
+        <div class="event-right">
+          <div class="agents-grid">
+            <!-- Windows -->
+            <div class="agent-box">
+              <div class="eyebrow">Agent · Windows</div>
+              <h2>A</h2>
+              <p>敘述</p>
+              {% if session is defined and session.get('user') %}
+                <a class="cta" href="/download_agent?platform=windows">下載 agent (改)</a>
+                <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 → (改)</a>
+              {% else %}
+                <a class="cta" href="/login?next=/downloads/agent.exe">登入後才可下載 (改)</a>
+                <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單 (改)</a>
+              {% endif %}
+            </div>
+
+            <!-- Linux -->
+            <div class="agent-box">
+              <div class="eyebrow">Agent · Linux</div>
+              <h2>B</h2>
+              <p>敘述</p>
+              {% if session is defined and session.get('user') %}
+                <a class="cta" href="/download_agent?platform=linux">下載 agent(改)</a>
+                <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 → (改)</a>
+              {% else %}
+                <a class="cta" href="/login?next=/downloads/agent-linux">登入後才可下載 (改)</a>
+                <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單 (改)</a>
+              {% endif %}
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- ===== 事件六 ===== -->
+  <section class="hero" id="agents-6">
+    <div class="container">
+      <div class="eyebrow">事件六 · Earth Preta 魚叉式網路釣魚全球政府</div>
+      <p class="event-desc">
+        駭客組織 Earth Preta 針對全球政府與外交單位發動魚叉式網釣攻擊，利用惡意文件竊取機密資料與敏感資訊。
+      </p>
+
+      <div class="agents-layout">
+        <div class="event-left">
+          <img src="{{ url_for('static', filename='images/事件六.jpg') }}" alt="事件六示意圖">
+          <div class="event-links">
+            <a href="https://www.trendmicro.com/en_us/research/22/k/earth-preta-spear-phishing-governments-worldwide.html" target="_blank">
+              https://www.trendmicro.com/en_us/research/22/k/earth-preta-spear-phishing-governments-worldwide.html
+            </a>
+          </div>
+        </div>
+        <!-- 右側：原本的區塊 A / B（保留原始內容與 Jinja） -->
+        <div class="event-right">
+          <div class="agents-grid">
+            <!-- Windows -->
+            <div class="agent-box">
+              <div class="eyebrow">Agent · Windows</div>
+              <h2>A</h2>
+              <p>敘述</p>
+              {% if session is defined and session.get('user') %}
+                <a class="cta" href="/download_agent?platform=windows">下載 agent (改)</a>
+                <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 → (改)</a>
+              {% else %}
+                <a class="cta" href="/login?next=/downloads/agent.exe">登入後才可下載 (改)</a>
+                <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單 (改)</a>
+              {% endif %}
+            </div>
+
+            <!-- Linux -->
+            <div class="agent-box">
+              <div class="eyebrow">Agent · Linux</div>
+              <h2>B</h2>
+              <p>敘述</p>
+              {% if session is defined and session.get('user') %}
+                <a class="cta" href="/download_agent?platform=linux">下載 agent(改)</a>
+                <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 → (改)</a>
+              {% else %}
+                <a class="cta" href="/login?next=/downloads/agent-linux">登入後才可下載 (改)</a>
+                <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單 (改)</a>
+              {% endif %}
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- ===== 事件七 ===== -->
+  <section class="hero" id="agents-7">
+    <div class="container">
+      <div class="eyebrow">事件七 · 新的 APT 組織 Earth Berberoka 使用新舊惡意軟件瞄準賭博網站</div>
+      <p class="event-desc">
+        駭客組織 Earth Berberoka 以線上博弈網站為主要目標，利用老舊的遠端存取木馬攻擊 Windows、Linux 與 macOS 系統進行資料竊取與控制。
+      </p>
+
+      <div class="agents-layout">
+        <div class="event-left">
+          <img src="{{ url_for('static', filename='images/事件七.jpg') }}" alt="事件七示意圖">
+          <div class="event-links">
+            <a href="https://www.trendmicro.com/en_us/research/22/d/new-apt-group-earth-berberoka-targets-gambling-websites-with-old.html" target="_blank">
+              https://www.trendmicro.com/en_us/research/22/d/new-apt-group-earth-berberoka-targets-gambling-websites-with-old.html
+            </a>
+          </div>
+        </div>
+        <!-- 右側：原本的區塊 A / B（保留原始內容與 Jinja） -->
+        <div class="event-right">
+          <div class="agents-grid">
+            <!-- Windows -->
+            <div class="agent-box">
+              <div class="eyebrow">Agent · Windows</div>
+              <h2>A</h2>
+              <p>敘述</p>
+              {% if session is defined and session.get('user') %}
+                <a class="cta" href="/download_agent?platform=windows">下載 agent (改)</a>
+                <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 → (改)</a>
+              {% else %}
+                <a class="cta" href="/login?next=/downloads/agent.exe">登入後才可下載 (改)</a>
+                <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單 (改)</a>
+              {% endif %}
+            </div>
+
+            <!-- Linux -->
+            <div class="agent-box">
+              <div class="eyebrow">Agent · Linux</div>
+              <h2>B</h2>
+              <p>敘述</p>
+              {% if session is defined and session.get('user') %}
+                <a class="cta" href="/download_agent?platform=linux">下載 agent(改)</a>
+                <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 → (改)</a>
+              {% else %}
+                <a class="cta" href="/login?next=/downloads/agent-linux">登入後才可下載 (改)</a>
+                <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單 (改)</a>
+              {% endif %}
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- ===== 事件八 ===== -->
+  <section class="hero" id="agents-8">
+    <div class="container">
+      <div class="eyebrow">事件八 · NetDooka 框架通過 PrivateLoader 惡意軟件分發，作為安裝付費服務的一部分</div>
+      <p class="event-desc">
+        NetDooka 是透過惡意下載器 PrivateLoader 傳播的惡意框架，具備下載器、C2 通訊與遠端存取木馬功能，可用於大規模感染與控制受害電腦。
+      </p>
+
+      <div class="agents-layout">
+        <div class="event-left">
+          <img src="{{ url_for('static', filename='images/事件八.jpg') }}" alt="事件八示意圖">
+          <div class="event-links">
+            <a href="https://www.trendmicro.com/en_us/research/22/e/netdooka-framework-distributed-via-privateloader-ppi.html" target="_blank">
+              https://www.trendmicro.com/en_us/research/22/e/netdooka-framework-distributed-via-privateloader-ppi.html
+            </a>
+          </div>
+        </div>
+        <!-- 右側：原本的區塊 A / B（保留原始內容與 Jinja） -->
+        <div class="event-right">
+          <div class="agents-grid">
+            <!-- Windows -->
+            <div class="agent-box">
+              <div class="eyebrow">Agent · Windows</div>
+              <h2>A</h2>
+              <p>敘述</p>
+              {% if session is defined and session.get('user') %}
+                <a class="cta" href="/download_agent?platform=windows">下載 agent (改)</a>
+                <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 → (改)</a>
+              {% else %}
+                <a class="cta" href="/login?next=/downloads/agent.exe">登入後才可下載 (改)</a>
+                <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單 (改)</a>
+              {% endif %}
+            </div>
+
+            <!-- Linux -->
+            <div class="agent-box">
+              <div class="eyebrow">Agent · Linux</div>
+              <h2>B</h2>
+              <p>敘述</p>
+              {% if session is defined and session.get('user') %}
+                <a class="cta" href="/download_agent?platform=linux">下載 agent(改)</a>
+                <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 → (改)</a>
+              {% else %}
+                <a class="cta" href="/login?next=/downloads/agent-linux">登入後才可下載 (改)</a>
+                <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單 (改)</a>
+              {% endif %}
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- ===== 事件九 ===== -->
+  <section class="hero" id="agents-9">
+    <div class="container">
+      <div class="eyebrow">事件九 · xHunt 活動：使用已刪除的電子郵件草稿和 DNS 隧道進行命令和控制的新發現的後門</div>
+      <p class="event-desc">
+        xHunt 駭客組織針對科威特的政府及航運運輸業發動攻擊，利用兩種後門（TriFive 與 Snugy）滲透 Microsoft Exchange 伺服器，分別透過刪除郵件草稿與 DNS 通道進行指令控制與資料竊取。
+      </p>
+
+      <div class="agents-layout">
+        <div class="event-left">
+          <img src="{{ url_for('static', filename='images/事件九.jpg') }}" alt="事件九示意圖">
+          <div class="event-links">
+            <a href="https://unit42.paloaltonetworks.com/xhunt-campaign-backdoors/" target="_blank">
+              https://unit42.paloaltonetworks.com/xhunt-campaign-backdoors/
+            </a>
+          </div>
+        </div>
+        <!-- 右側：原本的區塊 A / B（保留原始內容與 Jinja） -->
+        <div class="event-right">
+          <div class="agents-grid">
+            <!-- Windows -->
+            <div class="agent-box">
+              <div class="eyebrow">Agent · Windows</div>
+              <h2>A</h2>
+              <p>敘述</p>
+              {% if session is defined and session.get('user') %}
+                <a class="cta" href="/download_agent?platform=windows">下載 agent (改)</a>
+                <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 → (改)</a>
+              {% else %}
+                <a class="cta" href="/login?next=/downloads/agent.exe">登入後才可下載 (改)</a>
+                <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單 (改)</a>
+              {% endif %}
+            </div>
+
+            <!-- Linux -->
+            <div class="agent-box">
+              <div class="eyebrow">Agent · Linux</div>
+              <h2>B</h2>
+              <p>敘述</p>
+              {% if session is defined and session.get('user') %}
+                <a class="cta" href="/download_agent?platform=linux">下載 agent(改)</a>
+                <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 → (改)</a>
+              {% else %}
+                <a class="cta" href="/login?next=/downloads/agent-linux">登入後才可下載 (改)</a>
+                <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單 (改)</a>
+              {% endif %}
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- ===== 事件十 ===== -->
+  <section class="hero" id="agents-10">
+    <div class="container">
+      <div class="eyebrow">事件十 · 新的 APT 組織 Earth Berberoka 使用新舊惡意軟件瞄準賭博網站</div>
+      <p class="event-desc">
+        Earth Berberoka 持續以線上博弈網站為目標，利用惡意網域與遠端木馬竊取資料並與攻擊伺服器通訊。
+      </p>
+
+      <div class="agents-layout">
+        <div class="event-left">
+          <img src="{{ url_for('static', filename='images/事件十.jpg') }}" alt="事件十示意圖">
+          <div class="event-links">
+            <a href="https://www.trendmicro.com/en_us/research/22/d/new-apt-group-earth-berberoka-targets-gambling-websites-with-old.html" target="_blank">
+              https://www.trendmicro.com/en_us/research/22/d/new-apt-group-earth-berberoka-targets-gambling-websites-with-old.html
+            </a>
+          </div>
+        </div>
+        <!-- 右側：原本的區塊 A / B（保留原始內容與 Jinja） -->
+        <div class="event-right">
+          <div class="agents-grid">
+            <!-- Windows -->
+            <div class="agent-box">
+              <div class="eyebrow">Agent · Windows</div>
+              <h2>A</h2>
+              <p>敘述</p>
+              {% if session is defined and session.get('user') %}
+                <a class="cta" href="/download_agent?platform=windows">下載 agent (改)</a>
+                <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 → (改)</a>
+              {% else %}
+                <a class="cta" href="/login?next=/downloads/agent.exe">登入後才可下載 (改)</a>
+                <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單 (改)</a>
+              {% endif %}
+            </div>
+
+            <!-- Linux -->
+            <div class="agent-box">
+              <div class="eyebrow">Agent · Linux</div>
+              <h2>B</h2>
+              <p>敘述</p>
+              {% if session is defined and session.get('user') %}
+                <a class="cta" href="/download_agent?platform=linux">下載 agent(改)</a>
+                <a class="cta" href="/view" style="margin-left:8px;">查看事件清單 → (改)</a>
+              {% else %}
+                <a class="cta" href="/login?next=/downloads/agent-linux">登入後才可下載 (改)</a>
+                <a class="cta" href="/login?next=/view" style="margin-left:8px;">登入後查看事件清單 (改)</a>
+              {% endif %}
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
 
   <!-- ===== dots & 回頂部 ===== -->
   <button id="toTop" aria-label="回到頂部">↑</button>
   <div class="dots" id="dots">
     <button class="dot" data-target="#intro"></button>
     <button class="dot" data-target="#agents-1"></button>
+    <button class="dot" data-target="#agents-2"></button>
+    <button class="dot" data-target="#agents-3"></button>
+    <button class="dot" data-target="#agents-4"></button>
+    <button class="dot" data-target="#agents-5"></button>
+    <button class="dot" data-target="#agents-6"></button>
+    <button class="dot" data-target="#agents-7"></button>
+    <button class="dot" data-target="#agents-8"></button>
+    <button class="dot" data-target="#agents-9"></button>
+    <button class="dot" data-target="#agents-10"></button>
+    
   </div>
 
   <script>
@@ -377,7 +752,7 @@
       if(t) t.scrollIntoView({behavior:'smooth', block:'start'});
     }));
 
-    const sections = ['#intro','#agents-1','#agents-2','#agents-3',].map(s=>document.querySelector(s));
+    const sections = ['#intro','#agents-1','#agents-2','#agents-3','#agents-4','#agents-5','#agents-6','#agents-7','#agents-8','#agents-9','#agents-10',].map(s=>document.querySelector(s));
     const setActive = idx => dots.forEach((d,i)=>d.classList.toggle('active', i===idx));
     const io = new IntersectionObserver(entries=>{
       entries.forEach(e=>{
