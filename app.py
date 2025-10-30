@@ -129,51 +129,55 @@ def logout():
     return redirect(url_for("index"))
 
 # ===== /report：接收中繼站或 Agent =====
+# ========== Agent / Relay report ==========
 @app.route("/report", methods=["POST"])
 def report():
-    try:
-        raw = request.get_data(as_text=True)
-        print("\n=== Received /report ===")
-        print(raw[:300])
-        data = json.loads(raw)
-        print("[Render] Decoded JSON keys:", list(data.keys()))
-    except Exception as e:
-        print("[Render Error] JSON decode failed:", e)
-        return jsonify(ok=False, error=f"JSON decode failed: {e}"), 400
-
+    raw = request.get_data(as_text=False) or b""
     now = datetime.utcnow()
     ip_public = request.headers.get("X-Forwarded-For") or request.remote_addr
     ua = request.headers.get("User-Agent", "")
+    print("\n=== Received /report ===")
+    print(raw[:200])
 
-    def g(*keys, default=""):
-        for k in keys:
-            if k in data:
-                return data[k]
-        return default
+    parsed = None
+    try:
+        parsed = json.loads(raw.decode("utf-8", errors="ignore"))
+        print("[Render] JSON decoded OK")
+    except Exception:
+        print("[Render] Non-JSON payload, will save as raw text")
 
+    # 通用欄位
     row = {
         "ts": now,
-        "client_id": g("client_id", "name", "id", default=""),
-        "ip_public": g("ip_public", "public_ip", default=ip_public),
-        "ip_internal": g("ip_internal", "internal_ip", "ip", default=""),
+        "client_id": "",
+        "ip_public": ip_public,
+        "ip_internal": "",
         "user_agent": ua,
-        "vector": g("vector", "method", "type", default="relay"),
+        "vector": "relay",
         "payload_sha256": None,
-        "payload_len": None,
+        "payload_len": len(raw),
         "payload_sample": None,
         "missed": 1
     }
 
-    payload_raw = g("payload", "os", "data", default=None)
-    if payload_raw:
-        payload_bytes = str(payload_raw).encode("utf-8", errors="ignore")
-        row["payload_sha256"] = sha256(payload_bytes).hexdigest()
-        row["payload_len"] = len(payload_bytes)
-        sample = str(payload_raw)
-        if len(sample) > 80:
-            sample = sample[:77] + "..."
-        row["payload_sample"] = sample
+    # 若是 JSON，就從中提取欄位
+    if isinstance(parsed, dict):
+        row["client_id"] = parsed.get("client_id") or parsed.get("name") or ""
+        row["ip_public"] = parsed.get("ip_public") or parsed.get("public_ip") or ip_public
+        row["ip_internal"] = parsed.get("ip_internal") or parsed.get("ip") or ""
+        row["vector"] = parsed.get("vector") or parsed.get("type") or "relay"
+        payload_raw = parsed.get("payload") or parsed.get("os") or parsed.get("data")
+        if payload_raw:
+            payload_bytes = str(payload_raw).encode("utf-8", errors="ignore")
+            row["payload_sha256"] = sha256(payload_bytes).hexdigest()
+            row["payload_len"] = len(payload_bytes)
+            row["payload_sample"] = str(payload_raw)[:80] + ("..." if len(str(payload_raw)) > 80 else "")
+    else:
+        # 非 JSON，直接存原始封包樣本
+        row["payload_sha256"] = sha256(raw).hexdigest()
+        row["payload_sample"] = raw.decode("latin-1", errors="replace")[:80]
 
+    # 寫入資料庫
     try:
         with engine.begin() as conn:
             conn.execute(text("""
@@ -182,12 +186,13 @@ def report():
                 VALUES (:ts, :client_id, :ip_public, :ip_internal, :user_agent,
                         :vector, :payload_sha256, :payload_len, :payload_sample, :missed)
             """), row)
-        print(f"[Render] ✅ Insert success: {row['client_id']} from {row['ip_public']}")
+        print(f"[Render] ✅ Insert success: {row['client_id']} {row['ip_public']}")
     except Exception as e:
         print("[Render Error] DB insert failed:", e)
         return jsonify(ok=False, error=str(e)), 500
 
     return jsonify(ok=True, ts=now.isoformat() + "Z")
+
 
 # ===== /view =====
 @app.route("/view", methods=["GET", "POST"])
