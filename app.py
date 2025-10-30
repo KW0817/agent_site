@@ -199,59 +199,33 @@ def report():
 def view():
     if request.method == "POST":
         try:
+            # 取得封包原始資料
             raw_bytes = request.get_data(cache=False, as_text=False) or b""
-            ua = request.headers.get("User-Agent", "")
-            ip_public = request.headers.get("X-Forwarded-For") or request.remote_addr
-            now = datetime.utcnow()
-            try:
-                parsed = json.loads(raw_bytes.decode("utf-8", errors="ignore"))
-            except Exception:
-                parsed = None
 
-            if isinstance(parsed, dict):
-                row = {
-                    "ts": now,
-                    "client_id": parsed.get("client_id") or parsed.get("name") or "",
-                    "ip_public": parsed.get("ip_public") or parsed.get("public_ip") or ip_public,
-                    "ip_internal": parsed.get("ip_internal") or parsed.get("ip") or "",
-                    "user_agent": ua,
-                    "vector": parsed.get("vector"),
-                    "payload_sha256": None,
-                    "payload_len": None,
-                    "payload_sample": None,
-                    "missed": 1
-                }
-                if "payload" in parsed or "os" in parsed or "data" in parsed:
-                    payload_raw = parsed.get("payload") or parsed.get("os") or parsed.get("data")
-                    payload_bytes = str(payload_raw).encode("utf-8", errors="ignore")
-                    row["payload_sha256"] = sha256(payload_bytes).hexdigest()
-                    row["payload_len"] = len(payload_bytes)
-                    row["payload_sample"] = safe_text_preview(payload_bytes)
-            else:
-                row = {
-                    "ts": now,
-                    "client_id": "",
-                    "ip_public": ip_public,
-                    "ip_internal": "",
-                    "user_agent": ua,
-                    "vector": None,
-                    "payload_sha256": sha256(raw_bytes).hexdigest() if raw_bytes else None,
-                    "payload_len": len(raw_bytes) if raw_bytes else None,
-                    "payload_sample": safe_text_preview(raw_bytes) if raw_bytes else None,
-                    "missed": 1
-                }
+            # 封包內容（轉成文字）
+            payload_sample = raw_bytes.decode("utf-8", errors="ignore").strip()
 
+            # 封包長度（byte 數）
+            payload_len = len(raw_bytes)
+
+            # 伺服器接收時間
+            ts = datetime.utcnow()
+
+            # 寫入資料庫，只存時間、內容、長度三項
             with engine.begin() as conn:
                 conn.execute(text("""
-                    INSERT INTO events (ts, client_id, ip_public, ip_internal, user_agent,
-                                        vector, payload_sha256, payload_len, payload_sample, missed)
-                    VALUES (:ts, :client_id, :ip_public, :ip_internal, :user_agent,
-                            :vector, :payload_sha256, :payload_len, :payload_sample, :missed)
-                """), row)
+                    INSERT INTO events (ts, payload_sample, payload_len, missed)
+                    VALUES (:ts, :payload_sample, :payload_len, 0)
+                """), {
+                    "ts": ts,
+                    "payload_sample": payload_sample,
+                    "payload_len": payload_len
+                })
+
         except Exception as e:
             app.logger.exception("Error handling /view POST: %s", e)
-        return "OK", 200
 
+        return "OK", 200
     if not session.get("user"):
         return redirect(url_for("login", msg="請先登入才能查看事件清單"))
 
