@@ -93,35 +93,25 @@
 
   <!-- 事件表格 -->
   <table>
-    <thead>
-      <tr> //標題
-        <th>時間(UTC)</th>
-        <th>Client ID</th>
-        <th>Public IP</th>
-        <th>Internal IP</th>
-        <th>User-Agent</th>
-        <th>Vector</th>
-        <th>Payload Hash</th>
-        <th>Length</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for r in rows %}
-      <tr> //值
-        <td>{{ r.ts }}</td>
-        <td>{{ r.client_id }}</td>
-        <td>{{ r.ip_public }}</td>
-        <td>{{ r.ip_internal }}</td>
-        <td>{{ r.user_agent }}</td>
-        <td>{{ r.vector or '' }}</td>
-        <td>{{ r.payload_sha256 or '' }}</td> 
-        <td>{{ r.payload_len or '' }}</td>
-      </tr>
-      {% else %}
-      <tr><td colspan="8">尚無資料</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <thead>
+    <tr>
+      <th>時間 (UTC)</th>
+      <th>封包內容</th>
+      <th>封包長度</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in rows %}
+    <tr>
+      <td>{{ r.ts }}</td>
+      <td>{{ r.payload_sample }}</td>
+      <td>{{ r.payload_len }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="3">尚無資料</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
 </div>
 </body>
 </html>
