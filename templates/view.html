@@ -94,7 +94,7 @@
   <!-- 事件表格 -->
   <table>
     <thead>
-      <tr>
+      <tr> //標題
         <th>時間(UTC)</th>
         <th>Client ID</th>
         <th>Public IP</th>
@@ -107,14 +107,14 @@
     </thead>
     <tbody>
       {% for r in rows %}
-      <tr>
+      <tr> //值
         <td>{{ r.ts }}</td>
         <td>{{ r.client_id }}</td>
         <td>{{ r.ip_public }}</td>
         <td>{{ r.ip_internal }}</td>
         <td>{{ r.user_agent }}</td>
         <td>{{ r.vector or '' }}</td>
-        <td>{{ r.payload_sha256 or '' }}</td>
+        <td>{{ r.payload_sha256 or '' }}</td> 
         <td>{{ r.payload_len or '' }}</td>
       </tr>
       {% else %}
