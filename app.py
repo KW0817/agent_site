@@ -165,10 +165,11 @@ def download_agent():
 @app.route("/report", methods=["POST"])
 def report():
     try:
-        data = request.get_data(as_text=True)
-        print("Received report:", data[:200])  # debug line
+        # 將原始字串轉成 dict
+        data = json.loads(request.get_data(as_text=True))
+        print("Received JSON report:", json.dumps(data)[:200])
     except Exception as e:
-        return jsonify(ok=False, error=str(e)), 400
+        return jsonify(ok=False, error=f"JSON decode failed: {e}"), 400
 
     now = datetime.utcnow()
     ip_public = request.headers.get("X-Forwarded-For") or request.remote_addr
@@ -203,6 +204,7 @@ def report():
         """), row)
 
     return jsonify(ok=True, ts=now.isoformat()+"Z")
+
 
 # ========== View ==========
 @app.route("/view", methods=["GET", "POST"])
