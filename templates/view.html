@@ -59,8 +59,18 @@
       padding:8px 6px;
       text-align:left;
       font-size:14px;
+      vertical-align:top; /* 加這行讓長文字從上方開始 */
     }
     th{background:#fafafa;}
+
+    /* 🔽 這一段是你要新增的關鍵設定 */
+    td:nth-child(2) {
+      white-space: pre-wrap;   /* 保留換行、空格、原始格式 */
+      word-wrap: break-word;   /* 長字串自動換行 */
+      max-width: 800px;        /* 你可依需要調整寬度 */
+      font-family: "Courier New", monospace; /* 可選，讓內容更易讀 */
+    }
+
     .muted{color:#6b7280;font-size:14px;margin-bottom:10px;}
   </style>
 </head>
