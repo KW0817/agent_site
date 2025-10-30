@@ -132,78 +132,70 @@ def logout():
     return redirect(url_for("index"))
 
 # ========== Agent 下載 ==========
-@app.route("/download_agent")
-def download_agent():
-    if not session.get("user"):
-        return redirect(url_for("login", next=request.path, msg="請先登入才能下載"))
-
-    with engine.begin() as conn:
-        user_row = conn.execute(text("SELECT id FROM users WHERE username=:u"), {"u": session["user"]}).mappings().first()
-    if not user_row:
-        return "使用者不存在", 404
-
-    uid = uid_from_user_id(user_row["id"])
-    platform = (request.args.get("platform") or "windows").lower()
-    if platform == "linux":
-        stored_name = "agent-linux"
-        ext = ""
-    else:
-        stored_name = "agent.exe"
-        ext = ".exe"
-
-    downloads_dir = os.path.join(app.root_path, "downloads")
-    file_path = os.path.join(downloads_dir, stored_name)
-    if not os.path.exists(file_path):
-        return "檔案不存在", 404
-
-    download_name = f"agent_{uid}{ext}"
-    resp = make_response(send_from_directory(downloads_dir, stored_name, as_attachment=True))
-    resp.headers["Content-Disposition"] = f'attachment; filename="{download_name}"'
-    return resp
-
-# ========== 接收 Agent 傳來的封包 ==========
 @app.route("/report", methods=["POST"])
 def report():
     try:
-        # 將原始字串轉成 dict
-        data = json.loads(request.get_data(as_text=True))
-        print("Received JSON report:", json.dumps(data)[:200])
+        # 嘗試解析中繼站轉送的 JSON
+        raw = request.get_data(as_text=True)
+        print("=== Received from relay ===")
+        print(raw[:500])  # 印前500字防止過長
+        data = json.loads(raw)
+        print("Decoded JSON:", data)
     except Exception as e:
         return jsonify(ok=False, error=f"JSON decode failed: {e}"), 400
 
+    # 取得基本欄位
     now = datetime.utcnow()
     ip_public = request.headers.get("X-Forwarded-For") or request.remote_addr
     ua = request.headers.get("User-Agent", "")
 
+    # 自動容錯的取值
+    def g(*keys, default=""):
+        for k in keys:
+            if k in data:
+                return data[k]
+        return default
+
     row = {
         "ts": now,
-        "client_id": data.get("client_id") or data.get("name") or "",
-        "ip_public": data.get("ip_public") or data.get("public_ip") or ip_public,
-        "ip_internal": data.get("ip_internal") or data.get("ip") or "",
+        "client_id": g("client_id", "name", "id", default=""),
+        "ip_public": g("ip_public", "public_ip", default=ip_public),
+        "ip_internal": g("ip_internal", "internal_ip", "ip", default=""),
         "user_agent": ua,
-        "vector": data.get("vector"),
+        "vector": g("vector", "method", "type", default="relay"),
         "payload_sha256": None,
         "payload_len": None,
         "payload_sample": None,
         "missed": 1
     }
 
-    if "payload" in data or "os" in data or "data" in data:
-        payload_raw = data.get("payload") or data.get("os") or data.get("data")
+    # 嘗試從資料中提取 payload 或系統資訊
+    payload_raw = g("payload", "os", "data", default=None)
+    if payload_raw:
         payload_bytes = str(payload_raw).encode("utf-8", errors="ignore")
         row["payload_sha256"] = sha256(payload_bytes).hexdigest()
         row["payload_len"] = len(payload_bytes)
-        row["payload_sample"] = safe_text_preview(payload_bytes)
+        # 簡短樣本文字
+        sample = str(payload_raw)
+        if len(sample) > 80:
+            sample = sample[:77] + "..."
+        row["payload_sample"] = sample
 
-    with engine.begin() as conn:
-        conn.execute(text("""
-            INSERT INTO events (ts, client_id, ip_public, ip_internal, user_agent,
-                                vector, payload_sha256, payload_len, payload_sample, missed)
-            VALUES (:ts, :client_id, :ip_public, :ip_internal, :user_agent,
-                    :vector, :payload_sha256, :payload_len, :payload_sample, :missed)
-        """), row)
+    # 寫入資料庫
+    try:
+        with engine.begin() as conn:
+            conn.execute(text("""
+                INSERT INTO events (ts, client_id, ip_public, ip_internal, user_agent,
+                                    vector, payload_sha256, payload_len, payload_sample, missed)
+                VALUES (:ts, :client_id, :ip_public, :ip_internal, :user_agent,
+                        :vector, :payload_sha256, :payload_len, :payload_sample, :missed)
+            """), row)
+        print(f"[Render] ✅ Insert success: {row['client_id']}, {row['ip_public']}")
+    except Exception as e:
+        print("[Render Error] DB insert failed:", e)
+        return jsonify(ok=False, error=str(e)), 500
 
-    return jsonify(ok=True, ts=now.isoformat()+"Z")
+    return jsonify(ok=True, ts=now.isoformat() + "Z")
 
 
 # ========== View ==========
