@@ -65,10 +65,12 @@
 
     /* 🔽 這一段是你要新增的關鍵設定 */
     td:nth-child(2) {
-      white-space: pre-wrap;   /* 保留換行、空格、原始格式 */
-      word-wrap: break-word;   /* 長字串自動換行 */
-      max-width: 800px;        /* 你可依需要調整寬度 */
-      font-family: "Courier New", monospace; /* 可選，讓內容更易讀 */
+      white-space: pre-wrap;      /* 保留換行與空格 */
+      overflow-wrap: anywhere;    /* 允許任意位置換行 (比 word-wrap 更強) */
+      word-break: break-all;      /* 長字串中間直接斷行 */
+      max-width: 1000px;          /* 調大顯示寬度，可依需求改 */
+      display: block;             /* 讓內容可自動撐開多行 */
+      font-family: "Courier New", monospace;
     }
 
     .muted{color:#6b7280;font-size:14px;margin-bottom:10px;}
