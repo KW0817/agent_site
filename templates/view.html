@@ -2,112 +2,21 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <title>漏攔截事件清單</title>
+  <title>事件清單</title>
   <style>
-    body{
-      margin:0;
-      padding:24px;
-      font-family:Arial,sans-serif;
-      background:#f7f7f7;
-    }
-    .wrap{
-      max-width:1100px;
-      margin:0 auto;
-      background:#fff;
-      border-radius:12px;
-      padding:20px 24px;
-      box-shadow:0 0 10px rgba(0,0,0,.06);
-    }
-    h2{margin-top:0;}
-    .toolbar{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      flex-wrap:wrap;
-      margin-bottom:10px;
-    }
-    .toolbar form{display:flex;gap:8px;align-items:center;}
-    input{
-      padding:6px 8px;
-      border:1px solid #ddd;
-      border-radius:8px;
-    }
-    .btn{
-      padding:6px 12px;
-      border:1px solid #ccc;
-      border-radius:8px;
-      background:#fff;
-      cursor:pointer;
-    }
-    .btn-danger{
-      background:#ffebee;
-      border-color:#fca5a5;
-      color:#b91c1c;
-    }
-    a{
-      color:#007bff;
-      text-decoration:none;
-    }
-    a:hover{text-decoration:underline;}
-    table{
-      width:100%;
-      border-collapse:collapse;
-      margin-top:12px;
-    }
-    th,td{
-      border-bottom:1px solid #eee;
-      padding:8px 6px;
-      text-align:left;
-      font-size:14px;
-      vertical-align:top; /* 加這行讓長文字從上方開始 */
-    }
-    th{background:#fafafa;}
-
-    /* 🔽 這一段是你要新增的關鍵設定 */
-    td:nth-child(2) {
-      white-space: pre-wrap;      /* 保留換行與空格 */
-      overflow-wrap: anywhere;    /* 允許任意位置換行 (比 word-wrap 更強) */
-      word-break: break-all;      /* 長字串中間直接斷行 */
-      max-width: 1000px;          /* 調大顯示寬度，可依需求改 */
-      display: block;             /* 讓內容可自動撐開多行 */
-      font-family: "Courier New", monospace;
-    }
-
-    .muted{color:#6b7280;font-size:14px;margin-bottom:10px;}
+    body{font-family:Arial;margin:20px;}
+    table{width:100%;border-collapse:collapse;}
+    th,td{border:1px solid #ccc;padding:6px;text-align:left;vertical-align:top;}
+    th{background:#f2f2f2;}
+    td:nth-child(2){white-space:pre-wrap;word-break:break-all;}
   </style>
 </head>
 <body>
-<div class="wrap">
-  <h2>漏攔截事件清單</h2>
-  <p class="muted">顯示所有 agent 回報的真實資料。</p>
-
-  <!-- 工具列 -->
-  <div class="toolbar">
-    <form method="get" action="{{ url_for('view') }}">
-      <input name="vector" placeholder="向量" value="{{ vector or '' }}">
-      <input name="client" placeholder="客戶/節點" value="{{ client or '' }}">
-      <button type="submit" class="btn">篩選</button>
-      <a href="{{ url_for('view') }}" class="btn">清除篩選</a>
-    </form>
-
-    <form method="post" action="{{ url_for('clear') }}"
-          onsubmit="return confirm('確定要清除{{ '目前篩選結果' if (vector or client) else '全部事件' }}嗎？');">
-      <input type="hidden" name="scope" value="{{ 'filtered' if (vector or client) else 'all' }}">
-      <input type="hidden" name="vector" value="{{ vector or '' }}">
-      <input type="hidden" name="client" value="{{ client or '' }}">
-      <button type="submit" class="btn btn-danger">
-        清除{{ '目前篩選結果' if (vector or client) else '全部' }}
-      </button>
-    </form>
-
-    <a href="{{ url_for('index') }}" style="display:inline-block;margin-top:12px;">← 返回首頁</a>
-  </div>
-
-  <!-- 事件表格 -->
-  <table>
+<h2>我的事件清單</h2>
+<table>
   <thead>
     <tr>
-      <th>時間 (UTC)</th>
+      <th>執行時間 (UTC)</th>
       <th>封包內容</th>
       <th>封包長度</th>
     </tr>
@@ -124,6 +33,5 @@
     {% endfor %}
   </tbody>
 </table>
-</div>
 </body>
 </html>
