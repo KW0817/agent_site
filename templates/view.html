@@ -2,36 +2,71 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <title>事件清單</title>
+  <title>我的事件紀錄</title>
   <style>
-    body{font-family:Arial;margin:20px;}
-    label{margin-right:10px;}
-    table{width:100%;border-collapse:collapse;margin-top:10px;}
-    th,td{border:1px solid #ccc;padding:6px;text-align:left;vertical-align:top;}
-    th{background:#f2f2f2;}
-    td:nth-child(3){white-space:pre-wrap;word-break:break-all;}
+    body{
+      margin:0;
+      padding:24px;
+      font-family:Arial,sans-serif;
+      background:#f7f7f7;
+    }
+    .wrap{
+      max-width:1100px;
+      margin:0 auto;
+      background:#fff;
+      border-radius:12px;
+      padding:20px 24px;
+      box-shadow:0 0 10px rgba(0,0,0,.06);
+    }
+    h2{margin-top:0;}
+    a{
+      color:#007bff;
+      text-decoration:none;
+    }
+    a:hover{text-decoration:underline;}
+    table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:12px;
+    }
+    th,td{
+      border-bottom:1px solid #eee;
+      padding:8px 6px;
+      text-align:left;
+      font-size:14px;
+      vertical-align:top;
+    }
+    th{background:#fafafa;}
+
+    td:nth-child(2) {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: break-all;
+      max-width: 1000px;
+      display: block;
+      font-family: "Courier New", monospace;
+    }
+
+    .muted{color:#6b7280;font-size:14px;margin-bottom:10px;}
   </style>
 </head>
 <body>
-<h2>事件清單</h2>
+<div class="wrap">
+  <h2>我的事件紀錄</h2>
+  <p class="muted">
+    只顯示目前登入帳號所屬 UID 的事件。
+    <br>
+    登入帳號：<strong>{{ session['user'] }}</strong>
+  </p>
 
-<form method="post">
-  <div style="margin-bottom:10px;">
-    {% for u in users %}
-      <label>
-        <input type="checkbox" name="uids" value="{{ u.uid }}" {% if u.uid in selected %}checked{% endif %}>
-        {{ u.uid }} - {{ u.username }}
-      </label>
-    {% endfor %}
-    <button type="submit">篩選</button>
-  </div>
-</form>
+  <!-- 返回首頁 -->
+  <a href="{{ url_for('index') }}">← 返回首頁</a>
 
-<table>
+  <!-- 事件表格 -->
+  <table>
   <thead>
     <tr>
-      <th>UID</th>
-      <th>時間(UTC)</th>
+      <th>執行時間 (UTC)</th>
       <th>封包內容</th>
       <th>封包長度</th>
     </tr>
@@ -39,15 +74,15 @@
   <tbody>
     {% for r in rows %}
     <tr>
-      <td>{{ r.client_id or '' }}</td>
       <td>{{ r.ts }}</td>
       <td>{{ r.payload_sample }}</td>
       <td>{{ r.payload_len }}</td>
     </tr>
     {% else %}
-    <tr><td colspan="4">尚無資料</td></tr>
+    <tr><td colspan="3">尚無資料</td></tr>
     {% endfor %}
   </tbody>
 </table>
+</div>
 </body>
 </html>
