@@ -223,6 +223,35 @@ def download_agent():
     resp.headers["Content-Disposition"] = f'attachment; filename="{download_name}"'
     return resp
 
+@app.route("/download_agent2")
+def download_agent():
+    if not session.get("user"):
+        return redirect(url_for("login", next=request.path, msg="請先登入才能下載"))
+
+    with engine.begin() as conn:
+        user_row = conn.execute(text("SELECT id FROM users WHERE username=:u"), {"u": session["user"]}).mappings().first()
+    if not user_row:
+        return "使用者不存在", 404
+
+    uid = uid_from_user_id(user_row["id"])
+    platform = (request.args.get("platform") or "windows").lower()
+    if platform == "linux":
+        stored_name = "agent-linux"
+        ext = ""
+    else:
+        stored_name = "agent.exe"
+        ext = ".exe"
+
+    downloads_dir = os.path.join(app.root_path, "downloads")
+    file_path = os.path.join(downloads_dir, stored_name)
+    if not os.path.exists(file_path):
+        return "檔案不存在", 404
+
+    download_name = f"agent_{uid}{ext}"
+    resp = make_response(send_from_directory(downloads_dir, stored_name, as_attachment=True))
+    resp.headers["Content-Disposition"] = f'attachment; filename="{download_name}"'
+    return resp
+
 # ===== /view =====
 @app.route("/view", methods=["GET", "POST"])
 def view():
