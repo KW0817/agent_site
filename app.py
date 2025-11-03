@@ -239,7 +239,7 @@ def download_agent2():
         stored_name = "agent-linux"
         ext = ""
     else:
-        stored_name = "agent.exe"
+        stored_name = "agent2.exe"
         ext = ".exe"
 
     downloads_dir = os.path.join(app.root_path, "downloads")
