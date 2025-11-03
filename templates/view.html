@@ -5,18 +5,33 @@
   <title>事件清單</title>
   <style>
     body{font-family:Arial;margin:20px;}
-    table{width:100%;border-collapse:collapse;}
+    label{margin-right:10px;}
+    table{width:100%;border-collapse:collapse;margin-top:10px;}
     th,td{border:1px solid #ccc;padding:6px;text-align:left;vertical-align:top;}
     th{background:#f2f2f2;}
-    td:nth-child(2){white-space:pre-wrap;word-break:break-all;}
+    td:nth-child(3){white-space:pre-wrap;word-break:break-all;}
   </style>
 </head>
 <body>
-<h2>我的事件清單</h2>
+<h2>事件清單</h2>
+
+<form method="post">
+  <div style="margin-bottom:10px;">
+    {% for u in users %}
+      <label>
+        <input type="checkbox" name="uids" value="{{ u.uid }}" {% if u.uid in selected %}checked{% endif %}>
+        {{ u.uid }} - {{ u.username }}
+      </label>
+    {% endfor %}
+    <button type="submit">篩選</button>
+  </div>
+</form>
+
 <table>
   <thead>
     <tr>
-      <th>執行時間 (UTC)</th>
+      <th>UID</th>
+      <th>時間(UTC)</th>
       <th>封包內容</th>
       <th>封包長度</th>
     </tr>
@@ -24,12 +39,13 @@
   <tbody>
     {% for r in rows %}
     <tr>
+      <td>{{ r.client_id or '' }}</td>
       <td>{{ r.ts }}</td>
       <td>{{ r.payload_sample }}</td>
       <td>{{ r.payload_len }}</td>
     </tr>
     {% else %}
-    <tr><td colspan="3">尚無資料</td></tr>
+    <tr><td colspan="4">尚無資料</td></tr>
     {% endfor %}
   </tbody>
 </table>
