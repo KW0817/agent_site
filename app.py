@@ -129,7 +129,6 @@ def logout():
     return redirect(url_for("index"))
 
 # ===== /report：接收中繼站或 Agent =====
-# ========== Agent / Relay report ==========
 @app.route("/report", methods=["POST"])
 def report():
     raw = request.get_data(as_text=False) or b""
@@ -146,7 +145,6 @@ def report():
     except Exception:
         print("[Render] Non-JSON payload, will save as raw text")
 
-    # 通用欄位
     row = {
         "ts": now,
         "client_id": "",
@@ -160,21 +158,8 @@ def report():
         "missed": 1
     }
 
-    # 若是 JSON，就從中提取欄位
-    client_id = None
     if isinstance(parsed, dict):
-        client_id = parsed.get("client_id") or parsed.get("name") or ""
-        if client_id and len(client_id) == 6 and client_id.isdigit():
-            row["client_id"] = client_id
-        else:
-            # 若 relay 沒傳或格式錯誤 → 根據帳號反查 UID
-            with engine.begin() as conn:
-                if session.get("user"):
-                    user_row = conn.execute(text("SELECT id FROM users WHERE username=:u"), {"u": session["user"]}).mappings().first()
-                    if user_row:
-                        row["client_id"] = uid_from_user_id(user_row["id"])
-                else:
-                    row["client_id"] = "relay_test"
+        row["client_id"] = parsed.get("client_id") or parsed.get("name") or ""
         row["ip_public"] = parsed.get("ip_public") or parsed.get("public_ip") or ip_public
         row["ip_internal"] = parsed.get("ip_internal") or parsed.get("ip") or ""
         row["vector"] = parsed.get("vector") or parsed.get("type") or "relay"
@@ -185,11 +170,9 @@ def report():
             row["payload_len"] = len(payload_bytes)
             row["payload_sample"] = str(payload_raw)[:80] + ("..." if len(str(payload_raw)) > 80 else "")
     else:
-        # 非 JSON，直接存原始封包樣本
         row["payload_sha256"] = sha256(raw).hexdigest()
         row["payload_sample"] = raw.decode("latin-1", errors="replace")[:80]
 
-    # 寫入資料庫
     try:
         with engine.begin() as conn:
             conn.execute(text("""
@@ -205,83 +188,15 @@ def report():
 
     return jsonify(ok=True, ts=now.isoformat() + "Z")
 
-# ========== Agent 下載 ==========
-@app.route("/download_agent")
-def download_agent():
-    if not session.get("user"):
-        return redirect(url_for("login", next=request.path, msg="請先登入才能下載"))
-
-    with engine.begin() as conn:
-        user_row = conn.execute(text("SELECT id FROM users WHERE username=:u"), {"u": session["user"]}).mappings().first()
-    if not user_row:
-        return "使用者不存在", 404
-
-    uid = uid_from_user_id(user_row["id"])
-    platform = (request.args.get("platform") or "windows").lower()
-    if platform == "linux":
-        stored_name = "agent-linux"
-        ext = ""
-    else:
-        stored_name = "agent.exe"
-        ext = ".exe"
-
-    downloads_dir = os.path.join(app.root_path, "downloads")
-    file_path = os.path.join(downloads_dir, stored_name)
-    if not os.path.exists(file_path):
-        return "檔案不存在", 404
-
-    download_name = f"agent_{uid}{ext}"
-    resp = make_response(send_from_directory(downloads_dir, stored_name, as_attachment=True))
-    resp.headers["Content-Disposition"] = f'attachment; filename="{download_name}"'
-    return resp
-
-@app.route("/download_agent2")
-def download_agent2():
-    if not session.get("user"):
-        return redirect(url_for("login", next=request.path, msg="請先登入才能下載"))
-
-    with engine.begin() as conn:
-        user_row = conn.execute(text("SELECT id FROM users WHERE username=:u"), {"u": session["user"]}).mappings().first()
-    if not user_row:
-        return "使用者不存在", 404
-
-    uid = uid_from_user_id(user_row["id"])
-    platform = (request.args.get("platform") or "windows").lower()
-    if platform == "linux":
-        stored_name = "agent-linux"
-        ext = ""
-    else:
-        stored_name = "agent2.exe"
-        ext = ".exe"
-
-    downloads_dir = os.path.join(app.root_path, "downloads")
-    file_path = os.path.join(downloads_dir, stored_name)
-    if not os.path.exists(file_path):
-        return "檔案不存在", 404
-
-    download_name = f"agent2_{uid}{ext}"
-    resp = make_response(send_from_directory(downloads_dir, stored_name, as_attachment=True))
-    resp.headers["Content-Disposition"] = f'attachment; filename="{download_name}"'
-    return resp
-
 # ===== /view =====
 @app.route("/view", methods=["GET", "POST"])
 def view():
     if request.method == "POST":
         try:
-            # 取得封包原始資料
             raw_bytes = request.get_data(cache=False, as_text=False) or b""
-
-            # 封包內容（轉成文字）
             payload_sample = raw_bytes.decode("utf-8", errors="ignore").strip()
-
-            # 封包長度（byte 數）
             payload_len = len(raw_bytes)
-
-            # 伺服器接收時間
             ts = datetime.utcnow()
-
-            # 寫入資料庫，只存時間、內容、長度三項
             with engine.begin() as conn:
                 conn.execute(text("""
                     INSERT INTO events (ts, payload_sample, payload_len, missed)
@@ -291,22 +206,16 @@ def view():
                     "payload_sample": payload_sample,
                     "payload_len": payload_len
                 })
-
         except Exception as e:
             app.logger.exception("Error handling /view POST: %s", e)
-
         return "OK", 200
+
     if not session.get("user"):
         return redirect(url_for("login", msg="請先登入才能查看事件清單"))
 
-    username = session["user"]
+    # ✅ 改成所有登入用戶都能看到所有事件
     with engine.begin() as conn:
-        if username == "jie":
-            rows = conn.execute(text("SELECT * FROM events ORDER BY ts DESC LIMIT 500")).mappings().all()
-        else:
-            user_row = conn.execute(text("SELECT id FROM users WHERE username=:u"), {"u": username}).mappings().first()
-            uid = uid_from_user_id(user_row["id"]) if user_row else username
-            rows = conn.execute(text("SELECT * FROM events WHERE client_id=:c ORDER BY ts DESC LIMIT 500"), {"c": uid}).mappings().all()
+        rows = conn.execute(text("SELECT * FROM events ORDER BY ts DESC LIMIT 500")).mappings().all()
 
     return render_template("view.html", rows=rows)
 
@@ -339,26 +248,6 @@ def clear():
 @app.route("/health")
 def health():
     return jsonify(status="ok")
-
-# ===== Debug tools =====
-@app.route("/debug_events")
-def debug_events():
-    with engine.begin() as conn:
-        rows = conn.execute(text("SELECT COUNT(*) AS n FROM events")).mappings().first()
-        print("事件總數:", rows["n"])
-        return f"事件總數: {rows['n']}"
-
-@app.route("/debug_tables")
-def debug_tables():
-    with engine.begin() as conn:
-        tables = conn.execute(text("SELECT name FROM sqlite_master WHERE type='table';")).fetchall()
-    return "<br>".join([t[0] for t in tables]) or "無資料表"
-
-@app.route("/init_db")
-def init_db():
-    with engine.begin() as conn:
-        conn.execute(text("DELETE FROM events"))
-    return "資料表 events 已清空 (初始化完成)"
 
 # ===== 主程式入口 =====
 if __name__ == "__main__":
