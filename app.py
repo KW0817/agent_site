@@ -74,7 +74,7 @@ def motivation():
 def users_list():
     if not session.get("user"):
         return redirect(url_for("login", msg="請先登入才能查看使用者清單"))
-    if session["user"] != "jie":
+    if session["user"] not in ["jie", "manager"]:
         return "權限不足，僅管理員可查看。", 403
 
     with engine.begin() as conn:
