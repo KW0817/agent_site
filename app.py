@@ -76,6 +76,8 @@ def users_list():
         return redirect(url_for("login", msg="請先登入才能查看使用者清單"))
     if session["user"] != "jie":
         return "權限不足，僅管理員可查看。", 403
+    if session["user"] != "manager":
+        return "權限不足，僅管理員可查看。", 403
 
     with engine.begin() as conn:
         users = conn.execute(text("SELECT id, username, password_hash, created_at FROM users ORDER BY id ASC")).mappings().all()
