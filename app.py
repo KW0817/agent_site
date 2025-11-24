@@ -163,13 +163,12 @@ def report():
     # 若是 JSON，就從中提取欄位
     if isinstance(parsed, dict):
         client_id = parsed.get("client_id") or parsed.get("name") or ""
-if client_id and len(client_id) == 6 and client_id.isdigit():
-    row["client_id"] = client_id
-else:
-    # 如果 relay 沒帶或格式錯誤，從帳號反查 UID
-    with engine.begin() as conn:
-        user_row = conn.execute(text("SELECT id FROM users WHERE username=:u"), {"u": session.get("user")}).mappings().first()
-        row["client_id"] = uid_from_user_id(user_row["id"]) if user_row else ""
+        if client_id and len(client_id) == 6 and client_id.isdigit():
+            row["client_id"] = client_id
+        else:  # 如果 relay 沒帶或格式錯誤，從帳號反查 UID
+            with engine.begin() as conn:
+                user_row = conn.execute(text("SELECT id FROM users WHERE username=:u"), {"u": session.get("user")}).mappings().first()
+                row["client_id"] = uid_from_user_id(user_row["id"]) if user_row else ""
         row["ip_public"] = parsed.get("ip_public") or parsed.get("public_ip") or ip_public
         row["ip_internal"] = parsed.get("ip_internal") or parsed.get("ip") or ""
         row["vector"] = parsed.get("vector") or parsed.get("type") or "relay"
