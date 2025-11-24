@@ -69,14 +69,12 @@ def index():
 def motivation():
     return render_template("motivation.html")
 
-# ===== 使用者清單（僅管理員 jie 可見） =====
+# ===== 使用者清單（僅管理員可見） =====
 @app.route("/users")
 def users_list():
     if not session.get("user"):
         return redirect(url_for("login", msg="請先登入才能查看使用者清單"))
     if session["user"] != "jie":
-        return "權限不足，僅管理員可查看。", 403
-    if session["user"] != "manager":
         return "權限不足，僅管理員可查看。", 403
 
     with engine.begin() as conn:
@@ -249,7 +247,7 @@ def download_agent2():
     if not os.path.exists(file_path):
         return "檔案不存在", 404
 
-    download_name = f"agent_{uid}{ext}"
+    download_name = f"agent2_{uid}{ext}"
     resp = make_response(send_from_directory(downloads_dir, stored_name, as_attachment=True))
     resp.headers["Content-Disposition"] = f'attachment; filename="{download_name}"'
     return resp
