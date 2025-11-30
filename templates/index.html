@@ -255,9 +255,9 @@
             {% endif %}
           </div>
           <div class="agent-box">
-            <div class="eyebrow">Agent · Linux</div>
-            <h2>Linux 測試 Agent 分析報告</h2>
-            <p>此 PDF 文件為本事件 Linux 測試 Agent 的分析與撰寫報告，內容包含行為分析與封包特色。</p>
+            <div class="eyebrow">事件一 · 分析報告</div>
+            <h2>惡意程式分析報告</h2>
+            <p>此 PDF 文件為本事件測試 Agent 的分析與撰寫報告，內容包含行為分析與封包特色。</p>
             {% if session is defined and session.get('user') %}
             <a class="cta" href="{{ url_for('static', filename='reports/event1_report.pdf') }}" download>
               下載分析報告（PDF）
