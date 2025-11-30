@@ -256,14 +256,17 @@
           </div>
           <div class="agent-box">
             <div class="eyebrow">Agent · Linux</div>
-            <h2>Linux 測試 Agent</h2>
-            <p>這個版本是給 Linux 使用者的測試工具，一樣會產生模擬攻擊流量並回報結果。</p>
+            <h2>Linux 測試 Agent 分析報告</h2>
+            <p>此 PDF 文件為本事件 Linux 測試 Agent 的分析與撰寫報告，內容包含行為分析與封包特色。</p>
             {% if session is defined and session.get('user') %}
-              <a class="cta" href="/download_agent?platform=linux">下載 agent</a>
+            <a class="cta" href="{{ url_for('static', filename='reports/event1_report.pdf') }}" download>
+              下載分析報告（PDF）
+            </a>
             {% else %}
-              <a class="cta" href="/login?next=/downloads/agent-linux">登入後才可下載</a>
+            <a class="cta" href="/login?next={{ url_for('static', filename='reports/event1_report.pdf') }}">
+              登入後才可下載（PDF）
+            </a>
             {% endif %}
-          </div>
         </div>
       </div>
     </div>
