@@ -186,11 +186,11 @@ def report():
         if payload_raw:
             payload_bytes = str(payload_raw).encode("utf-8", errors="ignore")
             row["payload_sha256"] = sha256(payload_bytes).hexdigest()
-            row["payload_sample"] = str(payload_raw)[:80] + ("..." if len(str(payload_raw)) > 80 else "")
+            row["payload_sample"] = str(payload_raw) + ("..." if len(str(payload_raw)) > 80 else "")
     else:
         # 非 JSON，直接存原始封包樣本
         row["payload_sha256"] = sha256(raw).hexdigest()
-        row["payload_sample"] = raw.decode("latin-1", errors="replace")[:80]
+        row["payload_sample"] = raw.decode("latin-1", errors="replace")
         row["payload_len"] = "未知來源"
 
     # === 寫入資料庫 ===
