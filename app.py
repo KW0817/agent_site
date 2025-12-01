@@ -145,13 +145,8 @@ def report():
     except Exception:
         print("[Render] Non-JSON payload, will save as raw text")
 
-    # === 來源辨識 ===
+    # === 預設來源 ===
     src_label = "未知來源"
-    ua_lower = ua.lower()
-    if "agent2" in ua_lower or "agent2_" in ua_lower:
-        src_label = "事件二"
-    elif "agent" in ua_lower or "agent_" in ua_lower:
-        src_label = "事件一"
 
     # === 基本欄位 ===
     row = {
@@ -162,7 +157,7 @@ def report():
         "user_agent": ua,
         "vector": "relay",
         "payload_sha256": None,
-        "payload_len": src_label,   # ✅ 這裡不再是長度，而是來源標籤
+        "payload_len": src_label,   # ← 我們暫時先放來源標籤
         "payload_sample": None,
         "missed": 1
     }
@@ -173,14 +168,30 @@ def report():
         row["ip_public"] = parsed.get("ip_public") or parsed.get("public_ip") or ip_public
         row["ip_internal"] = parsed.get("ip_internal") or parsed.get("ip") or ""
         row["vector"] = parsed.get("vector") or parsed.get("type") or "relay"
+
+        # 🟢 根據 client_id 判斷是哪一支 agent
+        cid = str(row["client_id"]).lower()
+        if "agent2" in cid:
+            src_label = "事件二"
+        elif "agent" in cid:
+            src_label = "事件一"
+        else:
+            src_label = "未知來源"
+
+        # 🟢 更新 payload_len 內容成來源標籤
+        row["payload_len"] = src_label
+
+        # 處理 payload
         payload_raw = parsed.get("payload") or parsed.get("os") or parsed.get("data")
         if payload_raw:
             payload_bytes = str(payload_raw).encode("utf-8", errors="ignore")
             row["payload_sha256"] = sha256(payload_bytes).hexdigest()
             row["payload_sample"] = str(payload_raw)[:80] + ("..." if len(str(payload_raw)) > 80 else "")
     else:
+        # 非 JSON，直接存原始封包樣本
         row["payload_sha256"] = sha256(raw).hexdigest()
         row["payload_sample"] = raw.decode("latin-1", errors="replace")[:80]
+        row["payload_len"] = "未知來源"
 
     # === 寫入資料庫 ===
     try:
@@ -191,7 +202,7 @@ def report():
                 VALUES (:ts, :client_id, :ip_public, :ip_internal, :user_agent,
                         :vector, :payload_sha256, :payload_len, :payload_sample, :missed)
             """), row)
-        print(f"[Render] ✅ Insert success: {row['client_id']} {row['ip_public']} 來源={src_label}")
+        print(f"[Render] ✅ Insert success: {row['client_id']} 來源={src_label}")
     except Exception as e:
         print("[Render Error] DB insert failed:", e)
         return jsonify(ok=False, error=str(e)), 500
