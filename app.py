@@ -171,6 +171,8 @@ def report():
 
         # 🟢 根據 client_id 判斷是哪一支 agent
         cid = str(row["client_id"]).lower()
+        if "agent3" in cid:
+            src_label = "事件三"
         if "agent2" in cid:
             src_label = "事件二"
         elif "agent" in cid:
