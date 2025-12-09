@@ -272,7 +272,7 @@ def download_agent2():
     return resp
 
 @app.route("/download_agent3")
-def download_agent2():
+def download_agent3():
     if not session.get("user"):
         return redirect(url_for("login", next=request.path, msg="請先登入才能下載"))
 
