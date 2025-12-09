@@ -300,6 +300,208 @@ def download_agent3():
     resp.headers["Content-Disposition"] = f'attachment; filename="{download_name}"'
     return resp
 
+@app.route("/download_agent4")
+def download_agent4():
+    if not session.get("user"):
+        return redirect(url_for("login", next=request.path, msg="請先登入才能下載"))
+
+    with engine.begin() as conn:
+        user_row = conn.execute(text("SELECT id FROM users WHERE username=:u"), {"u": session["user"]}).mappings().first()
+    if not user_row:
+        return "使用者不存在", 404
+
+    uid = uid_from_user_id(user_row["id"])
+    platform = (request.args.get("platform") or "windows").lower()
+    if platform == "linux":
+        stored_name = "agent-linux"
+        ext = ""
+    else:
+        stored_name = "agent4.exe"
+        ext = ".exe"
+
+    downloads_dir = os.path.join(app.root_path, "downloads")
+    file_path = os.path.join(downloads_dir, stored_name)
+    if not os.path.exists(file_path):
+        return "檔案不存在", 404
+
+    download_name = f"agent4_{uid}{ext}"
+    resp = make_response(send_from_directory(downloads_dir, stored_name, as_attachment=True))
+    resp.headers["Content-Disposition"] = f'attachment; filename="{download_name}"'
+    return resp
+
+@app.route("/download_agent5")
+def download_agent5():
+    if not session.get("user"):
+        return redirect(url_for("login", next=request.path, msg="請先登入才能下載"))
+
+    with engine.begin() as conn:
+        user_row = conn.execute(text("SELECT id FROM users WHERE username=:u"), {"u": session["user"]}).mappings().first()
+    if not user_row:
+        return "使用者不存在", 404
+
+    uid = uid_from_user_id(user_row["id"])
+    platform = (request.args.get("platform") or "windows").lower()
+    if platform == "linux":
+        stored_name = "agent-linux"
+        ext = ""
+    else:
+        stored_name = "agent5.exe"
+        ext = ".exe"
+
+    downloads_dir = os.path.join(app.root_path, "downloads")
+    file_path = os.path.join(downloads_dir, stored_name)
+    if not os.path.exists(file_path):
+        return "檔案不存在", 404
+
+    download_name = f"agent5_{uid}{ext}"
+    resp = make_response(send_from_directory(downloads_dir, stored_name, as_attachment=True))
+    resp.headers["Content-Disposition"] = f'attachment; filename="{download_name}"'
+    return resp
+
+@app.route("/download_agent6")
+def download_agent6():
+    if not session.get("user"):
+        return redirect(url_for("login", next=request.path, msg="請先登入才能下載"))
+
+    with engine.begin() as conn:
+        user_row = conn.execute(text("SELECT id FROM users WHERE username=:u"), {"u": session["user"]}).mappings().first()
+    if not user_row:
+        return "使用者不存在", 404
+
+    uid = uid_from_user_id(user_row["id"])
+    platform = (request.args.get("platform") or "windows").lower()
+    if platform == "linux":
+        stored_name = "agent-linux"
+        ext = ""
+    else:
+        stored_name = "agent6.exe"
+        ext = ".exe"
+
+    downloads_dir = os.path.join(app.root_path, "downloads")
+    file_path = os.path.join(downloads_dir, stored_name)
+    if not os.path.exists(file_path):
+        return "檔案不存在", 404
+
+    download_name = f"agent6_{uid}{ext}"
+    resp = make_response(send_from_directory(downloads_dir, stored_name, as_attachment=True))
+    resp.headers["Content-Disposition"] = f'attachment; filename="{download_name}"'
+    return resp
+
+@app.route("/download_agent7")
+def download_agent7():
+    if not session.get("user"):
+        return redirect(url_for("login", next=request.path, msg="請先登入才能下載"))
+
+    with engine.begin() as conn:
+        user_row = conn.execute(text("SELECT id FROM users WHERE username=:u"), {"u": session["user"]}).mappings().first()
+    if not user_row:
+        return "使用者不存在", 404
+
+    uid = uid_from_user_id(user_row["id"])
+    platform = (request.args.get("platform") or "windows").lower()
+    if platform == "linux":
+        stored_name = "agent-linux"
+        ext = ""
+    else:
+        stored_name = "agent7.exe"
+        ext = ".exe"
+
+    downloads_dir = os.path.join(app.root_path, "downloads")
+    file_path = os.path.join(downloads_dir, stored_name)
+    if not os.path.exists(file_path):
+        return "檔案不存在", 404
+
+    download_name = f"agent7_{uid}{ext}"
+    resp = make_response(send_from_directory(downloads_dir, stored_name, as_attachment=True))
+    resp.headers["Content-Disposition"] = f'attachment; filename="{download_name}"'
+    return resp
+
+@app.route("/download_agent8")
+def download_agent8():
+    if not session.get("user"):
+        return redirect(url_for("login", next=request.path, msg="請先登入才能下載"))
+
+    with engine.begin() as conn:
+        user_row = conn.execute(text("SELECT id FROM users WHERE username=:u"), {"u": session["user"]}).mappings().first()
+    if not user_row:
+        return "使用者不存在", 404
+
+    uid = uid_from_user_id(user_row["id"])
+    platform = (request.args.get("platform") or "windows").lower()
+    if platform == "linux":
+        stored_name = "agent-linux"
+        ext = ""
+    else:
+        stored_name = "agent8.exe"
+        ext = ".exe"
+
+    downloads_dir = os.path.join(app.root_path, "downloads")
+    file_path = os.path.join(downloads_dir, stored_name)
+    if not os.path.exists(file_path):
+        return "檔案不存在", 404
+
+    download_name = f"agent8_{uid}{ext}"
+    resp = make_response(send_from_directory(downloads_dir, stored_name, as_attachment=True))
+    resp.headers["Content-Disposition"] = f'attachment; filename="{download_name}"'
+    return resp
+
+@app.route("/download_agent9")
+def download_agent9():
+    if not session.get("user"):
+        return redirect(url_for("login", next=request.path, msg="請先登入才能下載"))
+
+    with engine.begin() as conn:
+        user_row = conn.execute(text("SELECT id FROM users WHERE username=:u"), {"u": session["user"]}).mappings().first()
+    if not user_row:
+        return "使用者不存在", 404
+
+    uid = uid_from_user_id(user_row["id"])
+    platform = (request.args.get("platform") or "windows").lower()
+    if platform == "linux":
+        stored_name = "agent-linux"
+        ext = ""
+    else:
+        stored_name = "agent9.exe"
+        ext = ".exe"
+
+    downloads_dir = os.path.join(app.root_path, "downloads")
+    file_path = os.path.join(downloads_dir, stored_name)
+    if not os.path.exists(file_path):
+        return "檔案不存在", 404
+
+    download_name = f"agent9_{uid}{ext}"
+    resp = make_response(send_from_directory(downloads_dir, stored_name, as_attachment=True))
+    resp.headers["Content-Disposition"] = f'attachment; filename="{download_name}"'
+    return resp
+
+@app.route("/download_agent10")
+def download_agent10():
+    if not session.get("user"):
+        return redirect(url_for("login", next=request.path, msg="請先登入才能下載"))
+
+    with engine.begin() as conn:
+        user_row = conn.execute(text("SELECT id FROM users WHERE username=:u"), {"u": session["user"]}).mappings().first()
+    if not user_row:
+        return "使用者不存在", 404
+
+    uid = uid_from_user_id(user_row["id"])
+    platform = (request.args.get("platform") or "windows").lower()
+    if platform == "linux":
+        stored_name = "agent-linux"
+        ext = ""
+    else:
+        stored_name = "agent10.exe"
+        ext = ".exe"
+
+    downloads_dir = os.path.join(app.root_path, "downloads")
+    file_path = os.path.join(downloads_dir, stored_name)
+    if not os.path.exists(file_path):
+        return "檔案不存在", 404
+
+    download_name = f"agent10_{uid}{ext}"
+    resp = make_response(send_from_directory(downloads_dir, stored_name, as_attachment=True))
+    resp.headers["Content-Disposition"] = f'attachment; filename="{download_name}"'
+    return resp
 # ===== /view =====
 @app.route("/view", methods=["GET", "POST"])
 def view():
