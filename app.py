@@ -145,6 +145,7 @@ def report():
     except Exception:
         print("[Render] Non-JSON payload, will save as raw text")
 
+    # ===== 基本欄位 =====
     row = {
         "ts": now,
         "client_id": "",
@@ -153,26 +154,49 @@ def report():
         "user_agent": ua,
         "vector": "relay",
         "payload_sha256": None,
-        "payload_len": len(raw),
+        "payload_len": 0,
         "payload_sample": None,
         "missed": 1
     }
 
+    # ===== 若為 JSON，從中提取資料 =====
     if isinstance(parsed, dict):
         row["client_id"] = parsed.get("client_id") or parsed.get("name") or ""
         row["ip_public"] = parsed.get("ip_public") or parsed.get("public_ip") or ip_public
         row["ip_internal"] = parsed.get("ip_internal") or parsed.get("ip") or ""
         row["vector"] = parsed.get("vector") or parsed.get("type") or "relay"
+
+        # === 🟢 根據檔名判斷來源事件 ===
+        cid = str(row["client_id"]).lower()
+        if cid.startswith("agent_"):
+            event_label = "事件一"
+        elif cid.startswith("agent2_"):
+            event_label = "事件二"
+        elif cid.startswith("agent3_"):
+            event_label = "事件三"
+        elif cid.startswith("agent4_"):
+            event_label = "事件四"
+        elif cid.startswith("agent5_"):
+            event_label = "事件五"
+        else:
+            event_label = "未知來源"
+
+        # 將「封包長度欄位」改成顯示來源事件名稱
+        row["payload_len"] = event_label
+
+        # === 處理 payload ===
         payload_raw = parsed.get("payload") or parsed.get("os") or parsed.get("data")
         if payload_raw:
             payload_bytes = str(payload_raw).encode("utf-8", errors="ignore")
             row["payload_sha256"] = sha256(payload_bytes).hexdigest()
-            row["payload_len"] = len(payload_bytes)
-            row["payload_sample"] = str(payload_raw)[:80] + ("..." if len(str(payload_raw)) > 80 else "")
+            row["payload_sample"] = str(payload_raw)[:200] + ("..." if len(str(payload_raw)) > 200 else "")
     else:
+        # 非 JSON，直接存原始封包樣本
         row["payload_sha256"] = sha256(raw).hexdigest()
-        row["payload_sample"] = raw.decode("latin-1", errors="replace")[:80]
+        row["payload_sample"] = raw.decode("latin-1", errors="replace")[:200]
+        row["payload_len"] = "未知來源"
 
+    # ===== 寫入資料庫 =====
     try:
         with engine.begin() as conn:
             conn.execute(text("""
@@ -181,7 +205,7 @@ def report():
                 VALUES (:ts, :client_id, :ip_public, :ip_internal, :user_agent,
                         :vector, :payload_sha256, :payload_len, :payload_sample, :missed)
             """), row)
-        print(f"[Render] ✅ Insert success: {row['client_id']} {row['ip_public']}")
+        print(f"[Render] ✅ Insert success: {row['client_id']} ({row['payload_len']})")
     except Exception as e:
         print("[Render Error] DB insert failed:", e)
         return jsonify(ok=False, error=str(e)), 500
