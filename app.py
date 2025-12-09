@@ -136,16 +136,15 @@ def report():
     ip_public = request.headers.get("X-Forwarded-For") or request.remote_addr
     ua = request.headers.get("User-Agent", "")
     print("\n=== Received /report ===")
-    print("[Render DEBUG raw data]", raw[:200])  # 🔍 顯示前 200 bytes
+    print(raw[:200])
 
     parsed = None
     try:
         parsed = json.loads(raw.decode("utf-8", errors="ignore"))
-        print("[Render] ✅ JSON decoded OK")
+        print("[Render] JSON decoded OK")
     except Exception:
-        print("[Render] ❌ Not valid JSON format")
+        print("[Render] Non-JSON payload, will save as raw text")
 
-    src_label = "未知來源"
     row = {
         "ts": now,
         "client_id": "",
@@ -154,51 +153,38 @@ def report():
         "user_agent": ua,
         "vector": "relay",
         "payload_sha256": None,
-        "payload_len": src_label,
+        "payload_len": len(raw),
         "payload_sample": None,
         "missed": 1
     }
 
     if isinstance(parsed, dict):
-        row["client_id"] = parsed.get("client_id") or ""
-        row["ip_public"] = parsed.get("ip_public") or ip_public
-        row["ip_internal"] = parsed.get("ip_internal") or ""
-        row["vector"] = parsed.get("vector") or "relay"
-
-        cid = str(row["client_id"]).lower()
-        if "agent10" in cid:
-            src_label = "事件十"
-        elif "agent3" in cid:
-            src_label = "事件三"
-        elif "agent2" in cid:
-            src_label = "事件二"
-        elif "agent" in cid:
-            src_label = "事件一"
-        else:
-            src_label = "未知來源"
-
-        row["payload_len"] = src_label  # 直接放事件名稱顯示
-
+        row["client_id"] = parsed.get("client_id") or parsed.get("name") or ""
+        row["ip_public"] = parsed.get("ip_public") or parsed.get("public_ip") or ip_public
+        row["ip_internal"] = parsed.get("ip_internal") or parsed.get("ip") or ""
+        row["vector"] = parsed.get("vector") or parsed.get("type") or "relay"
         payload_raw = parsed.get("payload") or parsed.get("os") or parsed.get("data")
         if payload_raw:
             payload_bytes = str(payload_raw).encode("utf-8", errors="ignore")
             row["payload_sha256"] = sha256(payload_bytes).hexdigest()
-            row["payload_sample"] = str(payload_raw)[:80]
-
+            row["payload_len"] = len(payload_bytes)
+            row["payload_sample"] = str(payload_raw)[:80] + ("..." if len(str(payload_raw)) > 80 else "")
     else:
         row["payload_sha256"] = sha256(raw).hexdigest()
         row["payload_sample"] = raw.decode("latin-1", errors="replace")[:80]
 
-    print(f"[Render DEBUG] client_id={row['client_id']} → {src_label}")
-
-    # === 寫入資料庫 ===
-    with engine.begin() as conn:
-        conn.execute(text("""
-            INSERT INTO events (ts, client_id, ip_public, ip_internal, user_agent,
-                                vector, payload_sha256, payload_len, payload_sample, missed)
-            VALUES (:ts, :client_id, :ip_public, :ip_internal, :user_agent,
-                    :vector, :payload_sha256, :payload_len, :payload_sample, :missed)
-        """), row)
+    try:
+        with engine.begin() as conn:
+            conn.execute(text("""
+                INSERT INTO events (ts, client_id, ip_public, ip_internal, user_agent,
+                                    vector, payload_sha256, payload_len, payload_sample, missed)
+                VALUES (:ts, :client_id, :ip_public, :ip_internal, :user_agent,
+                        :vector, :payload_sha256, :payload_len, :payload_sample, :missed)
+            """), row)
+        print(f"[Render] ✅ Insert success: {row['client_id']} {row['ip_public']}")
+    except Exception as e:
+        print("[Render Error] DB insert failed:", e)
+        return jsonify(ok=False, error=str(e)), 500
 
     return jsonify(ok=True, ts=now.isoformat() + "Z")
 
