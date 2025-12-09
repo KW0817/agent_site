@@ -136,19 +136,16 @@ def report():
     ip_public = request.headers.get("X-Forwarded-For") or request.remote_addr
     ua = request.headers.get("User-Agent", "")
     print("\n=== Received /report ===")
-    print(raw[:200])
+    print("[Render DEBUG raw data]", raw[:200])  # 🔍 顯示前 200 bytes
 
     parsed = None
     try:
         parsed = json.loads(raw.decode("utf-8", errors="ignore"))
-        print("[Render] JSON decoded OK")
+        print("[Render] ✅ JSON decoded OK")
     except Exception:
-        print("[Render] Non-JSON payload, will save as raw text")
+        print("[Render] ❌ Not valid JSON format")
 
-    # === 預設來源 ===
     src_label = "未知來源"
-
-    # === 基本欄位 ===
     row = {
         "ts": now,
         "client_id": "",
@@ -157,57 +154,51 @@ def report():
         "user_agent": ua,
         "vector": "relay",
         "payload_sha256": None,
-        "payload_len": src_label,   # ← 我們暫時先放來源標籤
+        "payload_len": src_label,
         "payload_sample": None,
         "missed": 1
     }
 
-    # === 若為 JSON 則提取資料 ===
     if isinstance(parsed, dict):
-        row["client_id"] = parsed.get("client_id") or parsed.get("name") or ""
-        row["ip_public"] = parsed.get("ip_public") or parsed.get("public_ip") or ip_public
-        row["ip_internal"] = parsed.get("ip_internal") or parsed.get("ip") or ""
-        row["vector"] = parsed.get("vector") or parsed.get("type") or "relay"
+        row["client_id"] = parsed.get("client_id") or ""
+        row["ip_public"] = parsed.get("ip_public") or ip_public
+        row["ip_internal"] = parsed.get("ip_internal") or ""
+        row["vector"] = parsed.get("vector") or "relay"
 
-        # 🟢 根據 client_id 判斷是哪一支 agent
         cid = str(row["client_id"]).lower()
-        if "agent3" in cid:
+        if "agent10" in cid:
+            src_label = "事件十"
+        elif "agent3" in cid:
             src_label = "事件三"
-        if "agent2" in cid:
+        elif "agent2" in cid:
             src_label = "事件二"
         elif "agent" in cid:
             src_label = "事件一"
         else:
             src_label = "未知來源"
 
-        # 🟢 更新 payload_len 內容成來源標籤
-        row["payload_len"] = src_label
+        row["payload_len"] = src_label  # 直接放事件名稱顯示
 
-        # 處理 payload
         payload_raw = parsed.get("payload") or parsed.get("os") or parsed.get("data")
         if payload_raw:
             payload_bytes = str(payload_raw).encode("utf-8", errors="ignore")
             row["payload_sha256"] = sha256(payload_bytes).hexdigest()
-            row["payload_sample"] = str(payload_raw) + ("..." if len(str(payload_raw)) > 80 else "")
+            row["payload_sample"] = str(payload_raw)[:80]
+
     else:
-        # 非 JSON，直接存原始封包樣本
         row["payload_sha256"] = sha256(raw).hexdigest()
-        row["payload_sample"] = raw.decode("latin-1", errors="replace")
-        row["payload_len"] = "未知來源"
+        row["payload_sample"] = raw.decode("latin-1", errors="replace")[:80]
+
+    print(f"[Render DEBUG] client_id={row['client_id']} → {src_label}")
 
     # === 寫入資料庫 ===
-    try:
-        with engine.begin() as conn:
-            conn.execute(text("""
-                INSERT INTO events (ts, client_id, ip_public, ip_internal, user_agent,
-                                    vector, payload_sha256, payload_len, payload_sample, missed)
-                VALUES (:ts, :client_id, :ip_public, :ip_internal, :user_agent,
-                        :vector, :payload_sha256, :payload_len, :payload_sample, :missed)
-            """), row)
-        print(f"[Render] ✅ Insert success: {row['client_id']} 來源={src_label}")
-    except Exception as e:
-        print("[Render Error] DB insert failed:", e)
-        return jsonify(ok=False, error=str(e)), 500
+    with engine.begin() as conn:
+        conn.execute(text("""
+            INSERT INTO events (ts, client_id, ip_public, ip_internal, user_agent,
+                                vector, payload_sha256, payload_len, payload_sample, missed)
+            VALUES (:ts, :client_id, :ip_public, :ip_internal, :user_agent,
+                    :vector, :payload_sha256, :payload_len, :payload_sample, :missed)
+        """), row)
 
     return jsonify(ok=True, ts=now.isoformat() + "Z")
 
